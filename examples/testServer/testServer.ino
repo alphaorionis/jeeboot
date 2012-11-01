@@ -1,5 +1,5 @@
 /// @dir testServer
-/// Test server for over-the-air bootstrap nodes, sends different blink sketches.
+/// Test server for over-the-air updating nodes, sends different blink sketches.
 // 2012-10-24 <jcw@equi4.com> http://opensource.org/licenses/mit-license.php
 
 #include <JeeLib.h>
