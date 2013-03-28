@@ -8,8 +8,13 @@ void setup () {
   DDRB |= 1 << 1;
 }
 
-void loop () {
+static void toggleWait (long cycles) {
   PINB = 1 << 1;
-  for (long i = 0; i < 100000 && !dummy; ++i)
+  while (--cycles >= 0 && !dummy)
     ;
+}
+
+void loop () {
+  toggleWait(100000);
+  toggleWait(100000);
 }

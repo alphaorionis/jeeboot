@@ -1,5 +1,5 @@
-/// @dir testBlink1
-/// Slow blink, test app for over-the-air uploading.
+/// @dir testBlink3
+/// Double blink, test app for over-the-air uploading.
 // 2012-10-01 <jc@wippler.nl> http://opensource.org/licenses/mit-license.php
 
 volatile char dummy;
@@ -15,6 +15,8 @@ static void toggleWait (long cycles) {
 }
 
 void loop () {
+  toggleWait(100000);
+  toggleWait(100000);
   toggleWait(100000);
   toggleWait(500000);
 }
