@@ -7,6 +7,23 @@
 #include <stdint.h>
 #include <util/crc16.h>
 
+#if defined(__AVR_ATtiny84__) || defined(__AVR_ATtiny44__)
+
+#define RFM_IRQ_BIT     1
+#define RFM_IRQ_DDR     DDRB
+#define RFM_IRQ_PIN     PINB
+#define RFM_IRQ_PORT    PORTB
+
+#else 
+
+// ATmega168, ATmega328, etc.
+#define RFM_IRQ_BIT     2
+#define RFM_IRQ_DDR     DDRD
+#define RFM_IRQ_PIN     PIND
+#define RFM_IRQ_PORT    PORTD
+
+#endif
+
 // version 1 did not include the group code in the crc
 // version 2 does include the group code in the crc
 #define RF12_VERSION    2
@@ -255,7 +272,7 @@ static void rf12_recvStart () {
 
 static uint8_t rf12_recvDone () {
     // if (digitalRead(RFM_IRQ) == 0)
-    if (bitRead(PIND, 2) == 0)
+    if (bitRead(RFM_IRQ_PIN, RFM_IRQ_BIT) == 0)
         rf12_interrupt();
         
     if (rxstate == TXRECV && (rxfill >= rf12_len + 5 || rxfill >= RF_MAX)) {
@@ -314,8 +331,8 @@ static void rf12_initialize (uint8_t id, uint8_t band, uint8_t g) {
     
     // pinMode(RFM_IRQ, INPUT);
     // digitalWrite(RFM_IRQ, 1); // pull-up
-    bitClear(DDRD, 2);
-    bitSet(PORTD, 2);
+    bitClear(RFM_IRQ_DDR, RFM_IRQ_BIT);
+    bitSet(RFM_IRQ_PORT, RFM_IRQ_BIT);
 
     rf12_xfer(0x0000); // intitial SPI transfer added to avoid power-up problem
 
@@ -324,7 +341,7 @@ static void rf12_initialize (uint8_t id, uint8_t band, uint8_t g) {
     // wait until RFM12B is out of power-up reset, this takes several *seconds*
     rf12_xfer(RF_TXREG_WRITE); // in case we're still in OOK mode
     // while (digitalRead(RFM_IRQ) == 0)
-    while (bitRead(PIND, 2) == 0)
+    while (bitRead(RFM_IRQ_PIN, RFM_IRQ_BIT) == 0)
         rf12_xfer(0x0000);
         
     rf12_xfer(0x80C7 | (band << 4)); // EL (ena TX), EF (ena RX FIFO), 12.0pF 

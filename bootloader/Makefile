@@ -47,6 +47,12 @@ atmega328_isp: LFUSE = 4E
 atmega328_isp: EFUSE = 06
 atmega328_isp: isp
 
+attiny84: MCU_TARGET = attiny84
+attiny84: TARGET = attiny84
+attiny84: AVR_FREQ = 800000L
+attiny84: LDSECTION = --section-start=.text=0x1800
+attiny84: $(PROGRAM)_attiny84.hex $(PROGRAM)_attiny84.lst
+
 isp: $(TARGET)
 	$(ISPFUSES)
 	$(ISPFLASH)

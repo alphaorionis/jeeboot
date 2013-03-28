@@ -1,6 +1,5 @@
 // JeeBoot - Over-the-air RFM12B self-updater for ATmega (boot loader code)
 // 2012-11-01 <jcw@equi4.com> http://opensource.org/licenses/mit-license.php
-// $Id: $
 
 #include <avr/boot.h>
 #include <avr/eeprom.h>
@@ -67,8 +66,8 @@ static byte validSketch () {
 
 // see http://www.nongnu.org/avr-libc/user-manual/group__avr__boot.html
 static void boot_program_page (uint32_t page, byte *buf) {
-  byte sreg = SREG;
-  cli();
+  // byte sreg = SREG;
+  // cli();
 
   eeprom_busy_wait ();
 
@@ -84,14 +83,14 @@ static void boot_program_page (uint32_t page, byte *buf) {
   boot_page_write (page);     // Store buffer in flash page.
   boot_spm_busy_wait();       // Wait until the memory is written.
 
+#ifdef RWWSRE
   // Reenable RWW-section again. We need this if we want to jump back
   // to the application after bootloading.
-
   boot_rww_enable ();
+#endif
 
   // Re-enable interrupts (if they were ever enabled).
-
-  SREG = sreg;
+  // SREG = sreg;
 }
 
 static byte sendPacket (const void* buf, byte len) {

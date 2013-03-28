@@ -1,4 +1,4 @@
-// JeeBoot - Over-the-air RFM12B self-updater for ATmega (startup code)
+/// JeeBoot - Over-the-air RFM12B self-updater for ATmega (startup code)
 // 2012-11-01 <jcw@equi4.com> http://opensource.org/licenses/mit-license.php
 
 #include <stdint.h>
