@@ -12,7 +12,7 @@
 #include <util/crc16.h>
   
 #define MEGA 1    // 0 for ATtiny programming
-#define DEBUG 1
+#define DEBUG 0
 
 // pin definitions
 #define PIN_SCK   14  // AIO1
@@ -30,11 +30,11 @@
 #define STK_NOSYNC  '\x15'
 #define CRC_EOP     '\x20' //ok it is a space...
 
-int here;         // word address for reading and writing, set by 'U' command
-byte data[256];   // global block storage
-word crcTotal;    // total CRC over entire sketch
+int here;           // word address for reading and writing, set by 'U' command
+byte pageBuf[256];  // global block storage
+word crcTotal;      // total CRC over entire sketch
 
-// access to the 128 kbyte on-board EEPROM memory
+// access to the 128 kbyte on-board EEPROM memory on port 3
 PortI2C i2cBus (3);
 MemoryPlug mem (i2cBus);
 
@@ -58,8 +58,17 @@ struct {
   // long flashsize;
 } param;
 
+#if MEGA
+  // atmega328p
+  const char sigBytes[] = { 0x1E, 0x95, 0x0F };
+#else
+  // attiny84
+  const char sigBytes[] = { 0x1E, 0x93, 0x0C };
+#endif
+  
+
 static byte getch() {
-  for (word i = 0; i < 10000; ++i)
+  for (word i = 0; i < 50000; ++i)
     if (Serial.available())
       break;
   return Serial.read();
@@ -75,17 +84,17 @@ static void putch(char c) {
 
 static void readbytes(int n) {
   for (byte x = 0; x < n; x++)
-    data[x] = getch();
+    pageBuf[x] = getch();
 }
 
-static word calcTotalCRC (word bytes, word psize) {
-  word crc = ~0;
-  for (word pos = 0; pos < bytes; pos += psize) {
-    mem.load(pos / psize, data, 0, psize);
-    for (word i = 0; i < psize; ++i)
-      crc = _crc16_update(crc, data[i]);
+static void calcTotalCRC () {
+  word bytes = ((here * 2 + 63) / 64) * 64;
+  crcTotal = ~0;
+  for (word pos = 0; pos < here * 2; pos += param.pagesize) {
+    mem.load(pos / param.pagesize, 0, pageBuf, param.pagesize);
+    for (word i = 0; i < param.pagesize; ++i)
+      crcTotal = _crc16_update(crcTotal, pageBuf[i]);
   }
-  return crc;
 }
 
 static void spi_init() {
@@ -154,16 +163,16 @@ static void get_version(byte c) {
 }
 
 static void set_parameters() {
-  // call this after reading parameter packet into data[]
-  memcpy(&param, data, 9);
+  // call this after reading parameter packet into pageBuf[]
+  memcpy(&param, pageBuf, 9);
   // following fields are big endian
-  param.eeprompoll = data[10] * 0x0100 + data[11];
-  param.pagesize = data[12] * 0x0100 + data[13];
+  param.eeprompoll = pageBuf[10] * 0x0100 + pageBuf[11];
+  param.pagesize = pageBuf[12] * 0x0100 + pageBuf[13];
   // not used in this code:
-  // param.eepromsize = data[14] * 0x0100 + data[15];
-  // param.flashsize = data[16] * 0x01000000L + data[17] * 0x00010000L +
-  //             data[18] * 0x00000100 + data[19];
-  mem.save(257, &param, 0, sizeof param);
+  // param.eepromsize = pageBuf[14] * 0x0100 + pageBuf[15];
+  // param.flashsize = pageBuf[16] * 0x01000000L + pageBuf[17] * 0x00010000L +
+  //             pageBuf[18] * 0x00000100 + pageBuf[19];
+  mem.save(257, 0, &param, sizeof param);
 }
 
 static void start_pmode() {
@@ -196,10 +205,10 @@ static void flash(byte hilo, int addr, byte value) {
 }
 
 static void write_flash (word addr) {
-  mem.load(addr / (param.pagesize >> 1), data, 0, param.pagesize);
+  mem.load(addr / (param.pagesize >> 1), 0, pageBuf, param.pagesize);
   for (word x = 0; x < param.pagesize; x += 2) {
-    flash(LOW, addr, data[x]);
-    flash(HIGH, addr, data[x+1]);
+    flash(LOW, addr, pageBuf[x]);
+    flash(HIGH, addr, pageBuf[x+1]);
   }
   spi_transaction_wait(0x4C, addr >> 8, addr, 0);
 }
@@ -207,14 +216,14 @@ static void write_flash (word addr) {
 static void program_page() {
   char result = STK_FAILED;
   word length = getWord();
-  if (length <= 256) {
+  if (length <= sizeof pageBuf) {
     char memtype = getch();
     readbytes(length);
     if (getch() == CRC_EOP) {
       putch(STK_INSYNC);
       if (memtype == 'F') {
-        mem.save(here / (param.pagesize >> 1), data, 0, length);
-        mem.save(256, &here, 0, sizeof here);
+        mem.save(here / (param.pagesize >> 1), 0, pageBuf, length);
+        mem.save(256, 0, &here, sizeof here);
         result = STK_OK;
       }
     } else
@@ -227,13 +236,13 @@ static void read_page() {
   char result = STK_FAILED;
   word length = getWord();
   char memtype = getch();
-  if (getch() == CRC_EOP) {
+  if (getch() == CRC_EOP && length <= sizeof pageBuf) {
     putch(STK_INSYNC);
     if (memtype == 'F') {
-      mem.load(here / (param.pagesize >> 1), data, 0, length);
+      mem.load(here / (param.pagesize >> 1), 0, pageBuf, length);
       for (int x = 0; x < length; x += 2) {
-        putch(data[x]);
-        putch(data[x+1]);
+        putch(pageBuf[x]);
+        putch(pageBuf[x+1]);
         here++;
       }
       result = STK_OK;
@@ -249,18 +258,31 @@ static void read_signature() {
     // putch(spi_transaction(0x30, 0x00, 0x00, 0x00));
     // putch(spi_transaction(0x30, 0x00, 0x01, 0x00));
     // putch(spi_transaction(0x30, 0x00, 0x02, 0x00));
-#if MEGA
-    putch(0x1E);
-    putch(0x95);
-    putch(0x0F);
-#else
-    putch(0x1E);
-    putch(0x93);
-    putch(0x0C);
-#endif
+    putch(sigBytes[0]);
+    putch(sigBytes[1]);
+    putch(sigBytes[2]);
     putch(STK_OK);
   } else
     putch(STK_NOSYNC);
+}
+
+static byte fake_spi (byte a, byte b, byte c, byte d) {
+  // Read Lock bits          $58 $00 $00 data byte out
+  // Read Signature Byte     $30 $00 0000 000aa data byte out
+  // Read Fuse bits          $50 $00 $00 data byte out
+  // Read Fuse High bits     $58 $08 $00 data byte out
+  // Read Extended Fuse Bits $50 $08 $00 data byte out
+  switch (a) {
+    case 0x58:
+      if (b == 0x00)
+        return 0xFF; // lock bits
+      else
+        return 0xFF; // fuse high
+    case 0x50:
+      return 0xFF; // fuse low
+    case 0x30: // signature
+      return sigBytes[c];
+  }
 }
 
 static int avrisp() { 
@@ -314,13 +336,12 @@ static int avrisp() {
       break;
     case 'V':
       readbytes(4);
-      // breply(spi_transaction_wait(data[0], data[1], data[2], data[3]));
-      breply(0);
+      breply(fake_spi(pageBuf[0], pageBuf[1], pageBuf[2], pageBuf[3]));
       break;
     case 'Q':
       // end_pmode();
       empty_reply();
-      crcTotal = calcTotalCRC(here * 2, param.pagesize);
+      calcTotalCRC();
       break;
     case 'u': //STK_READ_SIGN
       read_signature();
@@ -378,16 +399,22 @@ static void sendReply (const void* ptr, byte len) {
 }
 
 static void initialRequest (word rid) {
-#if DEBUG 
+// #if DEBUG 
   Serial.print("ir ");
   Serial.println(rid);
-#endif
+  Serial.print("h ");
+  Serial.println(here);
+  Serial.print("ps ");
+  Serial.println(param.pagesize);
+  Serial.print("crc ");
+  Serial.println(crcTotal);
+// #endif
 
   bootReply.remoteID = 0;
-  bootReply.sketchBlocks = (here * 2) / 64;
+  bootReply.sketchBlocks = (here * 2 + 63) / 64;
   bootReply.sketchCRC = crcTotal;
     
-#if DEBUG 
+// #if DEBUG 
   Serial.print(" -> ack ");
   Serial.println(bootReply.sketchBlocks, DEC);
   
@@ -397,7 +424,7 @@ static void initialRequest (word rid) {
       Serial.print(((byte*) &bootReply)[i], HEX);
   }
   Serial.println();
-#endif
+// #endif
       
   sendReply(&bootReply, sizeof bootReply);
 }
@@ -406,7 +433,7 @@ static void dataRequest (word rid, word blk) {
   dataReply.info = blk ^ rid;
   word pos = 64 * blk;
        
-#if DEBUG 
+// #if DEBUG 
   Serial.print("dr ");
   Serial.print(rid);
   Serial.print(" # ");
@@ -414,10 +441,17 @@ static void dataRequest (word rid, word blk) {
   Serial.print(" -> ");
   Serial.print(dataReply.info);
   Serial.print(" @ ");
-  Serial.println(pos);
-#endif
+  Serial.print(pos);
+
+  Serial.print("  send:");
+  for (byte i = 0; i < sizeof bootReply && i < 10; ++i) {
+      Serial.print(' ');
+      Serial.print(((byte*) &bootReply)[i], HEX);
+  }
+  Serial.println();
+// #endif
     
-  mem.load(pos / param.pagesize, dataReply.data, pos % param.pagesize, 64);
+  mem.load(pos / param.pagesize, pos % param.pagesize, dataReply.data, 64);
   sendReply(&dataReply, sizeof dataReply);
 }
 
@@ -434,10 +468,19 @@ void setup() {
 
   rf12_initialize(1, RF12_868MHZ, 254);
 
-  mem.load(256, &here, 0, sizeof here);
-  mem.load(257, &param, 0, sizeof param);
+  mem.load(256, 0, &here, sizeof here);
+  mem.load(257, 0, &param, sizeof param);
   // pre-compute this for ota boot loader ack, as it could take a little time
-  crcTotal = calcTotalCRC(here * 2, param.pagesize);
+  calcTotalCRC();
+
+// #if DEBUG 
+  Serial.print("h ");
+  Serial.println(here);
+  Serial.print("ps ");
+  Serial.println(param.pagesize);
+  Serial.print("crc ");
+  Serial.println(crcTotal);
+// #endif
 }
 
 void loop(void) {
@@ -448,6 +491,7 @@ void loop(void) {
     programmer();
 
   if (rf12_recvDone() && rf12_crc == 0 && RF12_WANTS_ACK) {
+    Serial.println("h ");
     digitalWrite(LED_PMODE, 0); 
     const word* args = (const word*) rf12_data;
     if (rf12_len == 2)
