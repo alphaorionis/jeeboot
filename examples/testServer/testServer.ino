@@ -9,6 +9,8 @@
 
 #include "data_blinks.h"
 
+#define DEBUG 1
+
 BootReply bootReply;
 DataReply dataReply;
 
@@ -37,9 +39,6 @@ static void sendReply (const void* ptr, byte len) {
 }
 
 static void initialRequest (word rid) {
-    // Serial.print("ir ");
-    // Serial.println(rid);
-
     sectNum = 1 - sectNum; // send a different sketch out each time
 
     bootReply.remoteID = 0;
@@ -47,32 +46,50 @@ static void initialRequest (word rid) {
     word len = 64 * bootReply.sketchBlocks;
     bootReply.sketchCRC = calcCRCrom(progdata + sections[sectNum].off, len);
     
-    // Serial.print(" -> ack ");
-    // Serial.println(bootReply.sketchBlocks, DEC);
-    //
-    // Serial.print("  send:");
-    // for (byte i = 0; i < sizeof bootReply; ++i) {
-    //     Serial.print(' ');
-    //     Serial.print(((byte*) &bootReply)[i], HEX);
-    // }
-    // Serial.println();
+#if DEBUG        
+    Serial.print("ir ");
+    Serial.print(rid);
+    Serial.print(" sb ");
+    Serial.print(bootReply.sketchBlocks);
+    Serial.print(" crc ");
+    Serial.println(bootReply.sketchCRC);
+    Serial.flush();
+#endif
+
+#if DEBUG > 1
+    Serial.print(" -> ack ");
+    Serial.println(bootReply.sketchBlocks, DEC);
     
+    Serial.print("  send:");
+    for (byte i = 0; i < sizeof bootReply; ++i) {
+        Serial.print(' ');
+        Serial.print(((byte*) &bootReply)[i], HEX);
+    }
+    Serial.println();
+#endif
+        
     sendReply(&bootReply, sizeof bootReply);
 }
 
 static void dataRequest (word rid, word blk) {
     dataReply.info = blk ^ rid;
     word pos = 64 * blk;
-        
-    // Serial.print("dr ");
-    // Serial.print(rid);
-    // Serial.print(" # ");
-    // Serial.print(blk);
-    // Serial.print(" -> ");
-    // Serial.print(dataReply.info);
-    // Serial.print(" @ ");
-    // Serial.println(pos);
 
+#if DEBUG        
+    Serial.print("dr ");
+    Serial.print(rid);
+    Serial.print(" # ");
+    Serial.print(blk);
+#if DEBUG > 1
+    Serial.print(" -> ");
+    Serial.print(dataReply.info);
+    Serial.print(" @ ");
+    Serial.print(pos);
+#endif
+    Serial.println();
+    Serial.flush();
+#endif
+    
     for (byte i = 0; i < 64; ++i) {
         byte d = pgm_read_byte(progdata + sections[sectNum].off + pos + i);
         dataReply.data[i] = d; // ^ ...
@@ -82,8 +99,10 @@ static void dataRequest (word rid, word blk) {
 }
 
 void setup () {
-    // Serial.begin(57600);
-    // Serial.println("\n[testServer]");
+#if DEBUG        
+    Serial.begin(57600);
+    Serial.println("\n[testServer]");
+#endif
     rf12_initialize(1, RF12_868MHZ, 254);
 }
 

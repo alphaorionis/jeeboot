@@ -12,7 +12,7 @@
 #include <util/crc16.h>
   
 #define MEGA 1    // 0 for ATtiny programming
-#define DEBUG 0
+#define DEBUG 2
 
 // pin definitions
 #define PIN_SCK   14  // AIO1
@@ -30,7 +30,7 @@
 #define STK_NOSYNC  '\x15'
 #define CRC_EOP     '\x20' //ok it is a space...
 
-int here;           // word address for reading and writing, set by 'U' command
+word here;          // word address for reading and writing, set by 'U' command
 byte pageBuf[256];  // global block storage
 word crcTotal;      // total CRC over entire sketch
 
@@ -58,14 +58,13 @@ struct {
   // long flashsize;
 } param;
 
+const char sigBytes[] = {
 #if MEGA
-  // atmega328p
-  const char sigBytes[] = { 0x1E, 0x95, 0x0F };
+  0x1E, 0x95, 0x0F // atmega328p
 #else
-  // attiny84
-  const char sigBytes[] = { 0x1E, 0x93, 0x0C };
+  0x1E, 0x93, 0x0C // attiny84
 #endif
-  
+};
 
 static byte getch() {
   for (word i = 0; i < 50000; ++i)
@@ -90,7 +89,7 @@ static void readbytes(int n) {
 static void calcTotalCRC () {
   word bytes = ((here * 2 + 63) / 64) * 64;
   crcTotal = ~0;
-  for (word pos = 0; pos < here * 2; pos += param.pagesize) {
+  for (word pos = 0; pos / 2 < here; pos += param.pagesize) {
     mem.load(pos / param.pagesize, 0, pageBuf, param.pagesize);
     for (word i = 0; i < param.pagesize; ++i)
       crcTotal = _crc16_update(crcTotal, pageBuf[i]);
@@ -358,6 +357,7 @@ static int avrisp() {
 }
 
 static void programmer () {
+  Serial.print("\nprogram: ");
   start_pmode();
 
   Serial.print(here);
@@ -391,68 +391,71 @@ static void programmer () {
 }
 
 static void sendReply (const void* ptr, byte len) {
-  // bitSet(DDRB, 1);
-  // bitClear(PORTB, 1);
+  // Serial.flush(); // FIXME needed to work around a bug (!?)
   rf12_sendNow(RF12_ACK_REPLY, ptr, len);
   rf12_sendWait(2);
-  // bitSet(PORTB, 1);
 }
 
 static void initialRequest (word rid) {
-// #if DEBUG 
+  bootReply.remoteID = 0;
+  bootReply.sketchBlocks = (here * 2 + 63) / 64;
+  bootReply.sketchCRC = crcTotal;
+      
+  sendReply(&bootReply, sizeof bootReply);
+    
+#if DEBUG 
   Serial.print("ir ");
   Serial.println(rid);
+#if DEBUG > 1
   Serial.print("h ");
   Serial.println(here);
   Serial.print("ps ");
   Serial.println(param.pagesize);
   Serial.print("crc ");
   Serial.println(crcTotal);
-// #endif
-
-  bootReply.remoteID = 0;
-  bootReply.sketchBlocks = (here * 2 + 63) / 64;
-  bootReply.sketchCRC = crcTotal;
-    
-// #if DEBUG 
   Serial.print(" -> ack ");
   Serial.println(bootReply.sketchBlocks, DEC);
-  
+#endif
+#if DEBUG > 2
   Serial.print("  send:");
   for (byte i = 0; i < sizeof bootReply; ++i) {
       Serial.print(' ');
       Serial.print(((byte*) &bootReply)[i], HEX);
   }
   Serial.println();
-// #endif
-      
-  sendReply(&bootReply, sizeof bootReply);
+#endif
+  Serial.flush();
+#endif
 }
 
 static void dataRequest (word rid, word blk) {
   dataReply.info = blk ^ rid;
   word pos = 64 * blk;
+    
+  mem.load(pos / param.pagesize, pos % param.pagesize, dataReply.data, 64);
+  sendReply(&dataReply, sizeof dataReply);
        
-// #if DEBUG 
+#if DEBUG 
   Serial.print("dr ");
   Serial.print(rid);
   Serial.print(" # ");
   Serial.print(blk);
+#if DEBUG > 1
   Serial.print(" -> ");
   Serial.print(dataReply.info);
   Serial.print(" @ ");
   Serial.print(pos);
-
+#endif
+#if DEBUG > 2
   Serial.print("  send:");
-  for (byte i = 0; i < sizeof bootReply && i < 10; ++i) {
+  for (byte i = 0; i < 64; ++i) {
       Serial.print(' ');
-      Serial.print(((byte*) &bootReply)[i], HEX);
+      Serial.print(pageBuf[i], HEX);
   }
+#endif
   Serial.println();
-// #endif
-    
-  mem.load(pos / param.pagesize, pos % param.pagesize, dataReply.data, 64);
-  sendReply(&dataReply, sizeof dataReply);
+  Serial.flush();
+#endif
 }
 
 void setup() {
@@ -460,6 +463,9 @@ void setup() {
   Serial.begin(57600);
 #else
   Serial.begin(9600);
+#endif
+#if DEBUG 
+  Serial.println("\n[singleServer]");
 #endif
   pinMode(LED_PMODE, OUTPUT);
   pinMode(START_BTN, INPUT);
@@ -473,14 +479,27 @@ void setup() {
   // pre-compute this for ota boot loader ack, as it could take a little time
   calcTotalCRC();
 
-// #if DEBUG 
+#if DEBUG 
   Serial.print("h ");
   Serial.println(here);
   Serial.print("ps ");
   Serial.println(param.pagesize);
   Serial.print("crc ");
   Serial.println(crcTotal);
-// #endif
+#if DEBUG > 1
+  mem.load(0, 0, pageBuf, param.pagesize);
+  for (word i = 0; i < param.pagesize; ++i) {
+    if (i % 16 == 0)
+      Serial.println();
+    Serial.print(' ');
+    if (pageBuf[i] < 16)
+      Serial.print('0');
+    Serial.print(pageBuf[i], HEX);
+  }
+  Serial.println();
+#endif
+  Serial.flush();
+#endif
 }
 
 void loop(void) {
@@ -491,7 +510,6 @@ void loop(void) {
     programmer();
 
   if (rf12_recvDone() && rf12_crc == 0 && RF12_WANTS_ACK) {
-    Serial.println("h ");
     digitalWrite(LED_PMODE, 0); 
     const word* args = (const word*) rf12_data;
     if (rf12_len == 2)
