@@ -94,6 +94,7 @@ static void calcTotalCRC () {
     for (word i = 0; i < param.pagesize; ++i)
       crcTotal = _crc16_update(crcTotal, pageBuf[i]);
   }
+  mem.save(258, 0, &crcTotal, sizeof crcTotal);
 }
 
 static void spi_init() {
@@ -405,7 +406,11 @@ static void initialRequest (word rid) {
     
 #if DEBUG 
   Serial.print("ir ");
-  Serial.println(rid);
+  Serial.print(rid);
+  Serial.print(" sb ");
+  Serial.print(bootReply.sketchBlocks);
+  Serial.print(" crc ");
+  Serial.println(bootReply.sketchCRC);
 #if DEBUG > 1
   Serial.print("h ");
   Serial.println(here);
@@ -476,8 +481,7 @@ void setup() {
 
   mem.load(256, 0, &here, sizeof here);
   mem.load(257, 0, &param, sizeof param);
-  // pre-compute this for ota boot loader ack, as it could take a little time
-  calcTotalCRC();
+  mem.load(258, 0, &crcTotal, sizeof crcTotal);
 
 #if DEBUG 
   Serial.print("h ");
