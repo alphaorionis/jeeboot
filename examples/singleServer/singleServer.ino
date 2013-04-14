@@ -32,7 +32,6 @@
 
 word here;          // word address for reading and writing, set by 'U' command
 byte pageBuf[256];  // global block storage
-word crcTotal;      // total CRC over entire sketch
 
 // access to the 128 kbyte on-board EEPROM memory on port 3
 PortI2C i2cBus (3);
@@ -56,6 +55,8 @@ struct {
   // not used in this code:
   // int eepromsize;
   // long flashsize;
+  word blocks;    // number of 64-byte blocks to upload
+  word crcTotal;  // the CRC over all those blocks
 } param;
 
 const char sigBytes[] = {
@@ -87,14 +88,16 @@ static void readbytes(int n) {
 }
 
 static void calcTotalCRC () {
-  word bytes = ((here * 2 + 63) / 64) * 64;
-  crcTotal = ~0;
-  for (word pos = 0; pos / 2 < here; pos += param.pagesize) {
+  word blocks = (here + 31) / 32;
+  word crc = ~0;
+  for (word pos = 0; pos < blocks * 64; pos += param.pagesize) {
     mem.load(pos / param.pagesize, 0, pageBuf, param.pagesize);
-    for (word i = 0; i < param.pagesize; ++i)
-      crcTotal = _crc16_update(crcTotal, pageBuf[i]);
+    for (word i = 0; i < param.pagesize && pos + i < blocks * 64; ++i)
+      crc = _crc16_update(crc, pageBuf[i]);
   }
-  mem.save(258, 0, &crcTotal, sizeof crcTotal);
+  param.blocks = blocks;
+  param.crcTotal = crc;
+  mem.save(257, 0, &param, sizeof param);
 }
 
 static void spi_init() {
@@ -172,7 +175,6 @@ static void set_parameters() {
   // param.eepromsize = pageBuf[14] * 0x0100 + pageBuf[15];
   // param.flashsize = pageBuf[16] * 0x01000000L + pageBuf[17] * 0x00010000L +
   //             pageBuf[18] * 0x00000100 + pageBuf[19];
-  mem.save(257, 0, &param, sizeof param);
 }
 
 static void start_pmode() {
@@ -217,13 +219,13 @@ static void program_page() {
   char result = STK_FAILED;
   word length = getWord();
   if (length <= sizeof pageBuf) {
+    memset(pageBuf, 0xFF, param.pagesize);
     char memtype = getch();
     readbytes(length);
     if (getch() == CRC_EOP) {
       putch(STK_INSYNC);
       if (memtype == 'F') {
-        mem.save(here / (param.pagesize >> 1), 0, pageBuf, length);
-        mem.save(256, 0, &here, sizeof here);
+        mem.save(here / (param.pagesize >> 1), 0, pageBuf, param.pagesize);
         result = STK_OK;
       }
     } else
@@ -391,6 +393,20 @@ static void programmer () {
   delay(100);
 }
 
+static void dumpBytes (const void* ptr, word len) {
+  const char* data = (const char*) ptr;
+  for (word i = 0; i < len; ++i) {
+    if (i && i % 16 == 0)
+      Serial.println();
+    Serial.print(' ');
+    byte b = data[i];
+    if (b < 16)
+      Serial.print('0');
+    Serial.print(b, HEX);
+  }
+  Serial.println();
+}
+
 static void sendReply (const void* ptr, byte len) {
   // Serial.flush(); // FIXME needed to work around a bug (!?)
   rf12_sendNow(RF12_ACK_REPLY, ptr, len);
@@ -399,8 +415,8 @@ static void sendReply (const void* ptr, byte len) {
 
 static void initialRequest (word rid) {
   bootReply.remoteID = 0;
-  bootReply.sketchBlocks = (here * 2 + 63) / 64;
-  bootReply.sketchCRC = crcTotal;
+  bootReply.sketchBlocks = param.blocks;
+  bootReply.sketchCRC = param.crcTotal;
       
   sendReply(&bootReply, sizeof bootReply);
     
@@ -410,22 +426,20 @@ static void initialRequest (word rid) {
   Serial.print(" sb ");
   Serial.print(bootReply.sketchBlocks);
   Serial.print(" crc ");
-  Serial.println(bootReply.sketchCRC);
-#if DEBUG > 1
-  Serial.print("h ");
-  Serial.println(here);
-  Serial.print("ps ");
+  Serial.print(bootReply.sketchCRC);
+  Serial.print(" ps ");
   Serial.println(param.pagesize);
-  Serial.print("crc ");
-  Serial.println(crcTotal);
-  Serial.print(" -> ack ");
-  Serial.println(bootReply.sketchBlocks, DEC);
-#endif
+  Serial.println(" -> ack ");
 #if DEBUG > 2
   Serial.print("  send:");
   for (byte i = 0; i < sizeof bootReply; ++i) {
-      Serial.print(' ');
-      Serial.print(((byte*) &bootReply)[i], HEX);
+    if (i % 16 == 0)
+      Serial.println();
+    Serial.print(' ');
+    byte b = ((byte*) &bootReply)[i];
+    if (b < 16)
+      Serial.print('0');
+    Serial.print(b, HEX);
   }
   Serial.println();
 #endif
@@ -479,28 +493,19 @@ void setup() {
 
   rf12_initialize(1, RF12_868MHZ, 254);
 
-  mem.load(256, 0, &here, sizeof here);
   mem.load(257, 0, &param, sizeof param);
-  mem.load(258, 0, &crcTotal, sizeof crcTotal);
+  here = param.blocks * 32;
 
 #if DEBUG 
   Serial.print("h ");
-  Serial.println(here);
-  Serial.print("ps ");
-  Serial.println(param.pagesize);
-  Serial.print("crc ");
-  Serial.println(crcTotal);
+  Serial.print(here);
+  Serial.print(" ps ");
+  Serial.print(param.pagesize);
+  Serial.print(" crc ");
+  Serial.println(param.crcTotal);
 #if DEBUG > 1
   mem.load(0, 0, pageBuf, param.pagesize);
-  for (word i = 0; i < param.pagesize; ++i) {
-    if (i % 16 == 0)
-      Serial.println();
-    Serial.print(' ');
-    if (pageBuf[i] < 16)
-      Serial.print('0');
-    Serial.print(pageBuf[i], HEX);
-  }
-  Serial.println();
+  dumpBytes(pageBuf, param.pagesize);
 #endif
   Serial.flush();
 #endif
@@ -510,8 +515,12 @@ void loop(void) {
   if (Serial.available())
     avrisp();
 
-  if (digitalRead(START_BTN) == 0)
+  if (digitalRead(START_BTN) == 0) {
+#if DEBUG
+    Serial.begin(57600);
+#endif
     programmer();
+  }
 
   if (rf12_recvDone() && rf12_crc == 0 && RF12_WANTS_ACK) {
     digitalWrite(LED_PMODE, 0); 

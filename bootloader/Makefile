@@ -7,7 +7,8 @@
 PROGRAM = ota_boot
 
 # enter the parameters for the avrdude isp tool
-ISP_ARGS = -c stk500v2 -p usb -b 115200
+# ISP_ARGS = -c stk500v2 -p usb -b 115200
+ISP_ARGS = -c stk500v1 -p usb -b 57600
 
 ISPFUSES = avrdude -c $(ISP_ARGS) -p $(MCU_TARGET) \
  -e -u -U lock:w:0x3f:m -qq \
