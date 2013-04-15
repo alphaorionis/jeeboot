@@ -19,6 +19,9 @@ typedef uint16_t word;
 
 #include "ota_boot.h"
 
+/* The main function is in init9, which removes the interrupt vector table */
+/* we don't need. It is also 'naked', which means the compiler does not    */
+/* generate any entry or exit code itself. */
 int main(void) __attribute__ ((naked)) __attribute__ ((section (".init9")));
 
 volatile char dummy;
@@ -52,7 +55,7 @@ int main () {
     // (not as low-power as power down, but doesn't need watchdog interrupts)
     if (++backoff > 10)
       backoff = 0; // limit the backoff, reset to retry quickly after a while
-    // here we go: slow down, waste some processor cyles, and speed up again
+    // here we go: slow down, waste some processor cycles, and speed up again
     // this has a total cycle time of a few hours, as determined empirically
     // (using a boot server which deliberately replies with a bad remote ID)
     clock_prescale_set(clock_div_256);

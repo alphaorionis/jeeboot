@@ -22,15 +22,15 @@ struct Config {
   byte spare [3];
   word remoteID;          // these must be same as struct BootReply
   word sketchBlocks;      // ... with same three items
-  word sketchCRC;         // ... and in sme order
+  word sketchCRC;         // ... and in same order
   byte psk [16];
   word crc;               // must be last
 } config;
 
 struct BootReply {
-  word remoteID;
-  word sketchBlocks;
-  word sketchCRC;
+  word remoteID;          // these must be the same as in struct Config
+  word sketchBlocks;      // ... with the same three items
+  word sketchCRC;         // ... and in the same order
 };
 
 struct DataRequest {
