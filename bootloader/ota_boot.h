@@ -162,7 +162,7 @@ static byte run () {
             break;
         }
         if (--attempts == 0)
-          return 3; // too many failed attempts to get the next data block
+          return 103; // too many failed attempts to get the next data block
       }
 
       // save recv'd data, currently only works for a page size of 128 bytes    
@@ -176,7 +176,7 @@ static byte run () {
   }
 
   if (!validSketch())
-    return 4; // the sketch doesn't qualify as a valid one
+    return 104; // the sketch doesn't qualify as a valid one
 
   return config.revision;
 }
