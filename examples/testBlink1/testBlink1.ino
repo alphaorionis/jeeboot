@@ -15,6 +15,5 @@ static void toggleWait (long cycles) {
 }
 
 void loop () {
-  toggleWait(100000);
-  toggleWait(500000);
+  toggleWait(300000);
 }

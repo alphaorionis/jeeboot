@@ -5,6 +5,10 @@
 # To burn bootloader .hex file:		make atmega328_isp
 
 PROGRAM = ota_boot
+MCU_TARGET = atmega328
+TARGET = atmega328
+AVR_FREQ = 16000000L
+LDSECTION = --section-start=.text=0x7800
 
 # enter the parameters for the avrdude isp tool
 # ISP_ARGS = -c stk500v2 -P usb -b 115200

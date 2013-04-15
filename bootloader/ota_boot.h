@@ -154,7 +154,7 @@ static byte run () {
 
     for (dreq.block = 0; dreq.block < config.sketchBlocks; ++dreq.block) {
       // ask for the next block, retrying a few times
-      byte attempts = 3;
+      byte attempts = 10;
       for (;;) {
         if (sendPacket(&dreq, sizeof dreq) == 66) {
           word check = *((const word*) rf12_data);

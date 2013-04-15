@@ -19,7 +19,7 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   7 .debug_abbrev 000003bc  00000000  00000000  000019c3  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   000003e8  00000000  00000000  00001d7f  2**0
+  8 .debug_line   000003e9  00000000  00000000  00001d7f  2**0
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  00000104  00000000  00000000  00002168  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -508,6 +508,12 @@ static void spi_initialize () {
     for (dreq.block = 0; dreq.block < config.sketchBlocks; ++dreq.block) {
     7a6c:	1c 82       	std	Y+4, r1	; 0x04
     7a6e:	1b 82       	std	Y+3, r1	; 0x03
+  // byte sreg = SREG;
+  // cli();
+
+  eeprom_busy_wait ();
+
+  boot_page_erase (page);
     7a70:	b3 e0       	ldi	r27, 0x03	; 3
     7a72:	cb 2e       	mov	r12, r27
   boot_spm_busy_wait ();      // Wait until the memory is erased.
@@ -538,9 +544,9 @@ static void spi_initialize () {
     dreq.remoteID = config.remoteID;
 
     for (dreq.block = 0; dreq.block < config.sketchBlocks; ++dreq.block) {
-    7a82:	13 e0       	ldi	r17, 0x03	; 3
+    7a82:	1a e0       	ldi	r17, 0x0A	; 10
       // ask for the next block, retrying a few times
-      byte attempts = 3;
+      byte attempts = 10;
       for (;;) {
         if (sendPacket(&dreq, sizeof dreq) == 66) {
     7a84:	ce 01       	movw	r24, r28

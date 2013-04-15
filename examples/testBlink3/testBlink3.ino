@@ -6,6 +6,7 @@ volatile char dummy;
 
 void setup () {
   DDRB |= 1 << 1;
+  toggleWait(1);
 }
 
 static void toggleWait (long cycles) {
@@ -15,8 +16,8 @@ static void toggleWait (long cycles) {
 }
 
 void loop () {
-  toggleWait(100000);
-  toggleWait(100000);
-  toggleWait(100000);
-  toggleWait(500000);
+  toggleWait(50000);
+  toggleWait(50000);
+  toggleWait(50000);
+  toggleWait(250000);
 }
