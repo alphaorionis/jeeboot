@@ -93,25 +93,29 @@ static void boot_program_page (uint32_t page, byte *buf) {
   // SREG = sreg;
 }
 
-static byte sendPacket (const void* buf, byte len) {
+// timeouts = number of 200 ms periods before timing-out
+static byte sendPacket (const void* buf, byte len, byte timeouts) {
   while (!rf12_canSend())
     rf12_recvDone();
   rf12_sendStart(RF12_HDR_ACK, buf, len);
 
   T(long t = millis());
-  // this loop leads to a timeout of approx 200 ms without needing millis()
-  for (word n = 0; n < 65000; ++n)
-    if (rf12_recvDone() && rf12_crc == 0) {
-      byte len = rf12_len;
-      T(Serial.print("Got:"));
-      for (byte i = 0; i < len; ++i) {
-        T(if (i % 16 == 2) Serial.println());
-        T(Serial.print(' '));
-        T(Serial.print(rf12_data[i], DEC));
+  for (word m = 0; m < timeouts; ++m)
+  {
+    // this loop leads to a timeout of approx 200 ms without needing millis()
+    for (word n = 0; n < 65000; ++n)
+      if (rf12_recvDone() && rf12_crc == 0) {
+        byte len = rf12_len;
+        T(Serial.print("Got:"));
+        for (byte i = 0; i < len; ++i) {
+          T(if (i % 16 == 2) Serial.println());
+          T(Serial.print(' '));
+          T(Serial.print(rf12_data[i], DEC));
+        }
+        T(Serial.println());
+        return len;
       }
-      T(Serial.println());
-      return len;
-    }
+  }
   T(Serial.print("timeout "));
   T(Serial.println(millis() - t));
   return 0;
@@ -131,7 +135,7 @@ static byte run () {
   rf12_initialize(BOOT_ARCH, config.srvFreq, config.srvGroup + BOOT_BASE);
 
   // send an update check to the boot server - just once, no retries
-  byte bytes = sendPacket(&config.remoteID, sizeof config.remoteID);
+  byte bytes = sendPacket(&config.remoteID, sizeof config.remoteID, 10);
   if (bytes != sizeof (struct BootReply))
     return validSketch() ? 100 : 101; // unexpected reply length
 
@@ -154,14 +158,14 @@ static byte run () {
 
     for (dreq.block = 0; dreq.block < config.sketchBlocks; ++dreq.block) {
       // ask for the next block, retrying a few times
-      byte attempts = 10;
+      byte attempts = 0;
       for (;;) {
-        if (sendPacket(&dreq, sizeof dreq) == 66) {
+        if (sendPacket(&dreq, sizeof dreq, attempts + 1) == 66) {
           word check = *((const word*) rf12_data);
           if (check == (dreq.remoteID ^ dreq.block))
             break;
         }
-        if (--attempts == 0)
+        if (++attempts == 10)
           return 103; // too many failed attempts to get the next data block
       }
 
