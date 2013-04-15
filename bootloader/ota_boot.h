@@ -167,8 +167,10 @@ static byte run () {
 
       // save recv'd data, currently only works for a page size of 128 bytes    
       byte off = (dreq.block << 6) % SPM_PAGESIZE;
+      if (off == 0)
+          memset(progBuf, 0xFF, sizeof progBuf);
       memcpy(progBuf + off, (const byte*) rf12_data + 2, 64);
-      if (off == SPM_PAGESIZE - 64)
+      if ((off == SPM_PAGESIZE - 64) || (dreq.block == config.sketchBlocks - 1))
         boot_program_page((dreq.block & ~1) << 6, progBuf);
     }
   }
