@@ -36,7 +36,7 @@ struct BootReply {
 struct DataRequest {
   word remoteID;
   word block;
-};
+} dreq;
 
 byte progBuf [SPM_PAGESIZE];
 
@@ -153,7 +153,6 @@ static byte run () {
     eeprom_write_block(&config, EEADDR, sizeof config);
 
     // start the re-flashing loop, asking for all the necessary data as ACKs
-    struct DataRequest dreq;
     dreq.remoteID = config.remoteID;
 
     for (dreq.block = 0; dreq.block < config.sketchBlocks; ++dreq.block) {
