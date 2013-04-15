@@ -7,10 +7,10 @@
 PROGRAM = ota_boot
 
 # enter the parameters for the avrdude isp tool
-# ISP_ARGS = -c stk500v2 -p usb -b 115200
-ISP_ARGS = -c stk500v1 -p usb -b 57600
+# ISP_ARGS = -c stk500v2 -P usb -b 115200
+ISP_ARGS = -c stk500v1 -P /dev/tty.usbserial-A600dW8R -b 9600
 
-ISPFUSES = avrdude -c $(ISP_ARGS) -p $(MCU_TARGET) \
+ISPFUSES = avrdude $(ISP_ARGS) -p $(MCU_TARGET) \
  -e -u -U lock:w:0x3f:m -qq \
  -U efuse:w:0x$(EFUSE):m -U hfuse:w:0x$(HFUSE):m -U lfuse:w:0x$(LFUSE):m \
  -U lock:w:0x0f:m
@@ -33,7 +33,7 @@ override CFLAGS = -g -Wall $(OPTIMIZE) -mmcu=$(MCU_TARGET) -DF_CPU=$(AVR_FREQ) \
  -std=gnu99 $(DEFS)
 override LDFLAGS = -Wl,$(LDSECTION) -Wl,--relax -nostartfiles
 
-atmega328: MCU_TARGET = atmega328
+atmega328: MCU_TARGET = m328p
 atmega328: TARGET = atmega328
 atmega328: AVR_FREQ = 16000000L
 atmega328: LDSECTION = --section-start=.text=0x7800
@@ -48,7 +48,7 @@ atmega328_isp: LFUSE = 4E
 atmega328_isp: EFUSE = 06
 atmega328_isp: isp
 
-attiny84: MCU_TARGET = attiny84
+attiny84: MCU_TARGET = t84
 attiny84: TARGET = attiny84
 attiny84: AVR_FREQ = 800000L
 attiny84: LDSECTION = --section-start=.text=0x1800
