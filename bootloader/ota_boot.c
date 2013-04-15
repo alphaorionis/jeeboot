@@ -30,17 +30,19 @@ int main () {
   // SP=RAMEND;  // This is done by hardware reset
   asm volatile ("clr __zero_reg__");
 
-  // switch to 4 MHz, the minimum rate needed to use the RFM12B
-  clock_prescale_set(clock_div_4);
-
   // find out whether we got here through a watchdog reset
   byte launch = bitRead(MCUSR, EXTRF);
   MCUSR = 0;
   wdt_disable();
 
   // similar to Adaboot no-wait mod
-  if (!launch)
+  if (!launch) {
+    clock_prescale_set(clock_div_1);
     ((void(*)()) 0)(); // Jump to RST vector
+  }
+
+  // switch to 4 MHz, the minimum rate needed to use the RFM12B
+  clock_prescale_set(clock_div_4);
 
   // The Heart of the Matter. The Real Enchilada. The Meaning of Life.
   byte backoff = 0;
@@ -60,6 +62,7 @@ int main () {
   }
 
   // force a clean reset to launch the actual code
+  clock_prescale_set(clock_div_1);
   wdt_enable(WDTO_15MS);
   for (;;)
     ;
