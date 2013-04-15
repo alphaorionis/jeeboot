@@ -121,7 +121,8 @@ static byte sendPacket (const void* buf, byte len, byte timeouts) {
   return 0;
 }
 
-static byte run () {
+static void bootinit()
+{
   // get EEPROM info, but use defaults if the stored CRC is not valid
   eeprom_read_block(&config, EEADDR, sizeof config);
 
@@ -133,7 +134,10 @@ static byte run () {
   }
 
   rf12_initialize(BOOT_ARCH, config.srvFreq, config.srvGroup + BOOT_BASE);
+}
 
+static byte run ()
+{
   // send an update check to the boot server - just once, no retries
   byte bytes = sendPacket(&config.remoteID, sizeof config.remoteID, 10);
   if (bytes != sizeof (struct BootReply))

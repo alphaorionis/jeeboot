@@ -47,6 +47,8 @@ int main () {
   // switch to 4 MHz, the minimum rate needed to use the RFM12B
   clock_prescale_set(clock_div_4);
 
+  bootinit();
+
   // The Heart of the Matter. The Real Enchilada. The Meaning of Life.
   byte backoff = 0;
   while (run() > 100) {
