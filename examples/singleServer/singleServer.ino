@@ -88,14 +88,16 @@ static void readbytes(int n) {
 }
 
 static void calcTotalCRC () {
-  word blocks = (here + 31) / 32;
+  word pps = param.pagesize;
+  word pages = (here * 2 + pps - 1) / pps;
+  word bytes = pages * pps;
   word crc = ~0;
-  for (word pos = 0; pos < blocks * 64; pos += param.pagesize) {
+  for (word pos = 0; pos < bytes; pos += param.pagesize) {
     mem.load(pos / param.pagesize, 0, pageBuf, param.pagesize);
-    for (word i = 0; i < param.pagesize && pos + i < blocks * 64; ++i)
+    for (word i = 0; i < param.pagesize; ++i)
       crc = _crc16_update(crc, pageBuf[i]);
   }
-  param.blocks = blocks;
+  param.blocks = bytes / 64;
   param.crcTotal = crc;
   mem.save(257, 0, &param, sizeof param);
 }
