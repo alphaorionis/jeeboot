@@ -22,21 +22,21 @@ struct Config {
   byte spare [3];
   word remoteID;          // these must be same as struct BootReply
   word sketchBlocks;      // ... with same three items
-  word sketchCRC;         // ... and in sme order
+  word sketchCRC;         // ... and in same order
   byte psk [16];
   word crc;               // must be last
 } config;
 
 struct BootReply {
-  word remoteID;
-  word sketchBlocks;
-  word sketchCRC;
+  word remoteID;          // these must be the same as in struct Config
+  word sketchBlocks;      // ... with the same three items
+  word sketchCRC;         // ... and in the same order
 };
 
 struct DataRequest {
   word remoteID;
   word block;
-};
+} dreq;
 
 byte progBuf [SPM_PAGESIZE];
 
@@ -93,31 +93,36 @@ static void boot_program_page (uint32_t page, byte *buf) {
   // SREG = sreg;
 }
 
-static byte sendPacket (const void* buf, byte len) {
+// timeouts = number of 200 ms periods before timing-out
+static byte sendPacket (const void* buf, byte len, byte timeouts) {
   while (!rf12_canSend())
     rf12_recvDone();
   rf12_sendStart(RF12_HDR_ACK, buf, len);
 
   T(long t = millis());
-  // this loop leads to a timeout of approx 200 ms without needing millis()
-  for (word n = 0; n < 65000; ++n)
-    if (rf12_recvDone() && rf12_crc == 0) {
-      byte len = rf12_len;
-      T(Serial.print("Got:"));
-      for (byte i = 0; i < len; ++i) {
-        T(if (i % 16 == 2) Serial.println());
-        T(Serial.print(' '));
-        T(Serial.print(rf12_data[i], DEC));
+  for (word m = 0; m < timeouts; ++m)
+  {
+    // this loop leads to a timeout of approx 200 ms without needing millis()
+    for (word n = 0; n < 65000; ++n)
+      if (rf12_recvDone() && rf12_crc == 0) {
+        byte len = rf12_len;
+        T(Serial.print("Got:"));
+        for (byte i = 0; i < len; ++i) {
+          T(if (i % 16 == 2) Serial.println());
+          T(Serial.print(' '));
+          T(Serial.print(rf12_data[i], DEC));
+        }
+        T(Serial.println());
+        return len;
       }
-      T(Serial.println());
-      return len;
-    }
+  }
   T(Serial.print("timeout "));
   T(Serial.println(millis() - t));
   return 0;
 }
 
-static byte run () {
+static void bootinit()
+{
   // get EEPROM info, but use defaults if the stored CRC is not valid
   eeprom_read_block(&config, EEADDR, sizeof config);
 
@@ -129,9 +134,12 @@ static byte run () {
   }
 
   rf12_initialize(BOOT_ARCH, config.srvFreq, config.srvGroup + BOOT_BASE);
+}
 
+static byte run ()
+{
   // send an update check to the boot server - just once, no retries
-  byte bytes = sendPacket(&config.remoteID, sizeof config.remoteID);
+  byte bytes = sendPacket(&config.remoteID, sizeof config.remoteID, 10);
   if (bytes != sizeof (struct BootReply))
     return validSketch() ? 100 : 101; // unexpected reply length
 
@@ -149,32 +157,33 @@ static byte run () {
     eeprom_write_block(&config, EEADDR, sizeof config);
 
     // start the re-flashing loop, asking for all the necessary data as ACKs
-    struct DataRequest dreq;
     dreq.remoteID = config.remoteID;
 
     for (dreq.block = 0; dreq.block < config.sketchBlocks; ++dreq.block) {
       // ask for the next block, retrying a few times
-      byte attempts = 10;
+      byte attempts = 0;
       for (;;) {
-        if (sendPacket(&dreq, sizeof dreq) == 66) {
+        if (sendPacket(&dreq, sizeof dreq, attempts + 1) == 66) {
           word check = *((const word*) rf12_data);
           if (check == (dreq.remoteID ^ dreq.block))
             break;
         }
-        if (--attempts == 0)
-          return 3; // too many failed attempts to get the next data block
+        if (++attempts == 10)
+          return 103; // too many failed attempts to get the next data block
       }
 
       // save recv'd data, currently only works for a page size of 128 bytes    
       byte off = (dreq.block << 6) % SPM_PAGESIZE;
+      if (off == 0)
+          memset(progBuf, 0xFF, sizeof progBuf);
       memcpy(progBuf + off, (const byte*) rf12_data + 2, 64);
-      if (off == SPM_PAGESIZE - 64)
+      if ((off == SPM_PAGESIZE - 64) || (dreq.block == config.sketchBlocks - 1))
         boot_program_page((dreq.block & ~1) << 6, progBuf);
     }
   }
 
   if (!validSketch())
-    return 4; // the sketch doesn't qualify as a valid one
+    return 104; // the sketch doesn't qualify as a valid one
 
   return config.revision;
 }

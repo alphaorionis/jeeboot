@@ -19,6 +19,9 @@ typedef uint16_t word;
 
 #include "ota_boot.h"
 
+/* The main function is in init9, which removes the interrupt vector table */
+/* we don't need. It is also 'naked', which means the compiler does not    */
+/* generate any entry or exit code itself. */
 int main(void) __attribute__ ((naked)) __attribute__ ((section (".init9")));
 
 volatile char dummy;
@@ -30,17 +33,21 @@ int main () {
   // SP=RAMEND;  // This is done by hardware reset
   asm volatile ("clr __zero_reg__");
 
-  // switch to 4 MHz, the minimum rate needed to use the RFM12B
-  clock_prescale_set(clock_div_4);
-
   // find out whether we got here through a watchdog reset
   byte launch = bitRead(MCUSR, EXTRF);
   MCUSR = 0;
   wdt_disable();
 
   // similar to Adaboot no-wait mod
-  if (!launch)
+  if (!launch) {
+    clock_prescale_set(clock_div_1);
     ((void(*)()) 0)(); // Jump to RST vector
+  }
+
+  // switch to 4 MHz, the minimum rate needed to use the RFM12B
+  clock_prescale_set(clock_div_4);
+
+  bootinit();
 
   // The Heart of the Matter. The Real Enchilada. The Meaning of Life.
   byte backoff = 0;
@@ -50,7 +57,7 @@ int main () {
     // (not as low-power as power down, but doesn't need watchdog interrupts)
     if (++backoff > 10)
       backoff = 0; // limit the backoff, reset to retry quickly after a while
-    // here we go: slow down, waste some processor cyles, and speed up again
+    // here we go: slow down, waste some processor cycles, and speed up again
     // this has a total cycle time of a few hours, as determined empirically
     // (using a boot server which deliberately replies with a bad remote ID)
     clock_prescale_set(clock_div_256);
@@ -60,6 +67,7 @@ int main () {
   }
 
   // force a clean reset to launch the actual code
+  clock_prescale_set(clock_div_1);
   wdt_enable(WDTO_15MS);
   for (;;)
     ;
