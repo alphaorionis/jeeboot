@@ -480,11 +480,7 @@ static void dataRequest (word rid, word blk) {
 }
 
 void setup() {
-#if MEGA
-  Serial.begin(57600);
-#else
   Serial.begin(9600);
-#endif
 #if DEBUG 
   Serial.println("\n[singleServer]");
 #endif
