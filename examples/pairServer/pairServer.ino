@@ -56,14 +56,6 @@ static void setRandomKey (byte* key) {
   while (key[0] == 0); // make sure 1st byte isn't zero
 }
 
-static void readEeprom () {
-  eeprom_read_block(pairings, EEPROM_ADDR, sizeof pairings);
-  if (pairings[0].nodeId == EEPROM_MAGIC)
-    Serial.println(F("pairings reloaded"));
-  else
-    erasePairings();
-}
-
 static void writeFullEeprom () {
   Serial.print(F("writing... "));
   eeprom_write_block(pairings, EEPROM_ADDR, sizeof pairings);
@@ -84,6 +76,14 @@ static void erasePairings () {
   writeFullEeprom();
 }
 
+static void readEeprom () {
+  eeprom_read_block(pairings, EEPROM_ADDR, sizeof pairings);
+  if (pairings[0].nodeId == EEPROM_MAGIC)
+    Serial.println(F("pairings reloaded"));
+  else
+    erasePairings();
+}
+
 static byte assignSlot () {
   byte id;
   for (id = 1; id < 30; ++id)
@@ -91,6 +91,7 @@ static byte assignSlot () {
       break;
 
   PairReply* pr = pairings + id;
+  pr->version = 1;
   pr->nodeId = id;
   if (pr->group == 0)
     pr->group = pairings[0].group;
