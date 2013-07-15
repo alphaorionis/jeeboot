@@ -37,17 +37,17 @@ override CFLAGS = -g -Wall $(OPTIMIZE) -mmcu=$(MCU_TARGET) -DF_CPU=$(AVR_FREQ) \
  -std=gnu99 $(DEFS)
 override LDFLAGS = -Wl,$(LDSECTION) -Wl,--relax -nostartfiles
 
-atmega328: MCU_TARGET = m328p
+atmega328: MCU_TARGET = atmega328p
 atmega328: TARGET = atmega328
 atmega328: AVR_FREQ = 16000000L
-atmega328: LDSECTION = --section-start=.text=0x7800
+atmega328: LDSECTION = --section-start=.text=0x7000
 atmega328: $(PROGRAM)_atmega328.hex $(PROGRAM)_atmega328.lst
 
-# HFUSE = DA - 2048 byte boot
+# HFUSE = DA - 2048 byte boot, D8 - 4096 byte boot
 # LFUSE = 4E - Low power resonator (16MHz), fast start, clkdiv/8
 # EFUSE = 06 - 1.8V brownout (hence the clkdiv/8 requirement)
 atmega328_isp: atmega328
-atmega328_isp: HFUSE = DA
+atmega328_isp: HFUSE = D8
 atmega328_isp: LFUSE = 4E
 atmega328_isp: EFUSE = 06
 atmega328_isp: isp

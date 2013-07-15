@@ -13,7 +13,11 @@
 #define BOOT_GROUP  254           // boot server's net group >= BOOT_BASE
 #define BOOT_BASE   248
 
+#if defined(__AVR_ATtiny84__)
+#define EEADDR ((byte*) (512 - 4 - sizeof config))
+#else
 #define EEADDR ((byte*) (1024 - 4 - sizeof config))
+#endif
 
 struct Config {
   byte revision :3;       // increment this to invalidate the EEPROM contents
