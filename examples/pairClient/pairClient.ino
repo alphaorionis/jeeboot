@@ -1,3 +1,7 @@
+/// @dir pairClient
+/// Initial test of a possible pairing protocol and mechanism - client side.
+// -jcw, 2013-07-15
+
 #include <JeeLib.h>
 #include <JeeBoot.h>
 
@@ -7,7 +11,7 @@ PairReply* reply;
 
 void setup () {
   Serial.begin(57600);
-  Serial.println("\n[pairRemote]");
+  Serial.println("\n[pairClient]");
   rf12_initialize(1, RF12_868MHZ, 212);
 }
 

@@ -1,5 +1,5 @@
 /// @dir pairServer
-/// Initial test of a possible pairing protocol and mechanism.
+/// Initial test of a possible pairing protocol and mechanism - server side.
 // -jcw, 2013-07-15
 
 #include <JeeLib.h>
