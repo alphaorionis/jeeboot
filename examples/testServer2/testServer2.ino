@@ -108,14 +108,15 @@ void setup () {
   Serial.begin(57600);
   Serial.println("\n[testServer2]");
 #endif
-  rf12_initialize(1, RF12_868MHZ, 212);
+  rf12_initialize(31, RF12_868MHZ, 212);
 }
 
 // struct { const char* title; unsigned start, off, count; } sections[];
 // const unsigned char progdata[] PROGMEM = ...
 
 void loop () {
-  if (rf12_recvDone() && rf12_crc == 0 && RF12_WANTS_ACK) {
+  if (rf12_recvDone() && rf12_crc == 0 &&
+      (rf12_hdr & RF12_HDR_CTL) && (rf12_hdr & RF12_HDR_ACK)) {
     switch (rf12_len) {
       default:
         Serial.print(F("bad length: "));
