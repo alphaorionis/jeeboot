@@ -5,8 +5,8 @@ struct AnnounceRequest {
   uint16_t type;
   uint8_t group;
   uint8_t nodeId;
-  uint8_t hwId [16];
   uint16_t check;
+  uint8_t hwId [16];
 };
 
 struct AnnounceReply {
