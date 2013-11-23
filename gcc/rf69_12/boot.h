@@ -5,7 +5,9 @@
 #define PAGE_SIZE 64
 #define SECTOR_SIZE (PAGE_SIZE * 16)
 #define BASE_ADDR ((uint8_t*) 0x1000)
-#define BASE_PAGE ((uint32_t) BASE_ADDR / PAGE_SIZE)
+#define TOP_OF_BOOT BASE_ADDR
+#define CONFIG_ADDR (TOP_OF_BOOT - PAGE_SIZE)
+
 
 static void* memset(void* dst, uint8_t fill, int len) {
   uint8_t* to = dst;
@@ -89,37 +91,34 @@ struct Config {
   uint16_t check;
 } config;
 
-#define TOP_OF_BOOT ((uint8_t*) 0x1000)
-#define CONFIG_ADDR (TOP_OF_BOOT - PAGE_SIZE)
+static void loadConfig () {
+  memcpy(&config, CONFIG_ADDR, sizeof config);
+  if (calcCRC(&config, sizeof config) != 0) {
+    printf("default config\n");
+    memset(&config, 0, sizeof config);
+  }
+}
 
 static void saveConfig () {
   config.version = 1;
-  config.check = calcCRC(&config, sizeof config - 2);
-  printf("save config 0x%X\n", config.check);
-  copyPageToFlash(&config, CONFIG_ADDR);
-}
-
-static int loadValidConfig () {
-  memcpy(&config, CONFIG_ADDR, sizeof config);
-  return calcCRC(&config, sizeof config) == 0;
-}
-  
-static void setDefaultConfig () {
-  printf("default config\n");
-  memset(&config, 0, sizeof config);
+  if (calcCRC(&config, sizeof config) != 0) {
+    config.check = calcCRC(&config, sizeof config - 2);
+    printf("save config 0x%X\n", config.check);
+    copyPageToFlash(&config, CONFIG_ADDR);
+  }
 }
 
 static void sendPairingCheck () {
   uint32_t hwId [4];
   iap_read_unique_id(hwId);
+  
   struct PairingRequest request;
   request.type = 0x0200; // LPC812
   request.group = config.group;
   request.nodeId = config.nodeId;
   request.check = calcCRC(&config.shKey, sizeof config.shKey);
   memcpy(request.hwId, hwId, sizeof request.hwId);
-  // memcpy(request.hwId,
-  //   "\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xAA\xBB\xCC\xDD\xEE\xFF", 16);
+  
   struct PairingReply reply;
   if (sendRequest(&request, sizeof request) > 0 && rf12_len == sizeof reply) {
     memcpy(&reply, (const void*) rf12_data, sizeof reply);
@@ -167,10 +166,10 @@ static int sendUpgradeCheck () {
   return 0;
 }
 
-static int sendDownloadRequest (uint8_t* fill) {
+static int sendDownloadRequest (int index) {
   struct DownloadRequest request;
   request.swId = config.swId;
-  request.swIndex = (fill - BASE_ADDR) / BOOT_DATA_MAX;
+  request.swIndex = index;
   struct DownloadReply reply;
   if (sendRequest(&request, sizeof request) > 0 && rf12_len == sizeof reply) {
     for (int i = 0; i < BOOT_DATA_MAX; ++i)
@@ -178,7 +177,7 @@ static int sendDownloadRequest (uint8_t* fill) {
     // dump("de-whitened", (const void*) rf12_data, rf12_len);
     union { uint32_t longs[16]; uint8_t bytes[64]; } aligned;
     memcpy(aligned.bytes, (const void*) (rf12_data + 2), sizeof aligned);
-    void* flash = BASE_ADDR + PAGE_SIZE * request.swIndex;
+    void* flash = BASE_ADDR + PAGE_SIZE * index;
     copyPageToFlash(aligned.bytes, flash);
     dump("in flash", flash, PAGE_SIZE);
     return 1;
@@ -186,19 +185,14 @@ static int sendDownloadRequest (uint8_t* fill) {
   return 0;
 }
 
-static int saveReceivedCode (uint8_t* fill) {
-  return BOOT_DATA_MAX;
-}
-
 static int bootLoaderLogic () {
   printf("1\n");
-  if (! loadValidConfig())
-    setDefaultConfig();
+  loadConfig();
   
   printf("2\n");
   backOffCounter = 0;
   while (1) {
-    sendPairingCheck(); // pairing check in group 212, pick up reply if any
+    sendPairingCheck();
     if (config.group != 0 && config.nodeId != 0) // paired
       break;
     exponentialBackOff();
@@ -214,13 +208,12 @@ static int bootLoaderLogic () {
   
   printf("4\n");
   if (! appIsValid()) {
-    uint8_t* codeEnd = BASE_ADDR + (config.swSize << 4);
-    for (uint8_t *p = BASE_ADDR; p < codeEnd; p += saveReceivedCode(p)) {
+    int limit = ((config.swSize << 4) + PAGE_SIZE - 1) / PAGE_SIZE;
+    for (int i = 0; i < limit; ++i) {
       backOffCounter = 0;
-      while (sendDownloadRequest(p) == 0)
+      while (sendDownloadRequest(i) == 0)
         exponentialBackOff();
     }
-    saveReceivedCode(0); // save last bytes
   }
 
   printf("5\n");
