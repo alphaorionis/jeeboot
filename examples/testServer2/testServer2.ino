@@ -103,6 +103,14 @@ static void dataRequest (word rid, word blk) {
 }
 #endif
 
+static void* memcpy(void* dst, const void* src, int len) {
+  uint8_t* to = (uint8_t*) dst;
+  const uint8_t* from = (const uint8_t*) src;
+  while (--len >= 0)
+    *to++ = *from++;
+  return dst;
+}
+
 void setup () {
 #if DEBUG        
   Serial.begin(57600);
@@ -131,6 +139,10 @@ void loop () {
         reply.type = reqp->type;
         reply.group = 212;
         reply.nodeId = 17;
+        // memcpy(reply.shKey, "FEDCBA09876543210", sizeof reply.shKey);
+        while (!rf12_canSend())
+          rf12_recvDone();
+        // delay(100);
         rf12_sendNow(0, &reply, sizeof reply);
         break;
       }
@@ -149,7 +161,8 @@ void loop () {
         reply.swSize = (sections[newId].count + 15) >> 4;
         reply.swCheck =  calcCRCrom(progdata + sections[newId].off,
                                                     reply.swSize << 4);
-        rf12_sendNow(0, &reply, sizeof reply);
+        // delay(100);
+        rf12_sendNow(RF12_HDR_DST | 17, &reply, sizeof reply);
         break;
       }
       case 4: {
@@ -170,7 +183,8 @@ void loop () {
           // if (random > 100)
           //   break; // no reply
         }
-        rf12_sendNow(0, &reply, sizeof reply);
+        // delay(100);
+        rf12_sendNow(RF12_HDR_DST | 17, &reply, sizeof reply);
         break;
       }
     }
