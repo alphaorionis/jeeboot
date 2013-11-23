@@ -1,0 +1,222 @@
+
+Allocating common symbols
+Common symbol       size              file
+
+msTicks             0x4               main.o
+
+Discarded input sections
+
+ .data          0x0000000000000000        0x0 main.o
+ .bss           0x0000000000000000        0x0 main.o
+ .text          0x0000000000000000        0x0 system_LPC8xx.o
+ .data          0x0000000000000000        0x4 system_LPC8xx.o
+ .bss           0x0000000000000000        0x0 system_LPC8xx.o
+ .text.SystemCoreClockUpdate
+                0x0000000000000000       0x84 system_LPC8xx.o
+ .text.SystemInit
+                0x0000000000000000       0x14 system_LPC8xx.o
+ .rodata        0x0000000000000000       0x3c system_LPC8xx.o
+ .debug_info    0x0000000000000000      0x47b system_LPC8xx.o
+ .debug_abbrev  0x0000000000000000       0xc7 system_LPC8xx.o
+ .debug_loc     0x0000000000000000       0x93 system_LPC8xx.o
+ .debug_aranges
+                0x0000000000000000       0x28 system_LPC8xx.o
+ .debug_ranges  0x0000000000000000       0x18 system_LPC8xx.o
+ .debug_line    0x0000000000000000      0x105 system_LPC8xx.o
+ .debug_str     0x0000000000000000      0x36b system_LPC8xx.o
+ .comment       0x0000000000000000       0x71 system_LPC8xx.o
+ .ARM.attributes
+                0x0000000000000000       0x32 system_LPC8xx.o
+ .debug_frame   0x0000000000000000       0x3c system_LPC8xx.o
+ .text          0x0000000000000000        0x0 gcc_startup_lpc8xx.o
+ .data          0x0000000000000000        0x0 gcc_startup_lpc8xx.o
+ .bss           0x0000000000000000        0x0 gcc_startup_lpc8xx.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+FLASH            0x0000000000000000 0x0000000000004000 xr
+RAM              0x0000000010000200 0x0000000000000e00 xrw
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text           0x0000000000000000      0x178
+ *(.isr_vector)
+ .isr_vector    0x0000000000000000       0xc0 gcc_startup_lpc8xx.o
+                0x0000000000000000                g_pfnVectors
+ *(.after_vectors*)
+ .after_vectors
+                0x00000000000000c0       0x50 gcc_startup_lpc8xx.o
+                0x00000000000000c0                NMI_Handler
+                0x00000000000000c2                HardFault_Handler
+                0x00000000000000c4                PendSV_Handler
+                0x00000000000000c8                WKT_Handler
+                0x00000000000000ca                PININT2_IRQHandler
+                0x00000000000000ca                PININT1_IRQHandler
+                0x00000000000000ca                MRT_IRQHandler
+                0x00000000000000ca                UART1_IRQHandler
+                0x00000000000000ca                UART0_IRQHandler
+                0x00000000000000ca                SPI1_IRQHandler
+                0x00000000000000ca                IntDefaultHandler
+                0x00000000000000ca                PININT3_IRQHandler
+                0x00000000000000ca                UART2_IRQHandler
+                0x00000000000000ca                PININT5_IRQHandler
+                0x00000000000000ca                PININT4_IRQHandler
+                0x00000000000000ca                PININT0_IRQHandler
+                0x00000000000000ca                BOD_IRQHandler
+                0x00000000000000ca                SCT_IRQHandler
+                0x00000000000000ca                I2C_IRQHandler
+                0x00000000000000ca                WDT_IRQHandler
+                0x00000000000000ca                PININT6_IRQHandler
+                0x00000000000000ca                SPI0_IRQHandler
+                0x00000000000000ca                CMP_IRQHandler
+                0x00000000000000ca                PININT7_IRQHandler
+                0x00000000000000cc                ResetISR
+                0x000000000000010c                SVCall_Handler
+ *(.text*)
+ .text          0x0000000000000110       0x10 main.o
+                0x0000000000000110                SysTick_Handler
+ .text.startup  0x0000000000000120       0x58 main.o
+                0x0000000000000120                main
+ *(.rodata .rodata.*)
+                0x0000000000000178                . = ALIGN (0x4)
+                0x0000000000000178                _etext = .
+
+.glue_7         0x0000000000000178        0x0
+ .glue_7        0x0000000000000000        0x0 linker stubs
+
+.glue_7t        0x0000000000000178        0x0
+ .glue_7t       0x0000000000000000        0x0 linker stubs
+
+.vfp11_veneer   0x0000000000000178        0x0
+ .vfp11_veneer  0x0000000000000000        0x0 linker stubs
+
+.v4_bx          0x0000000000000178        0x0
+ .v4_bx         0x0000000000000000        0x0 linker stubs
+
+.iplt           0x0000000000000178        0x0
+ .iplt          0x0000000000000000        0x0 main.o
+
+.rel.dyn        0x0000000000000178        0x0
+ .rel.iplt      0x0000000000000000        0x0 main.o
+
+.data           0x0000000010000200        0x0 load address 0x0000000000000178
+                0x0000000010000200                _data = .
+ *(vtable)
+ *(.data*)
+                0x0000000010000200                . = ALIGN (0x4)
+                0x0000000010000200                _edata = .
+
+.igot.plt       0x0000000010000200        0x0 load address 0x0000000000000178
+ .igot.plt      0x0000000000000000        0x0 main.o
+
+.bss            0x0000000010000200        0x4 load address 0x0000000000000178
+                0x0000000010000200                _bss = .
+ *(.bss*)
+ *(COMMON)
+ COMMON         0x0000000010000200        0x4 main.o
+                0x0000000010000200                msTicks
+                0x0000000010000204                . = ALIGN (0x4)
+                0x0000000010000204                _ebss = .
+                0x0000000010000204                PROVIDE (end, .)
+                0x0000000010000204                PROVIDE (_pvHeapStart, .)
+                0x0000000010001000                PROVIDE (_vStackTop, (ORIGIN (RAM) + 0xe00))
+LOAD main.o
+LOAD system_LPC8xx.o
+LOAD gcc_startup_lpc8xx.o
+OUTPUT(firmware.elf elf32-littlearm)
+
+.debug_info     0x0000000000000000      0x832
+ .debug_info    0x0000000000000000      0x645 main.o
+ .debug_info    0x0000000000000645      0x1ed gcc_startup_lpc8xx.o
+
+.debug_abbrev   0x0000000000000000      0x2f5
+ .debug_abbrev  0x0000000000000000      0x1c3 main.o
+ .debug_abbrev  0x00000000000001c3      0x132 gcc_startup_lpc8xx.o
+
+.debug_aranges  0x0000000000000000       0x80
+ .debug_aranges
+                0x0000000000000000       0x28 main.o
+ .debug_aranges
+                0x0000000000000028       0x58 gcc_startup_lpc8xx.o
+
+.debug_ranges   0x0000000000000000       0x90
+ .debug_ranges  0x0000000000000000       0x48 main.o
+ .debug_ranges  0x0000000000000048       0x48 gcc_startup_lpc8xx.o
+
+.debug_line     0x0000000000000000      0x17c
+ .debug_line    0x0000000000000000      0x10e main.o
+ .debug_line    0x000000000000010e       0x6e gcc_startup_lpc8xx.o
+
+.debug_str      0x0000000000000000      0x4fa
+ .debug_str     0x0000000000000000      0x417 main.o
+                                        0x455 (size before relaxing)
+ .debug_str     0x0000000000000417       0xe3 gcc_startup_lpc8xx.o
+                                        0x157 (size before relaxing)
+
+.comment        0x0000000000000000       0x70
+ .comment       0x0000000000000000       0x70 main.o
+                                         0x71 (size before relaxing)
+ .comment       0x0000000000000000       0x71 gcc_startup_lpc8xx.o
+
+.ARM.attributes
+                0x0000000000000000       0x32
+ .ARM.attributes
+                0x0000000000000000       0x32 main.o
+ .ARM.attributes
+                0x0000000000000032       0x32 gcc_startup_lpc8xx.o
+
+.debug_frame    0x0000000000000000       0xc0
+ .debug_frame   0x0000000000000000       0x30 main.o
+ .debug_frame   0x0000000000000030       0x90 gcc_startup_lpc8xx.o
+
+.debug_loc      0x0000000000000000       0x13
+ .debug_loc     0x0000000000000000       0x13 gcc_startup_lpc8xx.o
+
+Cross Reference Table
+
+Symbol                                            File
+BOD_IRQHandler                                    gcc_startup_lpc8xx.o
+CMP_IRQHandler                                    gcc_startup_lpc8xx.o
+HardFault_Handler                                 gcc_startup_lpc8xx.o
+I2C_IRQHandler                                    gcc_startup_lpc8xx.o
+IntDefaultHandler                                 gcc_startup_lpc8xx.o
+MRT_IRQHandler                                    gcc_startup_lpc8xx.o
+NMI_Handler                                       gcc_startup_lpc8xx.o
+PININT0_IRQHandler                                gcc_startup_lpc8xx.o
+PININT1_IRQHandler                                gcc_startup_lpc8xx.o
+PININT2_IRQHandler                                gcc_startup_lpc8xx.o
+PININT3_IRQHandler                                gcc_startup_lpc8xx.o
+PININT4_IRQHandler                                gcc_startup_lpc8xx.o
+PININT5_IRQHandler                                gcc_startup_lpc8xx.o
+PININT6_IRQHandler                                gcc_startup_lpc8xx.o
+PININT7_IRQHandler                                gcc_startup_lpc8xx.o
+PendSV_Handler                                    gcc_startup_lpc8xx.o
+ResetISR                                          gcc_startup_lpc8xx.o
+SCT_IRQHandler                                    gcc_startup_lpc8xx.o
+SPI0_IRQHandler                                   gcc_startup_lpc8xx.o
+SPI1_IRQHandler                                   gcc_startup_lpc8xx.o
+SVC_Handler                                       gcc_startup_lpc8xx.o
+SVCall_Handler                                    gcc_startup_lpc8xx.o
+SysTick_Handler                                   main.o
+SystemCoreClock                                   system_LPC8xx.o
+SystemCoreClockUpdate                             system_LPC8xx.o
+SystemInit                                        system_LPC8xx.o
+UART0_IRQHandler                                  gcc_startup_lpc8xx.o
+UART1_IRQHandler                                  gcc_startup_lpc8xx.o
+UART2_IRQHandler                                  gcc_startup_lpc8xx.o
+WDT_IRQHandler                                    gcc_startup_lpc8xx.o
+WKT_Handler                                       gcc_startup_lpc8xx.o
+__aeabi_uidiv                                     system_LPC8xx.o
+_bss                                              gcc_startup_lpc8xx.o
+_data                                             gcc_startup_lpc8xx.o
+_ebss                                             gcc_startup_lpc8xx.o
+_edata                                            gcc_startup_lpc8xx.o
+_etext                                            gcc_startup_lpc8xx.o
+_vStackTop                                        gcc_startup_lpc8xx.o
+g_pfnVectors                                      gcc_startup_lpc8xx.o
+main                                              main.o
+                                                  gcc_startup_lpc8xx.o
+msTicks                                           main.o
