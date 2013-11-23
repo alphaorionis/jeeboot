@@ -42,16 +42,16 @@ int j;
 
 /* The command table */
 struct __cmd_table {
-	uint32_t cmd_code;
-	uint32_t param[4];
+  uint32_t cmd_code;
+  uint32_t param[4];
 };
 
 static struct __cmd_table cmd_table;
 
 /* The result table */
 struct __result_table {
-	uint32_t ret_code;
-	uint32_t result[4];
+  uint32_t ret_code;
+  uint32_t result[4];
 };
 
 static struct __result_table result_table;
@@ -69,11 +69,11 @@ static const IAP iap_call = (IAP) IAP_ADDRESS;
  * @return    0 for success
  */
 int iap_init(void) {
-	/* Need to update 'SystemCoreClock' according to the current clock settings
-	 * It's needed as IAP parameter
-	 */
-	SystemCoreClockUpdate();
-	return 0;
+  /* Need to update 'SystemCoreClock' according to the current clock settings
+   * It's needed as IAP parameter
+   */
+  SystemCoreClockUpdate();
+  return 0;
 }
 
 /**
@@ -86,22 +86,22 @@ int iap_init(void) {
  *         or INVALID_SECTOR
  */
 int iap_erase_sector(unsigned int sector_start, unsigned int sector_end) {
-	cmd_table.cmd_code = ERASE_SECTOR;
-	cmd_table.param[0] = sector_start;
-	cmd_table.param[1] = sector_end;
-	cmd_table.param[2] = __SYSTEM_CLOCK/1000; 
-	
-	#if defined IRQ_HANDLER_IN_SRAM
-	iap_call(&cmd_table, &result_table);
-	#endif
-	
-	#if defined IRQ_DISABLE
-	__disable_irq();
-	iap_call(&cmd_table, &result_table);
-	__enable_irq();
-	#endif
-	
-	return (int)result_table.ret_code;
+  cmd_table.cmd_code = ERASE_SECTOR;
+  cmd_table.param[0] = sector_start;
+  cmd_table.param[1] = sector_end;
+  cmd_table.param[2] = __SYSTEM_CLOCK/1000; 
+  
+  #if defined IRQ_HANDLER_IN_SRAM
+  iap_call(&cmd_table, &result_table);
+  #endif
+  
+  #if defined IRQ_DISABLE
+  __disable_irq();
+  iap_call(&cmd_table, &result_table);
+  __enable_irq();
+  #endif
+  
+  return (int)result_table.ret_code;
 }
 
 /**
@@ -115,22 +115,22 @@ int iap_erase_sector(unsigned int sector_start, unsigned int sector_end) {
  */
 int iap_erase_page(unsigned int page_start, unsigned int page_end) {
 
-	cmd_table.cmd_code = ERASE_PAGE;
-	cmd_table.param[0] = page_start;
-	cmd_table.param[1] = page_end;
-	cmd_table.param[2] = __SYSTEM_CLOCK/1000;
-	
-	#if defined IRQ_HANDLER_IN_SRAM
-	iap_call(&cmd_table, &result_table);
-	#endif
-	
-	#if defined IRQ_DISABLE
-	__disable_irq();
-	iap_call(&cmd_table, &result_table);
-	__enable_irq();
-	#endif
-	
-	return (int)result_table.ret_code;
+  cmd_table.cmd_code = ERASE_PAGE;
+  cmd_table.param[0] = page_start;
+  cmd_table.param[1] = page_end;
+  cmd_table.param[2] = __SYSTEM_CLOCK/1000;
+  
+  #if defined IRQ_HANDLER_IN_SRAM
+  iap_call(&cmd_table, &result_table);
+  #endif
+  
+  #if defined IRQ_DISABLE
+  __disable_irq();
+  iap_call(&cmd_table, &result_table);
+  __enable_irq();
+  #endif
+  
+  return (int)result_table.ret_code;
 }
 
 /**
@@ -142,21 +142,21 @@ int iap_erase_page(unsigned int page_start, unsigned int page_end) {
  * @return CMD_SUCCESS, BUSY, or INVALID_SECTOR
  */
 int iap_prepare_sector(unsigned int sector_start, unsigned int sector_end) {
-	cmd_table.cmd_code = PREPARE_SECTOR;
-	cmd_table.param[0] = sector_start;
-	cmd_table.param[1] = sector_end;
+  cmd_table.cmd_code = PREPARE_SECTOR;
+  cmd_table.param[0] = sector_start;
+  cmd_table.param[1] = sector_end;
 
-	#if defined IRQ_HANDLER_IN_SRAM
-	iap_call(&cmd_table, &result_table);
-	#endif
-	
-	#if defined IRQ_DISABLE
-	__disable_irq();
-	iap_call(&cmd_table, &result_table);
-	__enable_irq();
-	#endif
-	
-	return (int)result_table.ret_code;
+  #if defined IRQ_HANDLER_IN_SRAM
+  iap_call(&cmd_table, &result_table);
+  #endif
+  
+  #if defined IRQ_DISABLE
+  __disable_irq();
+  iap_call(&cmd_table, &result_table);
+  __enable_irq();
+  #endif
+  
+  return (int)result_table.ret_code;
 }
 
 /**
@@ -172,25 +172,25 @@ int iap_prepare_sector(unsigned int sector_start, unsigned int sector_end) {
  * @return CMD_SUCCESS, BUSY, or INVALID_SECTOR
  */
 int iap_copy_ram_to_flash(void* ram_address, void* flash_address,
-		unsigned int count) {
-	cmd_table.cmd_code = COPY_RAM_TO_FLASH;
-	cmd_table.param[0] = (uint32_t) flash_address;
-	cmd_table.param[1] = (uint32_t) ram_address;
-	cmd_table.param[2] = count;
-	cmd_table.param[3] = __SYSTEM_CLOCK/1000;
+    unsigned int count) {
+  cmd_table.cmd_code = COPY_RAM_TO_FLASH;
+  cmd_table.param[0] = (uint32_t) flash_address;
+  cmd_table.param[1] = (uint32_t) ram_address;
+  cmd_table.param[2] = count;
+  cmd_table.param[3] = __SYSTEM_CLOCK/1000;
 
-			
-	#if defined IRQ_HANDLER_IN_SRAM
-	iap_call(&cmd_table, &result_table);
-	#endif
-			
-	#if defined IRQ_DISABLE	
-	__disable_irq();
-	iap_call(&cmd_table, &result_table);
-	__enable_irq();
-	#endif
-			
-	return (int)result_table.ret_code;
+      
+  #if defined IRQ_HANDLER_IN_SRAM
+  iap_call(&cmd_table, &result_table);
+  #endif
+      
+  #if defined IRQ_DISABLE 
+  __disable_irq();
+  iap_call(&cmd_table, &result_table);
+  __enable_irq();
+  #endif
+      
+  return (int)result_table.ret_code;
 }
 
 /**
@@ -201,22 +201,22 @@ int iap_copy_ram_to_flash(void* ram_address, void* flash_address,
  * @return CMD_SUCCESS
  */
 int iap_read_part_id(uint32_t *part_id) {
-	cmd_table.cmd_code = READ_PART_ID;
+  cmd_table.cmd_code = READ_PART_ID;
 
-	
-	#if defined IRQ_HANDLER_IN_SRAM
-	iap_call(&cmd_table, &result_table);
-	#endif
-	
-	#if defined IRQ_DISABLE
-	__disable_irq();
-	iap_call(&cmd_table, &result_table);
-	__enable_irq();
-	#endif
-	
-	*part_id = result_table.result[0];
+  
+  #if defined IRQ_HANDLER_IN_SRAM
+  iap_call(&cmd_table, &result_table);
+  #endif
+  
+  #if defined IRQ_DISABLE
+  __disable_irq();
+  iap_call(&cmd_table, &result_table);
+  __enable_irq();
+  #endif
+  
+  *part_id = result_table.result[0];
 
-	return (int)result_table.ret_code;
+  return (int)result_table.ret_code;
 }
 
 /**
@@ -227,24 +227,24 @@ int iap_read_part_id(uint32_t *part_id) {
  * @return CMD_SUCCESS
  */
 int iap_read_bootcode_rev(uint8_t *major, uint8_t* minor) {
-	cmd_table.cmd_code = READ_BOOT_CODE_REV;
+  cmd_table.cmd_code = READ_BOOT_CODE_REV;
 
-	#if defined IRQ_HANDLER_IN_SRAM
-	iap_call(&cmd_table, &result_table);
-	#endif
-	
-	#if defined IRQ_DISABLE
-	__disable_irq();
-	iap_call(&cmd_table, &result_table);
-	__enable_irq();
-	#endif
+  #if defined IRQ_HANDLER_IN_SRAM
+  iap_call(&cmd_table, &result_table);
+  #endif
+  
+  #if defined IRQ_DISABLE
+  __disable_irq();
+  iap_call(&cmd_table, &result_table);
+  __enable_irq();
+  #endif
       if(major != 0x00)
          *major = (result_table.result[0] >> 8) & 0xFF;
       if(minor != 0x00)
          *minor = (result_table.result[0]) & 0xFF;
-	
+  
 
-	return (int)result_table.ret_code;
+  return (int)result_table.ret_code;
 }
 
 /**
@@ -255,23 +255,23 @@ int iap_read_bootcode_rev(uint8_t *major, uint8_t* minor) {
  * @return CMD_SUCCESS
  */
 int iap_read_unique_id(uint32_t *u_id) {
-	
-	cmd_table.cmd_code = READ_UID;
+  
+  cmd_table.cmd_code = READ_UID;
 
-	#if defined IRQ_HANDLER_IN_SRAM
-	iap_call(&cmd_table, &result_table);
-	#endif
-	
-	#if defined IRQ_DISABLE
-	__disable_irq();
-	iap_call(&cmd_table, &result_table);
-	__enable_irq();
-	#endif
+  #if defined IRQ_HANDLER_IN_SRAM
+  iap_call(&cmd_table, &result_table);
+  #endif
+  
+  #if defined IRQ_DISABLE
+  __disable_irq();
+  iap_call(&cmd_table, &result_table);
+  __enable_irq();
+  #endif
 
-	u_id[0] = result_table.result[0];
-	u_id[1] = result_table.result[1];
-	u_id[2] = result_table.result[2];
-	u_id[3] = result_table.result[3];
+  u_id[0] = result_table.result[0];
+  u_id[1] = result_table.result[1];
+  u_id[2] = result_table.result[2];
+  u_id[3] = result_table.result[3];
 
-	return (int)result_table.ret_code;
+  return (int)result_table.ret_code;
 }

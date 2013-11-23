@@ -67,7 +67,7 @@ typedef enum IRQn
 /******  LPC8xx Specific Interrupt Numbers ********************************************************/
   SPI0_IRQn                     = 0,        /*!< SPI0                                             */
   SPI1_IRQn                     = 1,        /*!< SPI1                                             */
-  Reserved0_IRQn                = 2,        /*!< Reserved Interrupt                               */	
+  Reserved0_IRQn                = 2,        /*!< Reserved Interrupt                               */  
   UART0_IRQn                    = 3,        /*!< USART0                                            */
   UART1_IRQn                    = 4,        /*!< USART1                                            */
   UART2_IRQn                    = 5,        /*!< USART2                                            */
@@ -89,7 +89,7 @@ typedef enum IRQn
   Reserved9_IRQn                = 21,       /*!< Reserved Interrupt                               */
   Reserved10_IRQn               = 22,       /*!< Reserved Interrupt                               */    
   Reserved11_IRQn               = 23,       /*!< Reserved Interrupt                               */
-  PININT0_IRQn               	  = 24,       /*!< External Interrupt 0                             */
+  PININT0_IRQn                  = 24,       /*!< External Interrupt 0                             */
   PININT1_IRQn                  = 25,       /*!< External Interrupt 1                             */  
   PININT2_IRQn                  = 26,       /*!< External Interrupt 2                             */
   PININT3_IRQn                  = 27,       /*!< External Interrupt 3                             */
@@ -142,7 +142,7 @@ typedef struct
        uint32_t RESERVED1[2];
   __IO uint32_t SYSRSTSTAT;             /*!< Offset: 0x030 System reset status Register (R/W ) */
        uint32_t RESERVED2[3];
-  __IO uint32_t SYSPLLCLKSEL;           /*!< Offset: 0x040 System PLL clock source select (R/W) */	
+  __IO uint32_t SYSPLLCLKSEL;           /*!< Offset: 0x040 System PLL clock source select (R/W) */
   __IO uint32_t SYSPLLCLKUEN;           /*!< Offset: 0x044 System PLL clock source update enable (R/W) */
        uint32_t RESERVED3[10];
 
@@ -370,17 +370,17 @@ typedef struct {                            /*!< (@ 0x40028000) WKT Structure   
 
 /*------------- Multi-Rate Timer(MRT) --------------------------------------------------*/
 typedef struct {
-__IO uint32_t INTVAL;        							
-__IO uint32_t TIMER;         							
-__IO uint32_t CTRL;          							
-__IO uint32_t STAT;          							
+__IO uint32_t INTVAL;        
+__IO uint32_t TIMER;         
+__IO uint32_t CTRL;          
+__IO uint32_t STAT;          
 } MRT_Channel_cfg_Type;
 
 typedef struct {
-  MRT_Channel_cfg_Type Channel[4]; 		
-   uint32_t Reserved0[1]; 				
-  __IO uint32_t IDLE_CH; 			
-  __IO uint32_t IRQ_FLAG; 						
+  MRT_Channel_cfg_Type Channel[4]; 
+   uint32_t Reserved0[1]; 
+  __IO uint32_t IDLE_CH; 
+  __IO uint32_t IRQ_FLAG; 
 } LPC_MRT_TypeDef;
 
 
@@ -393,15 +393,15 @@ typedef struct {
   */
 typedef struct
 {
-  __IO uint32_t  CFG;								/* 0x00 */
+  __IO uint32_t  CFG;               /* 0x00 */
   __IO uint32_t  CTRL;
   __IO uint32_t  STAT;
   __IO uint32_t  INTENSET;
-  __O  uint32_t  INTENCLR;					/* 0x10 */
+  __O  uint32_t  INTENCLR;          /* 0x10 */
   __I  uint32_t  RXDATA;
   __I  uint32_t  RXDATA_STAT;
   __IO uint32_t  TXDATA;
-  __IO uint32_t  BRG;								/* 0x20 */
+  __IO uint32_t  BRG;               /* 0x20 */
   __IO uint32_t  INTSTAT;
 } LPC_USART_TypeDef;
 
@@ -414,15 +414,15 @@ typedef struct
 */
 typedef struct
 {
-  __IO uint32_t  CFG;			    /* 0x00 */
+  __IO uint32_t  CFG;         /* 0x00 */
   __IO uint32_t  DLY;
   __IO uint32_t  STAT;
   __IO uint32_t  INTENSET;
-  __O  uint32_t  INTENCLR;		/* 0x10 */
+  __O  uint32_t  INTENCLR;    /* 0x10 */
   __I  uint32_t  RXDAT;
   __IO uint32_t  TXDATCTL;
   __IO uint32_t  TXDAT;
-  __IO uint32_t  TXCTRL;		  /* 0x20 */
+  __IO uint32_t  TXCTRL;      /* 0x20 */
   __IO uint32_t  DIV;
   __I  uint32_t  INTSTAT;
 } LPC_SPI_TypeDef;
@@ -435,27 +435,27 @@ typedef struct
 */
 typedef struct
 {
-  __IO uint32_t  CFG;			  /* 0x00 */
+  __IO uint32_t  CFG;       /* 0x00 */
   __IO uint32_t  STAT;
   __IO uint32_t  INTENSET;
   __O  uint32_t  INTENCLR;
-  __IO uint32_t  TIMEOUT;		/* 0x10 */
+  __IO uint32_t  TIMEOUT;   /* 0x10 */
   __IO uint32_t  DIV;
   __IO uint32_t  INTSTAT;
        uint32_t  Reserved0[1];  
-  __IO uint32_t  MSTCTL;			  /* 0x20 */
+  __IO uint32_t  MSTCTL;        /* 0x20 */
   __IO uint32_t  MSTTIME;
   __IO uint32_t  MSTDAT;
        uint32_t  Reserved1[5];
-  __IO uint32_t  SLVCTL;			  /* 0x40 */
+  __IO uint32_t  SLVCTL;        /* 0x40 */
   __IO uint32_t  SLVDAT;
   __IO uint32_t  SLVADR0;
   __IO uint32_t  SLVADR1;
-  __IO uint32_t  SLVADR2;			  /* 0x50 */
+  __IO uint32_t  SLVADR2;       /* 0x50 */
   __IO uint32_t  SLVADR3;
   __IO uint32_t  SLVQUAL0;
        uint32_t  Reserved2[9];
-  __I  uint32_t  MONRXDAT;			/* 0x80 */		
+  __I  uint32_t  MONRXDAT;      /* 0x80 */    
 } LPC_I2C_TypeDef;
 
 /*@}*/ /* end of group LPC8xx_I2C */
@@ -541,10 +541,10 @@ typedef struct
         __IO uint16_t MATCH_H[CONFIG_SCT_nRG];       /* 0x1C0-... Match Value H counter */
         __I  uint16_t CAP_H[CONFIG_SCT_nRG];         /* 0x1C0-... Capture Value H counter */
     };
-		
+    
          uint16_t RESERVED5[32-CONFIG_SCT_nRG];      /* ...-0x1FE reserved */
 
-		
+    
     union {
         __IO union {                    /* 0x200-... Match Reload / Capture Control value */
             uint32_t U;                 /*       SCTMATCHREL[i].U  Unified 32-bit register */
