@@ -131,10 +131,10 @@ void loop () {
         Serial.println(rf12_len);
         break;
       case 22: {
-        struct AnnounceRequest *reqp = (struct AnnounceRequest*) rf12_data;
+        struct PairingRequest *reqp = (struct PairingRequest*) rf12_data;
         Serial.print(F("announce type 0x"));
         Serial.println(reqp->type, HEX);
-        static struct AnnounceReply reply;
+        static struct PairingReply reply;
         memset(&reply, 0, sizeof reply);
         reply.type = reqp->type;
         reply.group = 212;
@@ -147,14 +147,14 @@ void loop () {
         break;
       }
       case 8: {
-        struct BootRequest *reqp = (struct BootRequest*) rf12_data;
+        struct UpgradeRequest *reqp = (struct UpgradeRequest*) rf12_data;
         Serial.print(F("boot swId 0x"));
         Serial.println(reqp->swId, HEX);
         const byte maxSections = sizeof sections / sizeof *sections;
         byte newId = (reqp->swId + 1) % maxSections;
         Serial.print(F(" -> newId "));
         Serial.println(newId);
-        static struct BootReply reply;
+        static struct UpgradeReply reply;
         memset(&reply, 0, sizeof reply);
         reply.type = reqp->type;
         reply.swId = newId;
@@ -166,12 +166,12 @@ void loop () {
         break;
       }
       case 4: {
-        struct DataRequest *reqp = (struct DataRequest*) rf12_data;
+        struct DownloadRequest *reqp = (struct DownloadRequest*) rf12_data;
         Serial.print(F("data swIndex "));
         Serial.println(reqp->swIndex);
         byte reqId = reqp->swId;
         word off = sections[reqId].off + reqp->swIndex * BOOT_DATA_MAX;
-        static struct DataReply reply;
+        static struct DownloadReply reply;
         reply.swIdXor = reqp->swId ^ reqp->swIndex;
         // memset(reply.data, reqp->swIndex, sizeof reply.data);
         for (byte i = 0; i < BOOT_DATA_MAX; ++i)
