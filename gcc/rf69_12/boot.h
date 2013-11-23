@@ -47,11 +47,13 @@ static void dump (const char* msg, const uint8_t* buf, int len) {
 #endif
 
 // return 1 if good reply, 0 if crc error, -1 if timeout
-static int sendRequest (const void* buf, int len) {
+static int sendRequest (const void* buf, int len, int hdrOr) {
   dump("send", buf, len);
-  rf12_sendNow(RF12_HDR_CTL | RF12_HDR_ACK, buf, len);
+  // printf("sending %d b\n", len);
+  rf12_sendNow(RF12_HDR_CTL | RF12_HDR_ACK | hdrOr, buf, len);
+  rf12_sendWait(0);
   uint32_t now = msTicks;
-  while (!rf12_recvDone())
+  while (!rf12_recvDone() || rf12_len == 0) // TODO: 0-check to avoid std acks?
     if ((msTicks - now) >= 250) {
       printf("timed out\n");
       return -1;
@@ -60,6 +62,7 @@ static int sendRequest (const void* buf, int len) {
     printf("bad crc %04X\n", rf12_crc);
     return 0;
   }
+  printf("got %d b hdr 0x%X crc %X\n", rf12_len, rf12_hdr, rf12_crc);
   dump("recv", (const uint8_t*) rf12_data, rf12_len);
   return 1;
 }
@@ -120,14 +123,13 @@ static void sendPairingCheck () {
   memcpy(request.hwId, hwId, sizeof request.hwId);
   
   struct PairingReply reply;
-  if (sendRequest(&request, sizeof request) > 0 && rf12_len == sizeof reply) {
+  if (sendRequest(&request, sizeof request, RF12_HDR_DST) > 0 && rf12_len == sizeof reply) {
     memcpy(&reply, (const void*) rf12_data, sizeof reply);
     config.group = reply.group;
     config.nodeId = reply.nodeId;
     memcpy(config.shKey, reply.shKey, sizeof config.shKey);
     saveConfig();
     printf("paired group %d node %d\n", config.group, config.nodeId);
-    rf12_initialize(config.nodeId, RF12_868MHZ, config.group);
   }
 }
 
@@ -154,7 +156,7 @@ static int sendUpgradeCheck () {
   request.swSize = config.swSize;
   request.swCheck = config.swCheck;
   struct UpgradeReply reply;
-  if (sendRequest(&request, sizeof request) > 0 && rf12_len == sizeof reply) {
+  if (sendRequest(&request, sizeof request, 0) > 0 && rf12_len == sizeof reply) {
     memcpy(&reply, (const void*) rf12_data, sizeof reply);
     // ...
     config.swId = reply.swId;
@@ -171,7 +173,7 @@ static int sendDownloadRequest (int index) {
   request.swId = config.swId;
   request.swIndex = index;
   struct DownloadReply reply;
-  if (sendRequest(&request, sizeof request) > 0 && rf12_len == sizeof reply) {
+  if (sendRequest(&request, sizeof request, 0) > 0 && rf12_len == sizeof reply) {
     for (int i = 0; i < BOOT_DATA_MAX; ++i)
       rf12_data[2+i] ^= 211 * i;
     // dump("de-whitened", (const void*) rf12_data, rf12_len);
@@ -185,10 +187,12 @@ static int sendDownloadRequest (int index) {
   return 0;
 }
 
-static int bootLoaderLogic () {
+static void bootLoaderLogic () {
   printf("1\n");
   loadConfig();
   
+  rf12_initialize(1, RF12_868MHZ, PAIRING_GROUP);
+
   printf("2\n");
   backOffCounter = 0;
   while (1) {
@@ -198,6 +202,8 @@ static int bootLoaderLogic () {
     exponentialBackOff();
   }
   
+  rf12_initialize(config.nodeId, RF12_868MHZ, config.group);
+
   printf("3\n");
   backOffCounter = 0;
   do {
@@ -217,5 +223,4 @@ static int bootLoaderLogic () {
   }
 
   printf("5\n");
-  return 0;
 }

@@ -1,4 +1,5 @@
 #define LPC_MAX 1
+#define PAIRING_GROUP 212
 
 #define __VTOR_PRESENT 1
 
@@ -9,7 +10,7 @@
 #include "rf69_12.h"
 #include "iap_driver.h"
 
-// #define printf(...)
+#define printf(...)
 #define dump(...)
 
 static volatile uint32_t msTicks;
@@ -84,8 +85,6 @@ int main (void) {
   iap_read_part_id(&partId);
   printf("part id 0x%04X\n", (int) partId);
   
-  rf12_initialize(1, RF12_868MHZ, 212);
-
   // this will not catch the runaway case when the server replies with data,
   // but the application that ends up in memory does not match the crc given
   // in this case, we'll constantly keep retrying... and drain the battery :(

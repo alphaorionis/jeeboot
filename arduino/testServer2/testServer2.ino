@@ -5,6 +5,9 @@
 #include <JeeLib.h>
 #include <util/crc16.h>
 
+#define PAIRING_GROUP 212
+#define BOOT_GROUP PAIRING_GROUP
+
 // struct { const char* title; unsigned start, off, count; } sections[];
 // const unsigned char progdata[] PROGMEM = ...
 #include "data_blinks.h"
@@ -41,8 +44,10 @@ void setup () {
   Serial.begin(57600);
   Serial.println("\n[testServer2]");
 #endif
-  rf12_initialize(31, RF12_868MHZ, 212);
+  rf12_initialize(31, RF12_868MHZ, PAIRING_GROUP);
 }
+
+#define THROTTLE 5
 
 void loop () {
 	// boot loader request packets haev a special header with CTL *and* ACK set
@@ -61,12 +66,12 @@ void loop () {
         static struct PairingReply reply;
         memset(&reply, 0, sizeof reply);
         reply.type = reqp->type;
-        reply.group = 212;
+        reply.group = BOOT_GROUP;
         reply.nodeId = 17;
         // memcpy(reply.shKey, "FEDCBA09876543210", sizeof reply.shKey);
         while (!rf12_canSend())
           rf12_recvDone();
-        // delay(100);
+        delay(THROTTLE);
         rf12_sendNow(0, &reply, sizeof reply);
         break;
       }
@@ -86,7 +91,7 @@ void loop () {
         reply.swSize = (sections[newId].count + 15) >> 4;
         reply.swCheck =  calcCRCrom(progdata + sections[newId].off,
                                                     reply.swSize << 4);
-        // delay(100);
+        delay(THROTTLE);
         rf12_sendNow(RF12_HDR_DST | 17, &reply, sizeof reply);
         break;
       }
@@ -102,14 +107,14 @@ void loop () {
         // memset(reply.data, reqp->swIndex, sizeof reply.data);
         for (byte i = 0; i < BOOT_DATA_MAX; ++i)
           reply.data[i] = pgm_read_byte(progdata + off + i) ^ (211 * i);
-        // introduce random errors in last code section
+        // introduce random errors in the blue code section by not responding
         static byte random = 1;
         if (reqId == 2) {
           random *= 211;
-          // if (random > 100)
-          //   break; // no reply
+          if (random >= 128)
+            break; // no reply
         }
-        // delay(100);
+        delay(THROTTLE);
         rf12_sendNow(RF12_HDR_DST | 17, &reply, sizeof reply);
         break;
       }

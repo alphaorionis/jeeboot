@@ -33,6 +33,12 @@ static uint8_t readReg (uint8_t addr) {
   return spiTransfer(addr << 8);
 }
 
+static void flushFifo () {
+  while (readReg(REG_IRQFLAGS2) & (RF_IRQFLAGS2_FIFONOTEMPTY |
+                                      RF_IRQFLAGS2_FIFOOVERRUN))
+    readReg(REG_FIFO);
+}
+
 static void setMode (int mode) {
   writeReg(REG_OPMODE, (readReg(REG_OPMODE) & 0xE3) | mode);
   // while ((readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0)

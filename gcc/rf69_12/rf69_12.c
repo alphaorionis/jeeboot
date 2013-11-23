@@ -5,6 +5,8 @@
 #include "rf69_mcu.h"
 #include "rf69_hw.h"
 
+// #include <stdio.h>
+
 // transceiver states, these determine what to do with each interrupt
 enum { TXCRC1, TXCRC2, TXTAIL, TXDONE, TXIDLE, TXRECV };
 
@@ -52,7 +54,7 @@ static const uint8_t configRegs [] = {
   0x37, 0x00, // PacketConfig1 = fixed, no crc, filt off
   0x38, 0x00, // PayloadLength = 0, unlimited
   0x3C, 0x8F, // FifoTresh, not empty, level 15
-  0x3D, 0x12, // PacketConfig2, interpkt = 1, autorxrestart
+  0x3D, 0x10, // PacketConfig2, interpkt = 1, autorxrestart off
   0x6F, 0x20, // TestDagc ...
   0
 };
@@ -81,7 +83,8 @@ uint8_t rf12_recvDone(void) {
   if (rxstate == TXIDLE) {
     rxfill = rf12_len = 0;
     rf12_crc = _crc16_update(~0, group);
-    rxstate = TXRECV;    
+    rxstate = TXRECV;
+    flushFifo();
     setMode(RF_OPMODE_RECEIVER);
   } else {
     uint8_t irq2 = readReg(REG_IRQFLAGS2);
@@ -94,6 +97,8 @@ uint8_t rf12_recvDone(void) {
         rf12_crc = _crc16_update(rf12_crc, in);
 
         if (rxfill >= rf12_len + 5 || rxfill >= RF_MAX) {
+          // printf("fill %d grp %d hdr %d len %d\n",
+          //           rxfill, rf12_grp, rf12_hdr, rf12_len);
           rxstate = TXIDLE;
           setMode(RF_OPMODE_STANDBY);
           if (rf12_len > RF12_MAXDATA)
@@ -143,6 +148,7 @@ void rf12_sendStart(uint8_t hdr, const void* ptr, uint8_t len) {
   rf12_hdr = hdr & RF12_HDR_DST ? hdr : (hdr & ~RF12_HDR_MASK) + nodeid;  
   rf12_crc = _crc16_update(~0, group);
   rxstate = - (2 + rf12_len); // preamble and SYN1/SYN2 are sent by hardware
+  flushFifo();
   setMode(RF_OPMODE_TRANSMITTER);
 }
 
