@@ -82,7 +82,7 @@ int main (void) {
   // printf("iap init %d\n", e);
   uint32_t partId;
   iap_read_part_id(&partId);
-  printf("part id 0x%04lX\n", partId);
+  printf("part id 0x%04X\n", (int) partId);
   
   rf12_initialize(1, RF12_868MHZ, 212);
 
