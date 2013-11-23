@@ -18,7 +18,7 @@ struct PairingReply {
 
 struct UpgradeRequest {
   uint16_t type;			// type, same as in request
-  uint16_t swId;			// current software ID 0 if unknown
+  uint16_t swId;			// current software ID or 0 if unknown
   uint16_t swSize;		// current software download size, in units of 16 bytes
   uint16_t swCheck;		// current crc checksum over entire download
 };

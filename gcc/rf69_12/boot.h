@@ -109,7 +109,7 @@ static void setDefaultConfig () {
   memset(&config, 0, sizeof config);
 }
 
-static void sendIdentityCheck () {
+static void sendPairingCheck () {
   uint32_t hwId [4];
   iap_read_unique_id(hwId);
   struct PairingRequest request;
@@ -167,7 +167,7 @@ static int sendUpgradeCheck () {
   return 0;
 }
 
-static int sendCodeRequest (uint8_t* fill) {
+static int sendDownloadRequest (uint8_t* fill) {
   struct DownloadRequest request;
   request.swId = config.swId;
   request.swIndex = (fill - BASE_ADDR) / BOOT_DATA_MAX;
@@ -198,7 +198,7 @@ static int bootLoaderLogic () {
   printf("2\n");
   backOffCounter = 0;
   while (1) {
-    sendIdentityCheck(); // pairing check in group 212, pick up reply if any
+    sendPairingCheck(); // pairing check in group 212, pick up reply if any
     if (config.group != 0 && config.nodeId != 0) // paired
       break;
     exponentialBackOff();
@@ -217,7 +217,7 @@ static int bootLoaderLogic () {
     uint8_t* codeEnd = BASE_ADDR + (config.swSize << 4);
     for (uint8_t *p = BASE_ADDR; p < codeEnd; p += saveReceivedCode(p)) {
       backOffCounter = 0;
-      while (sendCodeRequest(p) == 0)
+      while (sendDownloadRequest(p) == 0)
         exponentialBackOff();
     }
     saveReceivedCode(0); // save last bytes

@@ -53,6 +53,7 @@ void loop () {
         Serial.print(F("bad length: "));
         Serial.println(rf12_len);
         break;
+        
       case 22: { // packets of length 22 are pairing requests
         struct PairingRequest *reqp = (struct PairingRequest*) rf12_data;
         Serial.print(F("announce type 0x"));
@@ -69,6 +70,7 @@ void loop () {
         rf12_sendNow(0, &reply, sizeof reply);
         break;
       }
+      
       case 8: { // packets of length 8 are upgrade requests
         struct UpgradeRequest *reqp = (struct UpgradeRequest*) rf12_data;
         Serial.print(F("boot swId 0x"));
@@ -88,7 +90,8 @@ void loop () {
         rf12_sendNow(RF12_HDR_DST | 17, &reply, sizeof reply);
         break;
       }
-      case 4: { // packets of length 22 are download requests
+      
+      case 4: { // packets of length 4 are download requests
         struct DownloadRequest *reqp = (struct DownloadRequest*) rf12_data;
         Serial.print(F("data swIndex "));
         Serial.println(reqp->swIndex);

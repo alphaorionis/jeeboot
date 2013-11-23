@@ -35,7 +35,7 @@ Discarded input sections
                 0x0000000000000000       0x28 ../base/spi.o
  .debug_ranges  0x0000000000000000       0x18 ../base/spi.o
  .debug_line    0x0000000000000000       0xee ../base/spi.o
- .debug_str     0x0000000000000000      0x3a5 ../base/spi.o
+ .debug_str     0x0000000000000000      0x397 ../base/spi.o
  .comment       0x0000000000000000       0x71 ../base/spi.o
  .ARM.attributes
                 0x0000000000000000       0x32 ../base/spi.o
@@ -77,7 +77,7 @@ Discarded input sections
                 0x0000000000000000       0x28 ../base/system_LPC8xx.o
  .debug_ranges  0x0000000000000000       0x18 ../base/system_LPC8xx.o
  .debug_line    0x0000000000000000      0x105 ../base/system_LPC8xx.o
- .debug_str     0x0000000000000000      0x37b ../base/system_LPC8xx.o
+ .debug_str     0x0000000000000000      0x36d ../base/system_LPC8xx.o
  .comment       0x0000000000000000       0x71 ../base/system_LPC8xx.o
  .ARM.attributes
                 0x0000000000000000       0x32 ../base/system_LPC8xx.o
@@ -343,21 +343,21 @@ OUTPUT(firmware.elf elf32-littlearm)
  .debug_line    0x00000000000009d9      0x234 ../base/iap_driver.o
  .debug_line    0x0000000000000c0d       0xfc ../base/gcc_startup_lpc8xx.o
 
-.debug_str      0x0000000000000000      0xd1e
- .debug_str     0x0000000000000000      0x8d6 main.o
-                                        0x941 (size before relaxing)
- .debug_str     0x00000000000008d6      0x128 rf69_12.o
-                                        0x4ca (size before relaxing)
- .debug_str     0x00000000000009fe       0x6a ../base/uart.o
-                                        0x3c7 (size before relaxing)
- .debug_str     0x0000000000000a68       0x90 ../base/printf.o
-                                        0x13b (size before relaxing)
- .debug_str     0x0000000000000af8       0x1f ../base/printf-retarget.o
-                                        0x148 (size before relaxing)
- .debug_str     0x0000000000000b17      0x116 ../base/iap_driver.o
-                                        0x2b0 (size before relaxing)
- .debug_str     0x0000000000000c2d       0xf1 ../base/gcc_startup_lpc8xx.o
-                                        0x283 (size before relaxing)
+.debug_str      0x0000000000000000      0xd03
+ .debug_str     0x0000000000000000      0x8bb main.o
+                                        0x936 (size before relaxing)
+ .debug_str     0x00000000000008bb      0x128 rf69_12.o
+                                        0x4bc (size before relaxing)
+ .debug_str     0x00000000000009e3       0x6a ../base/uart.o
+                                        0x3b9 (size before relaxing)
+ .debug_str     0x0000000000000a4d       0x90 ../base/printf.o
+                                        0x12d (size before relaxing)
+ .debug_str     0x0000000000000add       0x1f ../base/printf-retarget.o
+                                        0x13a (size before relaxing)
+ .debug_str     0x0000000000000afc      0x116 ../base/iap_driver.o
+                                        0x2a2 (size before relaxing)
+ .debug_str     0x0000000000000c12       0xf1 ../base/gcc_startup_lpc8xx.o
+                                        0x275 (size before relaxing)
 
 .comment        0x0000000000000000       0x70
  .comment       0x0000000000000000       0x70 main.o
