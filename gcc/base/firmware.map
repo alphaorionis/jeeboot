@@ -36,105 +36,105 @@ Memory Configuration
 
 Name             Origin             Length             Attributes
 FLASH            0x0000000000000000 0x0000000000004000 xr
-RAM              0x0000000010000200 0x0000000000000e00 xrw
+RAM              0x0000000010000280 0x0000000000000d80 xrw
 *default*        0x0000000000000000 0xffffffffffffffff
 
 Linker script and memory map
 
 
-.text           0x0000000000000000      0x178
+.text           0x0000000000000000      0x104
  *(.isr_vector)
- .isr_vector    0x0000000000000000       0xc0 gcc_startup_lpc8xx.o
+ .isr_vector    0x0000000000000000       0x40 gcc_startup_lpc8xx.o
                 0x0000000000000000                g_pfnVectors
  *(.after_vectors*)
  .after_vectors
-                0x00000000000000c0       0x50 gcc_startup_lpc8xx.o
-                0x00000000000000c0                NMI_Handler
-                0x00000000000000c2                HardFault_Handler
-                0x00000000000000c4                PendSV_Handler
-                0x00000000000000c8                WKT_Handler
-                0x00000000000000ca                PININT2_IRQHandler
-                0x00000000000000ca                PININT1_IRQHandler
-                0x00000000000000ca                MRT_IRQHandler
-                0x00000000000000ca                UART1_IRQHandler
-                0x00000000000000ca                UART0_IRQHandler
-                0x00000000000000ca                SPI1_IRQHandler
-                0x00000000000000ca                IntDefaultHandler
-                0x00000000000000ca                PININT3_IRQHandler
-                0x00000000000000ca                UART2_IRQHandler
-                0x00000000000000ca                PININT5_IRQHandler
-                0x00000000000000ca                PININT4_IRQHandler
-                0x00000000000000ca                PININT0_IRQHandler
-                0x00000000000000ca                BOD_IRQHandler
-                0x00000000000000ca                SCT_IRQHandler
-                0x00000000000000ca                I2C_IRQHandler
-                0x00000000000000ca                WDT_IRQHandler
-                0x00000000000000ca                PININT6_IRQHandler
-                0x00000000000000ca                SPI0_IRQHandler
-                0x00000000000000ca                CMP_IRQHandler
-                0x00000000000000ca                PININT7_IRQHandler
-                0x00000000000000cc                ResetISR
-                0x000000000000010c                SVCall_Handler
+                0x0000000000000040       0x5c gcc_startup_lpc8xx.o
+                0x0000000000000040                NMI_Handler
+                0x0000000000000042                HardFault_Handler
+                0x0000000000000044                PendSV_Handler
+                0x0000000000000048                ResetISR
+                0x0000000000000088                SVCall_Handler
+                0x000000000000008a                WKT_Handler
+                0x000000000000008c                PININT1_IRQHandler
+                0x000000000000008c                PININT2_IRQHandler
+                0x000000000000008c                PININT7_IRQHandler
+                0x000000000000008c                MRT_IRQHandler
+                0x000000000000008c                UART1_IRQHandler
+                0x000000000000008c                UART0_IRQHandler
+                0x000000000000008c                SPI1_IRQHandler
+                0x000000000000008c                IntDefaultHandler
+                0x000000000000008c                PININT3_IRQHandler
+                0x000000000000008c                UART2_IRQHandler
+                0x000000000000008c                PININT5_IRQHandler
+                0x000000000000008c                PININT4_IRQHandler
+                0x000000000000008c                PININT0_IRQHandler
+                0x000000000000008c                BOD_IRQHandler
+                0x000000000000008c                SCT_IRQHandler
+                0x000000000000008c                I2C_IRQHandler
+                0x000000000000008c                WDT_IRQHandler
+                0x000000000000008c                PININT6_IRQHandler
+                0x000000000000008c                SPI0_IRQHandler
+                0x000000000000008c                CMP_IRQHandler
  *(.text*)
- .text          0x0000000000000110       0x10 main.o
-                0x0000000000000110                SysTick_Handler
- .text.startup  0x0000000000000120       0x58 main.o
-                0x0000000000000120                main
+ .text          0x000000000000009c       0x10 main.o
+                0x000000000000009c                SysTick_Handler
+ .text.startup  0x00000000000000ac       0x58 main.o
+                0x00000000000000ac                main
  *(.rodata .rodata.*)
-                0x0000000000000178                . = ALIGN (0x4)
-                0x0000000000000178                _etext = .
+                0x0000000000000104                . = ALIGN (0x4)
+                0x0000000000000104                _etext = .
 
-.glue_7         0x0000000000000178        0x0
+.glue_7         0x0000000000000104        0x0
  .glue_7        0x0000000000000000        0x0 linker stubs
 
-.glue_7t        0x0000000000000178        0x0
+.glue_7t        0x0000000000000104        0x0
  .glue_7t       0x0000000000000000        0x0 linker stubs
 
-.vfp11_veneer   0x0000000000000178        0x0
+.vfp11_veneer   0x0000000000000104        0x0
  .vfp11_veneer  0x0000000000000000        0x0 linker stubs
 
-.v4_bx          0x0000000000000178        0x0
+.v4_bx          0x0000000000000104        0x0
  .v4_bx         0x0000000000000000        0x0 linker stubs
 
-.iplt           0x0000000000000178        0x0
+.iplt           0x0000000000000104        0x0
  .iplt          0x0000000000000000        0x0 main.o
 
-.rel.dyn        0x0000000000000178        0x0
+.rel.dyn        0x0000000000000104        0x0
  .rel.iplt      0x0000000000000000        0x0 main.o
 
-.data           0x0000000010000200        0x0 load address 0x0000000000000178
-                0x0000000010000200                _data = .
+.data           0x0000000010000280        0x0 load address 0x0000000000000104
+                0x0000000010000280                _data = .
  *(vtable)
  *(.data*)
-                0x0000000010000200                . = ALIGN (0x4)
-                0x0000000010000200                _edata = .
+                0x0000000010000280                . = ALIGN (0x4)
+                0x0000000010000280                _edata = .
 
-.igot.plt       0x0000000010000200        0x0 load address 0x0000000000000178
+.igot.plt       0x0000000010000280        0x0 load address 0x0000000000000104
  .igot.plt      0x0000000000000000        0x0 main.o
 
-.bss            0x0000000010000200        0x4 load address 0x0000000000000178
-                0x0000000010000200                _bss = .
+.bss            0x0000000010000280        0x4 load address 0x0000000000000104
+                0x0000000010000280                _bss = .
  *(.bss*)
  *(COMMON)
- COMMON         0x0000000010000200        0x4 main.o
-                0x0000000010000200                msTicks
-                0x0000000010000204                . = ALIGN (0x4)
-                0x0000000010000204                _ebss = .
-                0x0000000010000204                PROVIDE (end, .)
-                0x0000000010000204                PROVIDE (_pvHeapStart, .)
-                0x0000000010001000                PROVIDE (_vStackTop, (ORIGIN (RAM) + 0xe00))
+ COMMON         0x0000000010000280        0x4 main.o
+                0x0000000010000280                msTicks
+                0x0000000010000284                . = ALIGN (0x4)
+                0x0000000010000284                _ebss = .
+                0x0000000010000284                PROVIDE (end, .)
+                0x0000000010000284                PROVIDE (_pvHeapStart, .)
+                0x0000000010001000                PROVIDE (_vStackTop, (ORIGIN (RAM) + 0xd80))
 LOAD main.o
 LOAD system_LPC8xx.o
 LOAD gcc_startup_lpc8xx.o
 OUTPUT(firmware.elf elf32-littlearm)
 
-.debug_info     0x0000000000000000      0x832
+.debug_info     0x0000000000000000      0xa05
  .debug_info    0x0000000000000000      0x645 main.o
- .debug_info    0x0000000000000645      0x1ed gcc_startup_lpc8xx.o
+ .debug_info    0x0000000000000645      0x3c0 gcc_startup_lpc8xx.o
 
-.debug_abbrev   0x0000000000000000      0x2f5
+.debug_abbrev   0x0000000000000000      0x334
  .debug_abbrev  0x0000000000000000      0x1c3 main.o
- .debug_abbrev  0x00000000000001c3      0x132 gcc_startup_lpc8xx.o
+ .debug_abbrev  0x00000000000001c3      0x171 gcc_startup_lpc8xx.o
 
 .debug_aranges  0x0000000000000000       0x80
  .debug_aranges
@@ -146,15 +146,15 @@ OUTPUT(firmware.elf elf32-littlearm)
  .debug_ranges  0x0000000000000000       0x48 main.o
  .debug_ranges  0x0000000000000048       0x48 gcc_startup_lpc8xx.o
 
-.debug_line     0x0000000000000000      0x17c
+.debug_line     0x0000000000000000      0x20a
  .debug_line    0x0000000000000000      0x10e main.o
- .debug_line    0x000000000000010e       0x6e gcc_startup_lpc8xx.o
+ .debug_line    0x000000000000010e       0xfc gcc_startup_lpc8xx.o
 
-.debug_str      0x0000000000000000      0x4fa
- .debug_str     0x0000000000000000      0x417 main.o
-                                        0x455 (size before relaxing)
- .debug_str     0x0000000000000417       0xe3 gcc_startup_lpc8xx.o
-                                        0x157 (size before relaxing)
+.debug_str      0x0000000000000000      0x4fb
+ .debug_str     0x0000000000000000      0x418 main.o
+                                        0x456 (size before relaxing)
+ .debug_str     0x0000000000000418       0xe3 gcc_startup_lpc8xx.o
+                                        0x273 (size before relaxing)
 
 .comment        0x0000000000000000       0x70
  .comment       0x0000000000000000       0x70 main.o

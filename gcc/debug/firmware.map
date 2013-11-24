@@ -60,122 +60,122 @@ Memory Configuration
 
 Name             Origin             Length             Attributes
 FLASH            0x0000000000000000 0x0000000000004000 xr
-RAM              0x0000000010000200 0x0000000000000e00 xrw
+RAM              0x0000000010000280 0x0000000000000d80 xrw
 *default*        0x0000000000000000 0xffffffffffffffff
 
 Linker script and memory map
 
 
-.text           0x0000000000000000      0x588
+.text           0x0000000000000000      0x514
  *(.isr_vector)
- .isr_vector    0x0000000000000000       0xc0 ../base/gcc_startup_lpc8xx.o
+ .isr_vector    0x0000000000000000       0x40 ../base/gcc_startup_lpc8xx.o
                 0x0000000000000000                g_pfnVectors
  *(.after_vectors*)
  .after_vectors
-                0x00000000000000c0       0x50 ../base/gcc_startup_lpc8xx.o
-                0x00000000000000c0                NMI_Handler
-                0x00000000000000c2                HardFault_Handler
-                0x00000000000000c4                PendSV_Handler
-                0x00000000000000c8                WKT_Handler
-                0x00000000000000ca                PININT2_IRQHandler
-                0x00000000000000ca                PININT1_IRQHandler
-                0x00000000000000ca                MRT_IRQHandler
-                0x00000000000000ca                UART1_IRQHandler
-                0x00000000000000ca                UART0_IRQHandler
-                0x00000000000000ca                SPI1_IRQHandler
-                0x00000000000000ca                IntDefaultHandler
-                0x00000000000000ca                PININT3_IRQHandler
-                0x00000000000000ca                UART2_IRQHandler
-                0x00000000000000ca                PININT5_IRQHandler
-                0x00000000000000ca                PININT4_IRQHandler
-                0x00000000000000ca                PININT0_IRQHandler
-                0x00000000000000ca                BOD_IRQHandler
-                0x00000000000000ca                SCT_IRQHandler
-                0x00000000000000ca                I2C_IRQHandler
-                0x00000000000000ca                WDT_IRQHandler
-                0x00000000000000ca                PININT6_IRQHandler
-                0x00000000000000ca                SPI0_IRQHandler
-                0x00000000000000ca                CMP_IRQHandler
-                0x00000000000000ca                PININT7_IRQHandler
-                0x00000000000000cc                ResetISR
-                0x000000000000010c                SVCall_Handler
+                0x0000000000000040       0x5c ../base/gcc_startup_lpc8xx.o
+                0x0000000000000040                NMI_Handler
+                0x0000000000000042                HardFault_Handler
+                0x0000000000000044                PendSV_Handler
+                0x0000000000000048                ResetISR
+                0x0000000000000088                SVCall_Handler
+                0x000000000000008a                WKT_Handler
+                0x000000000000008c                PININT1_IRQHandler
+                0x000000000000008c                PININT2_IRQHandler
+                0x000000000000008c                PININT7_IRQHandler
+                0x000000000000008c                MRT_IRQHandler
+                0x000000000000008c                UART1_IRQHandler
+                0x000000000000008c                UART0_IRQHandler
+                0x000000000000008c                SPI1_IRQHandler
+                0x000000000000008c                IntDefaultHandler
+                0x000000000000008c                PININT3_IRQHandler
+                0x000000000000008c                UART2_IRQHandler
+                0x000000000000008c                PININT5_IRQHandler
+                0x000000000000008c                PININT4_IRQHandler
+                0x000000000000008c                PININT0_IRQHandler
+                0x000000000000008c                BOD_IRQHandler
+                0x000000000000008c                SCT_IRQHandler
+                0x000000000000008c                I2C_IRQHandler
+                0x000000000000008c                WDT_IRQHandler
+                0x000000000000008c                PININT6_IRQHandler
+                0x000000000000008c                SPI0_IRQHandler
+                0x000000000000008c                CMP_IRQHandler
  *(.text*)
  .text.SysTick_Handler
-                0x0000000000000110       0x10 main.o
-                0x0000000000000110                SysTick_Handler
+                0x000000000000009c       0x10 main.o
+                0x000000000000009c                SysTick_Handler
  .text.startup.main
-                0x0000000000000120       0x98 main.o
-                0x0000000000000120                main
+                0x00000000000000ac       0x98 main.o
+                0x00000000000000ac                main
  .text.uart0Init
-                0x00000000000001b8       0x7c ../base/uart.o
-                0x00000000000001b8                uart0Init
+                0x0000000000000144       0x7c ../base/uart.o
+                0x0000000000000144                uart0Init
  .text.uart0SendChar
-                0x0000000000000234       0x10 ../base/uart.o
-                0x0000000000000234                uart0SendChar
+                0x00000000000001c0       0x10 ../base/uart.o
+                0x00000000000001c0                uart0SendChar
  .text.printchar
-                0x0000000000000244       0x1a ../base/printf.o
- .text.prints   0x000000000000025e       0x84 ../base/printf.o
- .text.printi   0x00000000000002e2       0xaa ../base/printf.o
- .text.print    0x000000000000038c      0x118 ../base/printf.o
- .text.printf   0x00000000000004a4       0x1a ../base/printf.o
-                0x00000000000004a4                printf
- .text.putchar  0x00000000000004be       0x16 ../base/printf-retarget.o
-                0x00000000000004be                putchar
- .text          0x00000000000004d4       0x9c /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o)
-                0x00000000000004d4                __udivsi3
-                0x00000000000004d4                __aeabi_uidiv
-                0x000000000000055c                __aeabi_uidivmod
- .text          0x0000000000000570        0x4 /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_dvmd_tls.o)
-                0x0000000000000570                __aeabi_ldiv0
-                0x0000000000000570                __aeabi_idiv0
+                0x00000000000001d0       0x1a ../base/printf.o
+ .text.prints   0x00000000000001ea       0x84 ../base/printf.o
+ .text.printi   0x000000000000026e       0xaa ../base/printf.o
+ .text.print    0x0000000000000318      0x118 ../base/printf.o
+ .text.printf   0x0000000000000430       0x1a ../base/printf.o
+                0x0000000000000430                printf
+ .text.putchar  0x000000000000044a       0x16 ../base/printf-retarget.o
+                0x000000000000044a                putchar
+ .text          0x0000000000000460       0x9c /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o)
+                0x0000000000000460                __udivsi3
+                0x0000000000000460                __aeabi_uidiv
+                0x00000000000004e8                __aeabi_uidivmod
+ .text          0x00000000000004fc        0x4 /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_dvmd_tls.o)
+                0x00000000000004fc                __aeabi_ldiv0
+                0x00000000000004fc                __aeabi_idiv0
  *(.rodata .rodata.*)
  .rodata.str1.1
-                0x0000000000000574        0xb main.o
+                0x0000000000000500        0xb main.o
  .rodata.str1.1
-                0x000000000000057f        0x7 ../base/printf.o
-                0x0000000000000588                . = ALIGN (0x4)
- *fill*         0x0000000000000586        0x2 00
-                0x0000000000000588                _etext = .
+                0x000000000000050b        0x7 ../base/printf.o
+                0x0000000000000514                . = ALIGN (0x4)
+ *fill*         0x0000000000000512        0x2 00
+                0x0000000000000514                _etext = .
 
-.glue_7         0x0000000000000588        0x0
+.glue_7         0x0000000000000514        0x0
  .glue_7        0x0000000000000000        0x0 linker stubs
 
-.glue_7t        0x0000000000000588        0x0
+.glue_7t        0x0000000000000514        0x0
  .glue_7t       0x0000000000000000        0x0 linker stubs
 
-.vfp11_veneer   0x0000000000000588        0x0
+.vfp11_veneer   0x0000000000000514        0x0
  .vfp11_veneer  0x0000000000000000        0x0 linker stubs
 
-.v4_bx          0x0000000000000588        0x0
+.v4_bx          0x0000000000000514        0x0
  .v4_bx         0x0000000000000000        0x0 linker stubs
 
-.iplt           0x0000000000000588        0x0
+.iplt           0x0000000000000514        0x0
  .iplt          0x0000000000000000        0x0 main.o
 
-.rel.dyn        0x0000000000000588        0x0
+.rel.dyn        0x0000000000000514        0x0
  .rel.iplt      0x0000000000000000        0x0 main.o
 
-.data           0x0000000010000200        0x0 load address 0x0000000000000588
-                0x0000000010000200                _data = .
+.data           0x0000000010000280        0x0 load address 0x0000000000000514
+                0x0000000010000280                _data = .
  *(vtable)
  *(.data*)
-                0x0000000010000200                . = ALIGN (0x4)
-                0x0000000010000200                _edata = .
+                0x0000000010000280                . = ALIGN (0x4)
+                0x0000000010000280                _edata = .
 
-.igot.plt       0x0000000010000200        0x0 load address 0x0000000000000588
+.igot.plt       0x0000000010000280        0x0 load address 0x0000000000000514
  .igot.plt      0x0000000000000000        0x0 main.o
 
-.bss            0x0000000010000200        0x4 load address 0x0000000000000588
-                0x0000000010000200                _bss = .
+.bss            0x0000000010000280        0x4 load address 0x0000000000000514
+                0x0000000010000280                _bss = .
  *(.bss*)
  *(COMMON)
- COMMON         0x0000000010000200        0x4 main.o
-                0x0000000010000200                msTicks
-                0x0000000010000204                . = ALIGN (0x4)
-                0x0000000010000204                _ebss = .
-                0x0000000010000204                PROVIDE (end, .)
-                0x0000000010000204                PROVIDE (_pvHeapStart, .)
-                0x0000000010001000                PROVIDE (_vStackTop, (ORIGIN (RAM) + 0xe00))
+ COMMON         0x0000000010000280        0x4 main.o
+                0x0000000010000280                msTicks
+                0x0000000010000284                . = ALIGN (0x4)
+                0x0000000010000284                _ebss = .
+                0x0000000010000284                PROVIDE (end, .)
+                0x0000000010000284                PROVIDE (_pvHeapStart, .)
+                0x0000000010001000                PROVIDE (_vStackTop, (ORIGIN (RAM) + 0xd80))
 LOAD main.o
 LOAD ../base/uart.o
 LOAD ../base/printf.o
@@ -185,19 +185,19 @@ LOAD ../base/gcc_startup_lpc8xx.o
 LOAD /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a
 OUTPUT(firmware.elf elf32-littlearm)
 
-.debug_info     0x0000000000000000     0x18bd
+.debug_info     0x0000000000000000     0x1a90
  .debug_info    0x0000000000000000      0xb43 main.o
  .debug_info    0x0000000000000b43      0x597 ../base/uart.o
  .debug_info    0x00000000000010da      0x4db ../base/printf.o
  .debug_info    0x00000000000015b5      0x11b ../base/printf-retarget.o
- .debug_info    0x00000000000016d0      0x1ed ../base/gcc_startup_lpc8xx.o
+ .debug_info    0x00000000000016d0      0x3c0 ../base/gcc_startup_lpc8xx.o
 
-.debug_abbrev   0x0000000000000000      0x793
+.debug_abbrev   0x0000000000000000      0x7d2
  .debug_abbrev  0x0000000000000000      0x277 main.o
  .debug_abbrev  0x0000000000000277      0x149 ../base/uart.o
  .debug_abbrev  0x00000000000003c0      0x1d9 ../base/printf.o
  .debug_abbrev  0x0000000000000599       0xc8 ../base/printf-retarget.o
- .debug_abbrev  0x0000000000000661      0x132 ../base/gcc_startup_lpc8xx.o
+ .debug_abbrev  0x0000000000000661      0x171 ../base/gcc_startup_lpc8xx.o
 
 .debug_loc      0x0000000000000000      0x84a
  .debug_loc     0x0000000000000000       0x20 main.o
@@ -225,24 +225,24 @@ OUTPUT(firmware.elf elf32-littlearm)
  .debug_ranges  0x00000000000000c0       0x18 ../base/printf-retarget.o
  .debug_ranges  0x00000000000000d8       0x48 ../base/gcc_startup_lpc8xx.o
 
-.debug_line     0x0000000000000000      0x563
+.debug_line     0x0000000000000000      0x5f1
  .debug_line    0x0000000000000000      0x139 main.o
  .debug_line    0x0000000000000139      0x11c ../base/uart.o
  .debug_line    0x0000000000000255      0x22c ../base/printf.o
  .debug_line    0x0000000000000481       0x74 ../base/printf-retarget.o
- .debug_line    0x00000000000004f5       0x6e ../base/gcc_startup_lpc8xx.o
+ .debug_line    0x00000000000004f5       0xfc ../base/gcc_startup_lpc8xx.o
 
-.debug_str      0x0000000000000000      0x88c
- .debug_str     0x0000000000000000      0x676 main.o
-                                        0x6c5 (size before relaxing)
- .debug_str     0x0000000000000676       0x84 ../base/uart.o
-                                        0x3b6 (size before relaxing)
- .debug_str     0x00000000000006fa       0x90 ../base/printf.o
-                                        0x12a (size before relaxing)
- .debug_str     0x000000000000078a       0x1f ../base/printf-retarget.o
-                                        0x137 (size before relaxing)
- .debug_str     0x00000000000007a9       0xe3 ../base/gcc_startup_lpc8xx.o
-                                        0x157 (size before relaxing)
+.debug_str      0x0000000000000000      0x865
+ .debug_str     0x0000000000000000      0x677 main.o
+                                        0x6c6 (size before relaxing)
+ .debug_str     0x0000000000000677       0x84 ../base/uart.o
+                                        0x3b7 (size before relaxing)
+ .debug_str     0x00000000000006fb       0x90 ../base/printf.o
+                                        0x12b (size before relaxing)
+ .debug_str     0x000000000000078b       0x1f ../base/printf-retarget.o
+                                        0x138 (size before relaxing)
+ .debug_str     0x00000000000007aa       0xbb ../base/gcc_startup_lpc8xx.o
+                                        0x273 (size before relaxing)
 
 .comment        0x0000000000000000       0x70
  .comment       0x0000000000000000       0x70 main.o
