@@ -1,3 +1,9 @@
+Archive member included because of file (symbol)
+
+/Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o)
+                              system_LPC8xx.o (__aeabi_uidiv)
+/Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_dvmd_tls.o)
+                              /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o) (__aeabi_idiv0)
 
 Allocating common symbols
 Common symbol       size              file
@@ -6,6 +12,7 @@ msTicks             0x4               main.o
 
 Discarded input sections
 
+ .text          0x0000000000000000        0x0 main.o
  .data          0x0000000000000000        0x0 main.o
  .bss           0x0000000000000000        0x0 main.o
  .text          0x0000000000000000        0x0 system_LPC8xx.o
@@ -22,8 +29,8 @@ Discarded input sections
  .debug_aranges
                 0x0000000000000000       0x28 system_LPC8xx.o
  .debug_ranges  0x0000000000000000       0x18 system_LPC8xx.o
- .debug_line    0x0000000000000000      0x105 system_LPC8xx.o
- .debug_str     0x0000000000000000      0x36b system_LPC8xx.o
+ .debug_line    0x0000000000000000       0xfd system_LPC8xx.o
+ .debug_str     0x0000000000000000      0x362 system_LPC8xx.o
  .comment       0x0000000000000000       0x71 system_LPC8xx.o
  .ARM.attributes
                 0x0000000000000000       0x32 system_LPC8xx.o
@@ -31,6 +38,17 @@ Discarded input sections
  .text          0x0000000000000000        0x0 gcc_startup_lpc8xx.o
  .data          0x0000000000000000        0x0 gcc_startup_lpc8xx.o
  .bss           0x0000000000000000        0x0 gcc_startup_lpc8xx.o
+ .text          0x0000000000000000       0x9c /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o)
+ .data          0x0000000000000000        0x0 /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o)
+ .bss           0x0000000000000000        0x0 /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o)
+ .debug_frame   0x0000000000000000       0x20 /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o)
+ .ARM.attributes
+                0x0000000000000000       0x1e /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o)
+ .text          0x0000000000000000        0x4 /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_dvmd_tls.o)
+ .data          0x0000000000000000        0x0 /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_dvmd_tls.o)
+ .bss           0x0000000000000000        0x0 /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_dvmd_tls.o)
+ .ARM.attributes
+                0x0000000000000000       0x1e /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_dvmd_tls.o)
 
 Memory Configuration
 
@@ -76,9 +94,11 @@ Linker script and memory map
                 0x000000000000008c                SPI0_IRQHandler
                 0x000000000000008c                CMP_IRQHandler
  *(.text*)
- .text          0x000000000000009c       0x10 main.o
+ .text.SysTick_Handler
+                0x000000000000009c       0x10 main.o
                 0x000000000000009c                SysTick_Handler
- .text.startup  0x00000000000000ac       0x58 main.o
+ .text.startup.main
+                0x00000000000000ac       0x58 main.o
                 0x00000000000000ac                main
  *(.rodata .rodata.*)
                 0x0000000000000104                . = ALIGN (0x4)
@@ -126,6 +146,7 @@ Linker script and memory map
 LOAD main.o
 LOAD system_LPC8xx.o
 LOAD gcc_startup_lpc8xx.o
+LOAD /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a
 OUTPUT(firmware.elf elf32-littlearm)
 
 .debug_info     0x0000000000000000      0xa05
@@ -146,15 +167,15 @@ OUTPUT(firmware.elf elf32-littlearm)
  .debug_ranges  0x0000000000000000       0x48 main.o
  .debug_ranges  0x0000000000000048       0x48 gcc_startup_lpc8xx.o
 
-.debug_line     0x0000000000000000      0x20a
+.debug_line     0x0000000000000000      0x202
  .debug_line    0x0000000000000000      0x10e main.o
- .debug_line    0x000000000000010e       0xfc gcc_startup_lpc8xx.o
+ .debug_line    0x000000000000010e       0xf4 gcc_startup_lpc8xx.o
 
-.debug_str      0x0000000000000000      0x4fb
+.debug_str      0x0000000000000000      0x4cb
  .debug_str     0x0000000000000000      0x418 main.o
                                         0x456 (size before relaxing)
- .debug_str     0x0000000000000418       0xe3 gcc_startup_lpc8xx.o
-                                        0x273 (size before relaxing)
+ .debug_str     0x0000000000000418       0xb3 gcc_startup_lpc8xx.o
+                                        0x26a (size before relaxing)
 
 .comment        0x0000000000000000       0x70
  .comment       0x0000000000000000       0x70 main.o
@@ -209,7 +230,13 @@ UART1_IRQHandler                                  gcc_startup_lpc8xx.o
 UART2_IRQHandler                                  gcc_startup_lpc8xx.o
 WDT_IRQHandler                                    gcc_startup_lpc8xx.o
 WKT_Handler                                       gcc_startup_lpc8xx.o
-__aeabi_uidiv                                     system_LPC8xx.o
+__aeabi_idiv0                                     /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_dvmd_tls.o)
+                                                  /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o)
+__aeabi_ldiv0                                     /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_dvmd_tls.o)
+__aeabi_uidiv                                     /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o)
+                                                  system_LPC8xx.o
+__aeabi_uidivmod                                  /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o)
+__udivsi3                                         /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o)
 _bss                                              gcc_startup_lpc8xx.o
 _data                                             gcc_startup_lpc8xx.o
 _ebss                                             gcc_startup_lpc8xx.o

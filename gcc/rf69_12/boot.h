@@ -74,10 +74,10 @@ static void copyPageToFlash (void* ram, void* flash) {
           (int) ram, (int) flash, page, sect);
   iap_prepare_sector(sect, sect);
   int e1 = iap_erase_page(page, page);
-  printf("iap erase %d,", e1);
+  printf("iap erase %d,", e1); (void) e1;
   iap_prepare_sector(sect, sect);
   int e2 = iap_copy_ram_to_flash(ram, flash, PAGE_SIZE);
-  printf(" flash %d\n", e2);
+  printf(" flash %d\n", e2); (void) e2;
 }
 
 int backOffCounter;

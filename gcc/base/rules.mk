@@ -33,7 +33,9 @@ firmware.elf: ../base/LPC812-boot.ld $(OBJS)
 
 clean:
 	rm -f *.o *.d # firmware.{elf,hex,bin,map}
+ifeq (${MAKELEVEL}, 0) # careful with recursion in ./base itself
 	make -C ../base clean
+endif
 
 # this works for EA's LPC812 MAX board
 flash: firmware.bin
@@ -47,11 +49,13 @@ lpcx: firmware.elf
 	     -flash-load-exec firmware.elf
 			 
 # this works with NXP's LPC812 board, using serial ISP
-isp:
-	lpc21isp firmware.hex $(TTY) 115200 12000
+isp: firmware.bin
+	lpc21isp -bin firmware.bin $(TTY) 115200 12000
 
 .PHONY: all clean flash dfu lpcx isp
   
 %.bin:%.elf
 	@$(OBJCOPY) --strip-unneeded -O ihex firmware.elf firmware.hex
 	@$(OBJCOPY) --strip-unneeded -O binary firmware.elf firmware.bin
+
+-include $(OBJS:.o=.d)

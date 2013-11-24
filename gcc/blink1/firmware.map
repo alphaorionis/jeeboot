@@ -30,7 +30,7 @@ Discarded input sections
                 0x0000000000000000       0x28 ../base/system_LPC8xx.o
  .debug_ranges  0x0000000000000000       0x18 ../base/system_LPC8xx.o
  .debug_line    0x0000000000000000      0x105 ../base/system_LPC8xx.o
- .debug_str     0x0000000000000000      0x369 ../base/system_LPC8xx.o
+ .debug_str     0x0000000000000000      0x36c ../base/system_LPC8xx.o
  .comment       0x0000000000000000       0x71 ../base/system_LPC8xx.o
  .ARM.attributes
                 0x0000000000000000       0x32 ../base/system_LPC8xx.o
@@ -53,109 +53,109 @@ Discarded input sections
 Memory Configuration
 
 Name             Origin             Length             Attributes
-FLASH            0x0000000000001000 0x0000000000003000 xr
-RAM              0x0000000010000200 0x0000000000000e00 xrw
+FLASH            0x0000000000000000 0x0000000000004000 xr
+RAM              0x0000000010000280 0x0000000000000d80 xrw
 *default*        0x0000000000000000 0xffffffffffffffff
 
 Linker script and memory map
 
 
-.text           0x0000000000001000      0x104
+.text           0x0000000000000000      0x104
  *(.isr_vector)
- .isr_vector    0x0000000000001000       0x40 ../base/gcc_startup_lpc8xx.o
-                0x0000000000001000                g_pfnVectors
+ .isr_vector    0x0000000000000000       0x40 ../base/gcc_startup_lpc8xx.o
+                0x0000000000000000                g_pfnVectors
  *(.after_vectors*)
  .after_vectors
-                0x0000000000001040       0x5c ../base/gcc_startup_lpc8xx.o
-                0x0000000000001040                NMI_Handler
-                0x0000000000001042                HardFault_Handler
-                0x0000000000001044                PendSV_Handler
-                0x0000000000001048                ResetISR
-                0x0000000000001088                SVCall_Handler
-                0x000000000000108a                WKT_Handler
-                0x000000000000108c                PININT1_IRQHandler
-                0x000000000000108c                PININT2_IRQHandler
-                0x000000000000108c                PININT7_IRQHandler
-                0x000000000000108c                MRT_IRQHandler
-                0x000000000000108c                UART1_IRQHandler
-                0x000000000000108c                UART0_IRQHandler
-                0x000000000000108c                SPI1_IRQHandler
-                0x000000000000108c                IntDefaultHandler
-                0x000000000000108c                PININT3_IRQHandler
-                0x000000000000108c                UART2_IRQHandler
-                0x000000000000108c                PININT5_IRQHandler
-                0x000000000000108c                PININT4_IRQHandler
-                0x000000000000108c                PININT0_IRQHandler
-                0x000000000000108c                BOD_IRQHandler
-                0x000000000000108c                SCT_IRQHandler
-                0x000000000000108c                I2C_IRQHandler
-                0x000000000000108c                WDT_IRQHandler
-                0x000000000000108c                PININT6_IRQHandler
-                0x000000000000108c                SPI0_IRQHandler
-                0x000000000000108c                CMP_IRQHandler
+                0x0000000000000040       0x5c ../base/gcc_startup_lpc8xx.o
+                0x0000000000000040                NMI_Handler
+                0x0000000000000042                HardFault_Handler
+                0x0000000000000044                PendSV_Handler
+                0x0000000000000048                ResetISR
+                0x0000000000000088                SVCall_Handler
+                0x000000000000008a                WKT_Handler
+                0x000000000000008c                PININT1_IRQHandler
+                0x000000000000008c                PININT2_IRQHandler
+                0x000000000000008c                PININT7_IRQHandler
+                0x000000000000008c                MRT_IRQHandler
+                0x000000000000008c                UART1_IRQHandler
+                0x000000000000008c                UART0_IRQHandler
+                0x000000000000008c                SPI1_IRQHandler
+                0x000000000000008c                IntDefaultHandler
+                0x000000000000008c                PININT3_IRQHandler
+                0x000000000000008c                UART2_IRQHandler
+                0x000000000000008c                PININT5_IRQHandler
+                0x000000000000008c                PININT4_IRQHandler
+                0x000000000000008c                PININT0_IRQHandler
+                0x000000000000008c                BOD_IRQHandler
+                0x000000000000008c                SCT_IRQHandler
+                0x000000000000008c                I2C_IRQHandler
+                0x000000000000008c                WDT_IRQHandler
+                0x000000000000008c                PININT6_IRQHandler
+                0x000000000000008c                SPI0_IRQHandler
+                0x000000000000008c                CMP_IRQHandler
  *(.text*)
  .text.SysTick_Handler
-                0x000000000000109c       0x10 main.o
-                0x000000000000109c                SysTick_Handler
+                0x000000000000009c       0x10 main.o
+                0x000000000000009c                SysTick_Handler
  .text.startup.main
-                0x00000000000010ac       0x58 main.o
-                0x00000000000010ac                main
+                0x00000000000000ac       0x58 main.o
+                0x00000000000000ac                main
  *(.rodata .rodata.*)
-                0x0000000000001104                . = ALIGN (0x4)
-                0x0000000000001104                _etext = .
+                0x0000000000000104                . = ALIGN (0x4)
+                0x0000000000000104                _etext = .
 
-.glue_7         0x0000000000001104        0x0
+.glue_7         0x0000000000000104        0x0
  .glue_7        0x0000000000000000        0x0 linker stubs
 
-.glue_7t        0x0000000000001104        0x0
+.glue_7t        0x0000000000000104        0x0
  .glue_7t       0x0000000000000000        0x0 linker stubs
 
-.vfp11_veneer   0x0000000000001104        0x0
+.vfp11_veneer   0x0000000000000104        0x0
  .vfp11_veneer  0x0000000000000000        0x0 linker stubs
 
-.v4_bx          0x0000000000001104        0x0
+.v4_bx          0x0000000000000104        0x0
  .v4_bx         0x0000000000000000        0x0 linker stubs
 
-.iplt           0x0000000000001104        0x0
+.iplt           0x0000000000000104        0x0
  .iplt          0x0000000000000000        0x0 main.o
 
-.rel.dyn        0x0000000000001104        0x0
+.rel.dyn        0x0000000000000104        0x0
  .rel.iplt      0x0000000000000000        0x0 main.o
 
-.data           0x0000000010000200        0x0 load address 0x0000000000001104
-                0x0000000010000200                _data = .
+.data           0x0000000010000280        0x0 load address 0x0000000000000104
+                0x0000000010000280                _data = .
  *(vtable)
  *(.data*)
-                0x0000000010000200                . = ALIGN (0x4)
-                0x0000000010000200                _edata = .
+                0x0000000010000280                . = ALIGN (0x4)
+                0x0000000010000280                _edata = .
 
-.igot.plt       0x0000000010000200        0x0 load address 0x0000000000001104
+.igot.plt       0x0000000010000280        0x0 load address 0x0000000000000104
  .igot.plt      0x0000000000000000        0x0 main.o
 
-.bss            0x0000000010000200        0x4 load address 0x0000000000001104
-                0x0000000010000200                _bss = .
+.bss            0x0000000010000280        0x4 load address 0x0000000000000104
+                0x0000000010000280                _bss = .
  *(.bss*)
  *(COMMON)
- COMMON         0x0000000010000200        0x4 main.o
-                0x0000000010000200                msTicks
-                0x0000000010000204                . = ALIGN (0x4)
-                0x0000000010000204                _ebss = .
-                0x0000000010000204                PROVIDE (end, .)
-                0x0000000010000204                PROVIDE (_pvHeapStart, .)
-                0x0000000010001000                PROVIDE (_vStackTop, (ORIGIN (RAM) + 0xe00))
+ COMMON         0x0000000010000280        0x4 main.o
+                0x0000000010000280                msTicks
+                0x0000000010000284                . = ALIGN (0x4)
+                0x0000000010000284                _ebss = .
+                0x0000000010000284                PROVIDE (end, .)
+                0x0000000010000284                PROVIDE (_pvHeapStart, .)
+                0x0000000010001000                PROVIDE (_vStackTop, (ORIGIN (RAM) + 0xd80))
 LOAD main.o
 LOAD ../base/system_LPC8xx.o
 LOAD ../base/gcc_startup_lpc8xx.o
 LOAD /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a
 OUTPUT(firmware.elf elf32-littlearm)
 
-.debug_info     0x0000000000000000      0xa19
+.debug_info     0x0000000000000000      0xa05
  .debug_info    0x0000000000000000      0x645 main.o
- .debug_info    0x0000000000000645      0x3d4 ../base/gcc_startup_lpc8xx.o
+ .debug_info    0x0000000000000645      0x3c0 ../base/gcc_startup_lpc8xx.o
 
-.debug_abbrev   0x0000000000000000      0x34a
+.debug_abbrev   0x0000000000000000      0x334
  .debug_abbrev  0x0000000000000000      0x1c3 main.o
- .debug_abbrev  0x00000000000001c3      0x187 ../base/gcc_startup_lpc8xx.o
+ .debug_abbrev  0x00000000000001c3      0x171 ../base/gcc_startup_lpc8xx.o
 
 .debug_aranges  0x0000000000000000       0x80
  .debug_aranges
@@ -167,15 +167,15 @@ OUTPUT(firmware.elf elf32-littlearm)
  .debug_ranges  0x0000000000000000       0x48 main.o
  .debug_ranges  0x0000000000000048       0x48 ../base/gcc_startup_lpc8xx.o
 
-.debug_line     0x0000000000000000      0x21d
+.debug_line     0x0000000000000000      0x212
  .debug_line    0x0000000000000000      0x116 main.o
- .debug_line    0x0000000000000116      0x107 ../base/gcc_startup_lpc8xx.o
+ .debug_line    0x0000000000000116       0xfc ../base/gcc_startup_lpc8xx.o
 
-.debug_str      0x0000000000000000      0x503
- .debug_str     0x0000000000000000      0x416 main.o
-                                        0x454 (size before relaxing)
- .debug_str     0x0000000000000416       0xed ../base/gcc_startup_lpc8xx.o
-                                        0x27d (size before relaxing)
+.debug_str      0x0000000000000000      0x4d5
+ .debug_str     0x0000000000000000      0x41a main.o
+                                        0x458 (size before relaxing)
+ .debug_str     0x000000000000041a       0xbb ../base/gcc_startup_lpc8xx.o
+                                        0x274 (size before relaxing)
 
 .comment        0x0000000000000000       0x70
  .comment       0x0000000000000000       0x70 main.o
