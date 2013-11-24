@@ -1,4 +1,7 @@
+#ifndef LPC_MAX
 #define LPC_MAX 1
+#endif
+
 #define PAIRING_GROUP 212
 
 #define __VTOR_PRESENT 1
