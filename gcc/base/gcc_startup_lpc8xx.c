@@ -12,7 +12,6 @@
 #include "LPC8xx.h"
 #endif
 
-extern int main(void);
 
 //*****************************************************************************
 //
@@ -230,11 +229,9 @@ void WKT_Handler(void)
 // handler is not present in the application code.
 //
 //*****************************************************************************
-#include "LPC8xx.h"
 __attribute__ ((section(".after_vectors")))
 void IntDefaultHandler(void)
 {
-    LPC_GPIO_PORT->CLR0 = 1 << 17; // green LED on
     while(1)
     {
     }

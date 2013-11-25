@@ -29,8 +29,8 @@ Discarded input sections
  .debug_aranges
                 0x0000000000000000       0x28 system_LPC8xx.o
  .debug_ranges  0x0000000000000000       0x18 system_LPC8xx.o
- .debug_line    0x0000000000000000       0xfd system_LPC8xx.o
- .debug_str     0x0000000000000000      0x362 system_LPC8xx.o
+ .debug_line    0x0000000000000000      0x105 system_LPC8xx.o
+ .debug_str     0x0000000000000000      0x36b system_LPC8xx.o
  .comment       0x0000000000000000       0x71 system_LPC8xx.o
  .ARM.attributes
                 0x0000000000000000       0x32 system_LPC8xx.o
@@ -167,15 +167,15 @@ OUTPUT(firmware.elf elf32-littlearm)
  .debug_ranges  0x0000000000000000       0x48 main.o
  .debug_ranges  0x0000000000000048       0x48 gcc_startup_lpc8xx.o
 
-.debug_line     0x0000000000000000      0x202
+.debug_line     0x0000000000000000      0x20a
  .debug_line    0x0000000000000000      0x10e main.o
- .debug_line    0x000000000000010e       0xf4 gcc_startup_lpc8xx.o
+ .debug_line    0x000000000000010e       0xfc gcc_startup_lpc8xx.o
 
-.debug_str      0x0000000000000000      0x4cb
+.debug_str      0x0000000000000000      0x4fb
  .debug_str     0x0000000000000000      0x418 main.o
                                         0x456 (size before relaxing)
- .debug_str     0x0000000000000418       0xb3 gcc_startup_lpc8xx.o
-                                        0x26a (size before relaxing)
+ .debug_str     0x0000000000000418       0xe3 gcc_startup_lpc8xx.o
+                                        0x273 (size before relaxing)
 
 .comment        0x0000000000000000       0x70
  .comment       0x0000000000000000       0x70 main.o

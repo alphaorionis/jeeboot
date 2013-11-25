@@ -88,6 +88,8 @@ int main (void) {
   iap_read_part_id(&partId);
   printf("part id 0x%04X\n", (int) partId);
   
+  delay_ms(10); // needed to make RFM69 work properly on power-up
+  
   // this will not catch the runaway case when the server replies with data,
   // but the application that ends up in memory does not match the crc given
   // in this case, we'll constantly keep retrying... and drain the battery :(

@@ -39,6 +39,11 @@ static void* memcpy(void* dst, const void* src, int len) {
   return dst;
 }
 
+static void print2hex (byte h) {
+  Serial.print(h >> 4, HEX);
+  Serial.print(h % 0xF, HEX);
+}
+
 void setup () {
 #if DEBUG        
   Serial.begin(57600);
@@ -62,7 +67,11 @@ void loop () {
       case 22: { // packets of length 22 are pairing requests
         struct PairingRequest *reqp = (struct PairingRequest*) rf12_data;
         Serial.print(F("announce type 0x"));
-        Serial.println(reqp->type, HEX);
+        Serial.print(reqp->type, HEX);
+        Serial.print(F(" hwId "));
+        for (byte i = 0; i < 16; ++i)
+          print2hex(reqp->hwId[i]);
+        Serial.println();
         static struct PairingReply reply;
         memset(&reply, 0, sizeof reply);
         reply.type = reqp->type;
