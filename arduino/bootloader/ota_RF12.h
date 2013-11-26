@@ -369,3 +369,14 @@ static void rf12_initialize (uint8_t id, uint8_t band, uint8_t g) {
     // else
     //     detachInterrupt(0);
 }
+
+void rf12_sendNow(uint8_t hdr, const void* ptr, uint8_t len) {
+  while (!rf12_canSend())
+    rf12_recvDone(); // keep the driver state machine going, ignore incoming
+  rf12_sendStart(hdr, ptr, len);
+}
+
+void rf12_sendWait(uint8_t mode) {
+  while (rxstate < TXIDLE)
+    rf12_recvDone();
+}

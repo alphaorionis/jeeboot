@@ -52,9 +52,9 @@ static int sendRequest (const void* buf, int len, int hdrOr) {
   // printf("sending %d b\n", len);
   rf12_sendNow(RF12_HDR_CTL | RF12_HDR_ACK | hdrOr, buf, len);
   rf12_sendWait(0);
-  uint32_t now = msTicks;
+  uint32_t now = millis();
   while (!rf12_recvDone() || rf12_len == 0) // TODO: 0-check to avoid std acks?
-    if ((msTicks - now) >= 250) {
+    if ((millis() - now) >= 250) {
       printf("timed out\n");
       return -1;
     }
@@ -112,9 +112,6 @@ static void saveConfig () {
 }
 
 static void sendPairingCheck () {
-  uint32_t hwId [4];
-  iap_read_unique_id(hwId);
-  
   struct PairingRequest request;
   request.type = REMOTE_TYPE;
   request.group = config.group;
@@ -140,7 +137,7 @@ static void sendPairingCheck () {
 
 static void exponentialBackOff () {
   printf("wait %d\n", 250 << backOffCounter);
-  delay_ms(250 << backOffCounter);
+  sleep(250L << backOffCounter);
   if (backOffCounter < 16)
     ++backOffCounter;
 }
@@ -226,7 +223,7 @@ static void bootLoaderLogic () {
 }
 
 static void bootLoader () {
-  delay_ms(10); // needed to make RFM69 work properly on power-up
+  sleep(20); // needed to make RFM69 work properly on power-up
   
   // this will not catch the runaway case when the server replies with data,
   // but the application that ends up in memory does not match the crc given
@@ -236,6 +233,6 @@ static void bootLoader () {
     bootLoaderLogic();
     if (appIsValid())
       break;
-    delay_ms(100 << (backOff & 0x0F));
+    sleep(100L << (backOff & 0x0F));
   }
 }

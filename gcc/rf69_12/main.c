@@ -23,16 +23,22 @@ void SysTick_Handler (void) {
   ++msTicks;
 }
 
-static void delay_ms (uint32_t ms) {
+static uint32_t millis () {
+  return msTicks;
+}
+
+static void sleep (uint32_t ms) {
   // TODO: enter low-power sleep mode
-  uint32_t now = msTicks;
-  while ((msTicks - now) < ms)
+  uint32_t now = millis();
+  while ((millis() - now) < ms)
     ;
   // TODO: exit low-power sleep mode
 }
 
 extern uint16_t _crc16_update (uint16_t crc, uint8_t data);
 
+uint32_t hwId [4];
+  
 #include "boot.h"
 
 static void configurePins (void) {
@@ -88,6 +94,7 @@ int main (void) {
   uint32_t partId;
   iap_read_part_id(&partId);
   printf("part id 0x%04X\n", (int) partId);
+  iap_read_unique_id(hwId);
   
   bootLoader();
   launchApp();

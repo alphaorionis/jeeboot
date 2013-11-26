@@ -8,7 +8,7 @@
 #define TOP_OF_BOOT BASE_ADDR
 #define CONFIG_ADDR (TOP_OF_BOOT - PAGE_SIZE)
 
-
+#ifndef ARDUINO
 static void* memset(void* dst, uint8_t fill, int len) {
   uint8_t* to = (uint8_t*) dst;
   while (--len >= 0)
@@ -23,6 +23,7 @@ static void* memcpy(void* dst, const void* src, int len) {
     *to++ = *from++;
   return dst;
 }
+#endif
 
 static uint16_t calcCRC (const void* ptr, int len) {
   int crc = ~0;

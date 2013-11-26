@@ -8,8 +8,9 @@
 #define printf(...)
 #define dump(...)
 
-#define msTicks millis()
-#define delay_ms delay
+#define sleep delay
+
+uint32_t hwId [4];  
 
 #include "boot.h"
 
