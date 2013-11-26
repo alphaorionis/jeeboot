@@ -68,6 +68,9 @@ static int sendRequest (const void* buf, int len, int hdrOr) {
 }
 
 static void copyPageToFlash (void* ram, void* flash) {
+#if ARDUINO
+  // ...
+#else
   int page = (uint32_t) flash / PAGE_SIZE;
   int sect = (uint32_t) flash / SECTOR_SIZE;
   printf("ram 0x%X flash 0x%X page %d sect %d ",
@@ -78,6 +81,7 @@ static void copyPageToFlash (void* ram, void* flash) {
   iap_prepare_sector(sect, sect);
   int e2 = iap_copy_ram_to_flash(ram, flash, PAGE_SIZE);
   printf(" flash %d\n", e2); (void) e2;
+#endif
 }
 
 int backOffCounter;
@@ -113,7 +117,11 @@ static void saveConfig () {
 
 static void sendPairingCheck () {
   uint32_t hwId [4];
+#if ARDUINO
+  memset(hwId, 0, sizeof hwId);
+#else
   iap_read_unique_id(hwId);
+#endif
   
   struct PairingRequest request;
   request.type = REMOTE_TYPE;

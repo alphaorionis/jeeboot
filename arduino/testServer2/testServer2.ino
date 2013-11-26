@@ -89,8 +89,10 @@ void loop () {
         struct UpgradeRequest *reqp = (struct UpgradeRequest*) rf12_data;
         Serial.print(F("boot swId 0x"));
         Serial.println(reqp->swId, HEX);
-        const byte maxSections = sizeof sections / sizeof *sections;
-        byte newId = (reqp->swId + 1) % maxSections;
+        // const byte maxSections = sizeof sections / sizeof *sections;
+        byte newId = (reqp->swId + 1) % 3;
+        if (reqp->type == 0x0100)
+          newId += 3;
         Serial.print(F(" -> newId "));
         Serial.println(newId);
         static struct UpgradeReply reply;
@@ -107,7 +109,9 @@ void loop () {
       
       case 4: { // packets of length 4 are download requests
         struct DownloadRequest *reqp = (struct DownloadRequest*) rf12_data;
-        Serial.print(F("data swIndex "));
+        Serial.print(F("data swId "));
+        Serial.print(reqp->swId);
+        Serial.print(F(", index "));
         Serial.println(reqp->swIndex);
         byte reqId = reqp->swId;
         word off = sections[reqId].off + reqp->swIndex * BOOT_DATA_MAX;

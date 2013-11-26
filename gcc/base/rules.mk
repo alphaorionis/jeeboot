@@ -5,6 +5,7 @@ CROSS = arm-none-eabi-
 CPU = -mthumb -mcpu=cortex-m0plus
 WARN = -Wall
 STD = -std=gnu99
+LINK ?= LPC812-boot.ld
 
 CC = $(CROSS)gcc
 LD = $(CROSS)ld
@@ -30,8 +31,8 @@ endif
 
 all: firmware.bin
 
-firmware.elf: ../base/LPC812-boot.ld $(OBJS)
-	@$(LD) -o $@ $(LDFLAGS) -T ../base/LPC812-boot.ld $(OBJS) $(LIBGCC)
+firmware.elf: ../base/$(LINK) $(OBJS)
+	@$(LD) -o $@ $(LDFLAGS) -T ../base/$(LINK) $(OBJS) $(LIBGCC)
 	$(SIZE) $@
 
 clean:

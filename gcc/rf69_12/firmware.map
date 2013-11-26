@@ -54,7 +54,7 @@ Discarded input sections
                 0x0000000000000000       0x30 ../base/uart.o
  .debug_ranges  0x0000000000000000       0x20 ../base/uart.o
  .debug_line    0x0000000000000000      0x11c ../base/uart.o
- .debug_str     0x0000000000000000      0x3b7 ../base/uart.o
+ .debug_str     0x0000000000000000      0x3b9 ../base/uart.o
  .comment       0x0000000000000000       0x71 ../base/uart.o
  .ARM.attributes
                 0x0000000000000000       0x32 ../base/uart.o
@@ -78,7 +78,7 @@ Discarded input sections
                 0x0000000000000000       0x48 ../base/printf.o
  .debug_ranges  0x0000000000000000       0x38 ../base/printf.o
  .debug_line    0x0000000000000000      0x22c ../base/printf.o
- .debug_str     0x0000000000000000      0x12b ../base/printf.o
+ .debug_str     0x0000000000000000      0x12d ../base/printf.o
  .comment       0x0000000000000000       0x71 ../base/printf.o
  .ARM.attributes
                 0x0000000000000000       0x32 ../base/printf.o
@@ -95,7 +95,7 @@ Discarded input sections
                 0x0000000000000000       0x28 ../base/printf-retarget.o
  .debug_ranges  0x0000000000000000       0x18 ../base/printf-retarget.o
  .debug_line    0x0000000000000000       0x74 ../base/printf-retarget.o
- .debug_str     0x0000000000000000      0x138 ../base/printf-retarget.o
+ .debug_str     0x0000000000000000      0x13a ../base/printf-retarget.o
  .comment       0x0000000000000000       0x71 ../base/printf-retarget.o
  .ARM.attributes
                 0x0000000000000000       0x32 ../base/printf-retarget.o
@@ -124,7 +124,7 @@ Discarded input sections
                 0x0000000000000000       0x28 ../base/system_LPC8xx.o
  .debug_ranges  0x0000000000000000       0x18 ../base/system_LPC8xx.o
  .debug_line    0x0000000000000000      0x105 ../base/system_LPC8xx.o
- .debug_str     0x0000000000000000      0x36b ../base/system_LPC8xx.o
+ .debug_str     0x0000000000000000      0x36d ../base/system_LPC8xx.o
  .comment       0x0000000000000000       0x71 ../base/system_LPC8xx.o
  .ARM.attributes
                 0x0000000000000000       0x32 ../base/system_LPC8xx.o
@@ -147,13 +147,13 @@ RAM              0x0000000010000280 0x0000000000000d80 xrw
 Linker script and memory map
 
 
-.text           0x0000000000000000      0x970
+.text           0x0000000000000000      0x964
  *(.isr_vector)
  .isr_vector    0x0000000000000000       0x40 ../base/gcc_startup_lpc8xx.o
                 0x0000000000000000                g_pfnVectors
  *(.after_vectors*)
  .after_vectors
-                0x0000000000000040       0x5c ../base/gcc_startup_lpc8xx.o
+                0x0000000000000040       0x50 ../base/gcc_startup_lpc8xx.o
                 0x0000000000000040                NMI_Handler
                 0x0000000000000042                HardFault_Handler
                 0x0000000000000044                PendSV_Handler
@@ -182,110 +182,110 @@ Linker script and memory map
                 0x000000000000008c                CMP_IRQHandler
  *(.text*)
  .text.delay_ms
-                0x000000000000009c       0x14 main.o
- .text.memcpy   0x00000000000000b0       0x14 main.o
+                0x0000000000000090       0x14 main.o
+ .text.memcpy   0x00000000000000a4       0x14 main.o
  .text.exponentialBackOff
-                0x00000000000000c4       0x20 main.o
- .text.calcCRC  0x00000000000000e4       0x20 main.o
+                0x00000000000000b8       0x20 main.o
+ .text.calcCRC  0x00000000000000d8       0x20 main.o
  .text.appIsValid
-                0x0000000000000104       0x20 main.o
+                0x00000000000000f8       0x20 main.o
  .text.copyPageToFlash
-                0x0000000000000124       0x2e main.o
- *fill*         0x0000000000000152        0x2 00
+                0x0000000000000118       0x2e main.o
+ *fill*         0x0000000000000146        0x2 00
  .text.sendRequest
-                0x0000000000000154       0x54 main.o
+                0x0000000000000148       0x54 main.o
  .text.saveConfig
-                0x00000000000001a8       0x30 main.o
+                0x000000000000019c       0x30 main.o
  .text.SysTick_Handler
-                0x00000000000001d8       0x10 main.o
-                0x00000000000001d8                SysTick_Handler
+                0x00000000000001cc       0x10 main.o
+                0x00000000000001cc                SysTick_Handler
  .text.startup.main
-                0x00000000000001e8      0x238 main.o
-                0x00000000000001e8                main
+                0x00000000000001dc      0x238 main.o
+                0x00000000000001dc                main
  .text.spiTransfer
-                0x0000000000000420       0x1c rf69_12.o
+                0x0000000000000414       0x1c rf69_12.o
  .text.flushFifo
-                0x000000000000043c       0x1a rf69_12.o
- .text.setMode  0x0000000000000456       0x20 rf69_12.o
- *fill*         0x0000000000000476        0x2 00
+                0x0000000000000430       0x1a rf69_12.o
+ .text.setMode  0x000000000000044a       0x20 rf69_12.o
+ *fill*         0x000000000000046a        0x2 00
  .text._crc16_update
-                0x0000000000000478       0x34 rf69_12.o
-                0x0000000000000478                _crc16_update
+                0x000000000000046c       0x34 rf69_12.o
+                0x000000000000046c                _crc16_update
  .text.rf12_initialize
-                0x00000000000004ac      0x104 rf69_12.o
-                0x00000000000004ac                rf12_initialize
+                0x00000000000004a0      0x104 rf69_12.o
+                0x00000000000004a0                rf12_initialize
  .text.rf12_recvDone
-                0x00000000000005b0      0x130 rf69_12.o
-                0x00000000000005b0                rf12_recvDone
+                0x00000000000005a4      0x130 rf69_12.o
+                0x00000000000005a4                rf12_recvDone
  .text.rf12_canSend
-                0x00000000000006e0       0x24 rf69_12.o
-                0x00000000000006e0                rf12_canSend
+                0x00000000000006d4       0x24 rf69_12.o
+                0x00000000000006d4                rf12_canSend
  .text.rf12_sendStart
-                0x0000000000000704       0x60 rf69_12.o
-                0x0000000000000704                rf12_sendStart
+                0x00000000000006f8       0x60 rf69_12.o
+                0x00000000000006f8                rf12_sendStart
  .text.rf12_sendNow
-                0x0000000000000764       0x22 rf69_12.o
-                0x0000000000000764                rf12_sendNow
- *fill*         0x0000000000000786        0x2 00
+                0x0000000000000758       0x22 rf69_12.o
+                0x0000000000000758                rf12_sendNow
+ *fill*         0x000000000000077a        0x2 00
  .text.rf12_sendWait
-                0x0000000000000788       0x18 rf69_12.o
-                0x0000000000000788                rf12_sendWait
+                0x000000000000077c       0x18 rf69_12.o
+                0x000000000000077c                rf12_sendWait
  .text.iap_erase_page
-                0x00000000000007a0       0x30 ../base/iap_driver.o
-                0x00000000000007a0                iap_erase_page
+                0x0000000000000794       0x30 ../base/iap_driver.o
+                0x0000000000000794                iap_erase_page
  .text.iap_prepare_sector
-                0x00000000000007d0       0x28 ../base/iap_driver.o
-                0x00000000000007d0                iap_prepare_sector
+                0x00000000000007c4       0x28 ../base/iap_driver.o
+                0x00000000000007c4                iap_prepare_sector
  .text.iap_copy_ram_to_flash
-                0x00000000000007f8       0x30 ../base/iap_driver.o
-                0x00000000000007f8                iap_copy_ram_to_flash
+                0x00000000000007ec       0x30 ../base/iap_driver.o
+                0x00000000000007ec                iap_copy_ram_to_flash
  .text.iap_read_part_id
-                0x0000000000000828       0x28 ../base/iap_driver.o
-                0x0000000000000828                iap_read_part_id
+                0x000000000000081c       0x28 ../base/iap_driver.o
+                0x000000000000081c                iap_read_part_id
  .text.iap_read_unique_id
-                0x0000000000000850       0x34 ../base/iap_driver.o
-                0x0000000000000850                iap_read_unique_id
- .text          0x0000000000000884       0x9c /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o)
-                0x0000000000000884                __udivsi3
-                0x0000000000000884                __aeabi_uidiv
-                0x000000000000090c                __aeabi_uidivmod
- .text          0x0000000000000920        0x4 /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_dvmd_tls.o)
-                0x0000000000000920                __aeabi_ldiv0
-                0x0000000000000920                __aeabi_idiv0
+                0x0000000000000844       0x34 ../base/iap_driver.o
+                0x0000000000000844                iap_read_unique_id
+ .text          0x0000000000000878       0x9c /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_udivsi3.o)
+                0x0000000000000878                __udivsi3
+                0x0000000000000878                __aeabi_uidiv
+                0x0000000000000900                __aeabi_uidivmod
+ .text          0x0000000000000914        0x4 /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a(_dvmd_tls.o)
+                0x0000000000000914                __aeabi_ldiv0
+                0x0000000000000914                __aeabi_idiv0
  *(.rodata .rodata.*)
- .rodata        0x0000000000000924       0x4c rf69_12.o
-                0x0000000000000970                . = ALIGN (0x4)
-                0x0000000000000970                _etext = .
+ .rodata        0x0000000000000918       0x4c rf69_12.o
+                0x0000000000000964                . = ALIGN (0x4)
+                0x0000000000000964                _etext = .
 
-.glue_7         0x0000000000000970        0x0
+.glue_7         0x0000000000000964        0x0
  .glue_7        0x0000000000000000        0x0 linker stubs
 
-.glue_7t        0x0000000000000970        0x0
+.glue_7t        0x0000000000000964        0x0
  .glue_7t       0x0000000000000000        0x0 linker stubs
 
-.vfp11_veneer   0x0000000000000970        0x0
+.vfp11_veneer   0x0000000000000964        0x0
  .vfp11_veneer  0x0000000000000000        0x0 linker stubs
 
-.v4_bx          0x0000000000000970        0x0
+.v4_bx          0x0000000000000964        0x0
  .v4_bx         0x0000000000000000        0x0 linker stubs
 
-.iplt           0x0000000000000970        0x0
+.iplt           0x0000000000000964        0x0
  .iplt          0x0000000000000000        0x0 main.o
 
-.rel.dyn        0x0000000000000970        0x0
+.rel.dyn        0x0000000000000964        0x0
  .rel.iplt      0x0000000000000000        0x0 main.o
 
-.data           0x0000000010000280        0x0 load address 0x0000000000000970
+.data           0x0000000010000280        0x0 load address 0x0000000000000964
                 0x0000000010000280                _data = .
  *(vtable)
  *(.data*)
                 0x0000000010000280                . = ALIGN (0x4)
                 0x0000000010000280                _edata = .
 
-.igot.plt       0x0000000010000280        0x0 load address 0x0000000000000970
+.igot.plt       0x0000000010000280        0x0 load address 0x0000000000000964
  .igot.plt      0x0000000000000000        0x0 main.o
 
-.bss            0x0000000010000280       0xa0 load address 0x0000000000000970
+.bss            0x0000000010000280       0xa0 load address 0x0000000000000964
                 0x0000000010000280                _bss = .
  *(.bss*)
  .bss           0x0000000010000280        0x4 main.o
@@ -316,17 +316,17 @@ LOAD ../base/gcc_startup_lpc8xx.o
 LOAD /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a
 OUTPUT(firmware.elf elf32-littlearm)
 
-.debug_info     0x0000000000000000     0x2b1f
- .debug_info    0x0000000000000000     0x1569 main.o
- .debug_info    0x0000000000001569      0xd20 rf69_12.o
- .debug_info    0x0000000000002289      0x4d6 ../base/iap_driver.o
- .debug_info    0x000000000000275f      0x3c0 ../base/gcc_startup_lpc8xx.o
+.debug_info     0x0000000000000000     0x2970
+ .debug_info    0x0000000000000000     0x158d main.o
+ .debug_info    0x000000000000158d      0xd20 rf69_12.o
+ .debug_info    0x00000000000022ad      0x4d6 ../base/iap_driver.o
+ .debug_info    0x0000000000002783      0x1ed ../base/gcc_startup_lpc8xx.o
 
-.debug_abbrev   0x0000000000000000      0xa57
+.debug_abbrev   0x0000000000000000      0xa18
  .debug_abbrev  0x0000000000000000      0x45f main.o
  .debug_abbrev  0x000000000000045f      0x302 rf69_12.o
  .debug_abbrev  0x0000000000000761      0x185 ../base/iap_driver.o
- .debug_abbrev  0x00000000000008e6      0x171 ../base/gcc_startup_lpc8xx.o
+ .debug_abbrev  0x00000000000008e6      0x132 ../base/gcc_startup_lpc8xx.o
 
 .debug_loc      0x0000000000000000      0xce0
  .debug_loc     0x0000000000000000      0x462 main.o
@@ -350,21 +350,21 @@ OUTPUT(firmware.elf elf32-littlearm)
  .debug_ranges  0x00000000000002d8       0x48 ../base/iap_driver.o
  .debug_ranges  0x0000000000000320       0x48 ../base/gcc_startup_lpc8xx.o
 
-.debug_line     0x0000000000000000      0x95c
- .debug_line    0x0000000000000000      0x311 main.o
- .debug_line    0x0000000000000311      0x31b rf69_12.o
- .debug_line    0x000000000000062c      0x234 ../base/iap_driver.o
- .debug_line    0x0000000000000860       0xfc ../base/gcc_startup_lpc8xx.o
+.debug_line     0x0000000000000000      0x8cf
+ .debug_line    0x0000000000000000      0x310 main.o
+ .debug_line    0x0000000000000310      0x31b rf69_12.o
+ .debug_line    0x000000000000062b      0x234 ../base/iap_driver.o
+ .debug_line    0x000000000000085f       0x70 ../base/gcc_startup_lpc8xx.o
 
-.debug_str      0x0000000000000000      0xbf5
- .debug_str     0x0000000000000000      0x8a2 main.o
-                                        0x916 (size before relaxing)
- .debug_str     0x00000000000008a2      0x124 rf69_12.o
+.debug_str      0x0000000000000000      0xbcc
+ .debug_str     0x0000000000000000      0x8ad main.o
+                                        0x921 (size before relaxing)
+ .debug_str     0x00000000000008ad      0x14e rf69_12.o
                                         0x4c6 (size before relaxing)
- .debug_str     0x00000000000009c6      0x116 ../base/iap_driver.o
+ .debug_str     0x00000000000009fb      0x116 ../base/iap_driver.o
                                         0x2a2 (size before relaxing)
- .debug_str     0x0000000000000adc      0x119 ../base/gcc_startup_lpc8xx.o
-                                        0x273 (size before relaxing)
+ .debug_str     0x0000000000000b11       0xbb ../base/gcc_startup_lpc8xx.o
+                                        0x159 (size before relaxing)
 
 .comment        0x0000000000000000       0x70
  .comment       0x0000000000000000       0x70 main.o

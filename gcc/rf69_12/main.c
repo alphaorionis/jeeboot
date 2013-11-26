@@ -2,6 +2,7 @@
 #define LPC_MAX 1
 #endif
 
+#define REMOTE_TYPE 0x200
 #define PAIRING_GROUP 212
 
 #define __VTOR_PRESENT 1
@@ -88,19 +89,7 @@ int main (void) {
   iap_read_part_id(&partId);
   printf("part id 0x%04X\n", (int) partId);
   
-  delay_ms(10); // needed to make RFM69 work properly on power-up
-  
-  // this will not catch the runaway case when the server replies with data,
-  // but the application that ends up in memory does not match the crc given
-  // in this case, we'll constantly keep retrying... and drain the battery :(
-  // to avoid this, an extra level of exponential back-off has been added here
-  for (int backOff = 0; /*forever*/; ++backOff) {
-    bootLoaderLogic();
-    if (appIsValid())
-      break;
-    delay_ms(100 << (backOff & 0x0F));
-  }
-
+  bootLoader();
   launchApp();
   
   return 0;
