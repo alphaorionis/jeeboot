@@ -64,13 +64,21 @@ uint8_t rf12_initialize(uint8_t id, uint8_t band, uint8_t g) {
   group = g;
   initRadio(configRegs);
   writeReg(REG_SYNCVALUE2, g);
-  long freq = band == RF12_868MHZ ? 868000000 :
-              band == RF12_915MHZ ? 915000000 : 433000000;
+  long freq = band == RF12_868MHZ ? 860000000 :
+              band == RF12_915MHZ ? 900000000 : 430000000;
+  // Values above represent below the base of the respective bands for an RFM12B
+  // Offset MUST be added to the above, the Offset (96 - 3903) has a multiplier 
+  // dependant on the band, historically the default offset used is 1600
+  // and the multipliers 0.25, 0.50 and 0.75 for bands 433, 868 & 915
   // frequency steps are in units of (32,000,000 >> 19) = 61.03515625 Hz
   // use multiples of 64 to avoid multi-precision arithmetic, i.e. 3906.25 Hz
   // due to this, the lower 6 bits of the calculated factor will always be 0
   // this is still 4 ppm, i.e. well below the radio's 32 MHz crystal accuracy
   // 868.0 MHz = 0xD90000, 868.3 MHz = 0xD91300, 915.0 MHz = 0xE4C000
+  
+  int offset =  1600;         // Replace with the eeprom value at some point.
+  freq = freq + (offset * (band * 2500L));
+  
   int frf = (((uint32_t) freq << 2) / (32000000 >> 11)) << 6;
   writeReg(REG_FRFMSB, frf >> 16);
   writeReg(REG_FRFMSB+1, frf >> 8);
