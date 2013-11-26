@@ -1,3 +1,6 @@
+# gcc Makefile for LPC812
+# based on original file by Kamal Mostafa <kamal@whence.com>
+
 CROSS = arm-none-eabi-
 CPU = -mthumb -mcpu=cortex-m0plus
 WARN = -Wall
