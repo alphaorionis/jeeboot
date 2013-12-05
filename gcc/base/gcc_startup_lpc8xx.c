@@ -88,6 +88,8 @@ void (* const g_pfnVectors[])(void) = {
     0,                                  // Reserved
     0,                                  // Reserved
     0,                                  // Reserved
+// determined by trial and error: vector needs to have at least 7 entries (?)
+#ifndef STARTUP_NO_IRQS
     0,                                  // Reserved
     0,                                  // Reserved
     0,                                  // Reserved
@@ -97,7 +99,6 @@ void (* const g_pfnVectors[])(void) = {
     0,                                  // Reserved
     PendSV_Handler,                     // The PendSV handler
     SysTick_Handler,                    // The SysTick handler
-#if 0
         // Chip Level - LPC8xx
     SPI0_IRQHandler,                         // SPI0 controller
     SPI1_IRQHandler,                         // SPI1 controller
