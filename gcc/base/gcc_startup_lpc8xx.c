@@ -40,7 +40,6 @@ WEAK void HardFault_Handler(void);
 WEAK void SVC_Handler(void);
 WEAK void PendSV_Handler(void);
 WEAK void SysTick_Handler(void);
-WEAK void WKT_Handler(void);
 WEAK void IntDefaultHandler(void);
 
 //*****************************************************************************
@@ -62,6 +61,7 @@ void MRT_IRQHandler(void) ALIAS(IntDefaultHandler);
 void CMP_IRQHandler(void) ALIAS(IntDefaultHandler);
 void WDT_IRQHandler(void) ALIAS(IntDefaultHandler);
 void BOD_IRQHandler(void) ALIAS(IntDefaultHandler);
+void WKT_IRQHandler(void) ALIAS(IntDefaultHandler);
 void PININT0_IRQHandler(void) ALIAS(IntDefaultHandler);
 void PININT1_IRQHandler(void) ALIAS(IntDefaultHandler);
 void PININT2_IRQHandler(void) ALIAS(IntDefaultHandler);
@@ -115,7 +115,7 @@ void (* const g_pfnVectors[])(void) = {
     WDT_IRQHandler,                          // PIO1 (0:11)
     BOD_IRQHandler,                          // Brown Out Detect
     0,                                       // Reserved
-    WKT_Handler,                             // Wakeup timer
+    WKT_IRQHandler,                          // Wakeup timer
     0,                                       // Reserved
     0,                                       // Reserved
     0,                                       // Reserved
@@ -211,13 +211,6 @@ void PendSV_Handler(void)
 }
 __attribute__ ((section(".after_vectors")))
 void SysTick_Handler(void)
-{
-    while(1)
-    {
-    }
-}
-__attribute__ ((section(".after_vectors")))
-void WKT_Handler(void)
 {
     while(1)
     {
