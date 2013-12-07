@@ -10,7 +10,6 @@
 #include "LPC8xx.h"
 #include <stdio.h>
 #include "uart.h"
-#include "spi.h"
 #include "rf69_12.h"
 #include "iap_driver.h"
 

@@ -8,12 +8,16 @@ STD = -std=gnu99
 LINK ?= LPC812-boot.ld
 
 CC = $(CROSS)gcc
+CXX = $(CROSS)g++
 LD = $(CROSS)ld
 OBJCOPY = $(CROSS)objcopy
 SIZE = $(CROSS)size
 
 CFLAGS += $(CPU) $(WARN) $(STD) -MMD -I../base -DIRQ_DISABLE \
           -Os -ffunction-sections -fno-builtin -ggdb
+CXXFLAGS += $(CPU) $(WARN) -MMD -I../base -DIRQ_DISABLE \
+          -Os -ffunction-sections -fno-builtin -ggdb
+CXXFLAGS += -fno-rtti -fno-exceptions
 
 LDFLAGS += --gc-sections -Map=firmware.map --cref --library-path=../base
 LIBGCC = $(shell $(CC) $(CFLAGS) --print-libgcc-file-name)

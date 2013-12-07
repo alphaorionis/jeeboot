@@ -1,3 +1,5 @@
+// Small test app to get some debug info out the serial port.
+
 #include "LPC8xx.h"
 #include <stdio.h>
 #include "uart.h"
@@ -31,12 +33,12 @@ static void configurePins (void) {
 
 int main (void) {
   configurePins();
-  uart0Init(9600);
+  uart0Init(57600);
   
   SysTick_Config(__SYSTEM_CLOCK/1000);   // 1000 Hz
   LPC_GPIO_PORT->DIR0 |= (1 << ledPin);
 
-  printf("clock %d\r\n", __SYSTEM_CLOCK);
+  printf("clock %u\n", __SYSTEM_CLOCK);
     
   while (1) {
     LPC_GPIO_PORT->NOT0 = 1 << ledPin;

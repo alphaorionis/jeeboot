@@ -15,6 +15,7 @@ Discarded input sections
  .text          0x0000000000000000        0x0 main.o
  .data          0x0000000000000000        0x0 main.o
  .bss           0x0000000000000000        0x0 main.o
+ .rodata        0x0000000000000000        0x4 main.o
  .text          0x0000000000000000        0x0 ../base/uart.o
  .data          0x0000000000000000        0x0 ../base/uart.o
  .bss           0x0000000000000000        0x0 ../base/uart.o
@@ -185,12 +186,12 @@ LOAD ../base/gcc_startup_lpc8xx.o
 LOAD /Users/jcw/Tools/gcc-arm-none-eabi-4_7-2013q3/bin/../lib/gcc/arm-none-eabi/4.7.4/armv6-m/libgcc.a
 OUTPUT(firmware.elf elf32-littlearm)
 
-.debug_info     0x0000000000000000     0x1894
- .debug_info    0x0000000000000000      0xb43 main.o
- .debug_info    0x0000000000000b43      0x597 ../base/uart.o
- .debug_info    0x00000000000010da      0x4db ../base/printf.o
- .debug_info    0x00000000000015b5      0x11b ../base/printf-retarget.o
- .debug_info    0x00000000000016d0      0x1c4 ../base/gcc_startup_lpc8xx.o
+.debug_info     0x0000000000000000     0x18ab
+ .debug_info    0x0000000000000000      0xb5a main.o
+ .debug_info    0x0000000000000b5a      0x597 ../base/uart.o
+ .debug_info    0x00000000000010f1      0x4db ../base/printf.o
+ .debug_info    0x00000000000015cc      0x11b ../base/printf-retarget.o
+ .debug_info    0x00000000000016e7      0x1c4 ../base/gcc_startup_lpc8xx.o
 
 .debug_abbrev   0x0000000000000000      0x77d
  .debug_abbrev  0x0000000000000000      0x277 main.o
@@ -232,16 +233,16 @@ OUTPUT(firmware.elf elf32-littlearm)
  .debug_line    0x0000000000000483       0x74 ../base/printf-retarget.o
  .debug_line    0x00000000000004f7       0x6d ../base/gcc_startup_lpc8xx.o
 
-.debug_str      0x0000000000000000      0x85a
- .debug_str     0x0000000000000000      0x678 main.o
-                                        0x6c7 (size before relaxing)
- .debug_str     0x0000000000000678       0x84 ../base/uart.o
+.debug_str      0x0000000000000000      0x861
+ .debug_str     0x0000000000000000      0x67f main.o
+                                        0x6ce (size before relaxing)
+ .debug_str     0x000000000000067f       0x84 ../base/uart.o
                                         0x3b8 (size before relaxing)
- .debug_str     0x00000000000006fc       0x90 ../base/printf.o
+ .debug_str     0x0000000000000703       0x90 ../base/printf.o
                                         0x12c (size before relaxing)
- .debug_str     0x000000000000078c       0x1f ../base/printf-retarget.o
+ .debug_str     0x0000000000000793       0x1f ../base/printf-retarget.o
                                         0x139 (size before relaxing)
- .debug_str     0x00000000000007ab       0xaf ../base/gcc_startup_lpc8xx.o
+ .debug_str     0x00000000000007b2       0xaf ../base/gcc_startup_lpc8xx.o
                                         0x14c (size before relaxing)
 
 .comment        0x0000000000000000       0x70
@@ -328,6 +329,7 @@ _edata                                            ../base/gcc_startup_lpc8xx.o
 _etext                                            ../base/gcc_startup_lpc8xx.o
 _vStackTop                                        ../base/gcc_startup_lpc8xx.o
 g_pfnVectors                                      ../base/gcc_startup_lpc8xx.o
+ledPin                                            main.o
 main                                              main.o
                                                   ../base/gcc_startup_lpc8xx.o
 msTicks                                           main.o
