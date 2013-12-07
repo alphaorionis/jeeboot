@@ -20,7 +20,11 @@ static void configurePins (void) {
   /* Pin Assign 8 bit Configuration */
   /* U0_TXD */
   /* U0_RXD */
+#if LPC_JEE || LPC_BES
+  LPC_SWM->PINASSIGN0 = 0xffff0004UL;
+#else
   LPC_SWM->PINASSIGN0 = 0xffff0106UL; 
+#endif
 }
 
 int main (void) {

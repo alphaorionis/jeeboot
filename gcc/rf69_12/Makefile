@@ -5,8 +5,9 @@ OBJS = main.o rf69_12.o ../base/spi.o ../base/uart.o \
 include ../base/rules.mk
 
 # variable overrides and defaults can be placed in these optional files, e.g.
-# 	CFLAGS += -DLPC_MAX=0
+# 	CFLAGS += -DLPC_MAX
 # 	TTY= /dev/tty.SLAB_USBtoUART
+CFLAGS += -DLPC_JEE
 
 -include ../base/local.mk
 -include local.mk

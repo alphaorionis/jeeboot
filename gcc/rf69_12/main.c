@@ -1,5 +1,5 @@
-#ifndef LPC_MAX
-#define LPC_MAX 1
+#if LPC_MAX + LPC_NXP + LPC_JEE != 1
+#error must define one of LPC_MAX, LPC_NXP, or LPC_JEE
 #endif
 
 #define REMOTE_TYPE 0x200
@@ -48,25 +48,36 @@ static void configurePins (void) {
 #ifndef printf
   /* U0_TXD */
   /* U0_RXD */
+#if LPC_JEE
+  LPC_SWM->PINASSIGN0 = 0xffff0004UL; 
+#else
   LPC_SWM->PINASSIGN0 = 0xffff0106UL; 
+#endif
 #endif
 #if LPC_MAX
   // irq 8 ?
-  /* Pin Assign 8 bit Configuration */
   /* SPI0_SCK 12 */
   LPC_SWM->PINASSIGN3 = 0x0cffffffUL; 
   /* SPI0_MOSI 14 */
   /* SPI0_MISO 15 */
   /* SPI0_SSEL 13 */
   LPC_SWM->PINASSIGN4 = 0xff0d0f0eUL;
-#else
-  /* Pin Assign 8 bit Configuration */
+#endif
+#if LPC_NXP
   /* SPI0_SCK 14 */
   LPC_SWM->PINASSIGN3 = 0x0effffffUL; 
   /* SPI0_MOSI 13 */
   /* SPI0_MISO 12 */
   /* SPI0_SSEL 10 */
   LPC_SWM->PINASSIGN4 = 0xff0a0c0dUL;
+#endif
+#if LPC_JEE
+  /* SPI0_SCK 6 */
+  LPC_SWM->PINASSIGN3 = 0x06ffffffUL; 
+  /* SPI0_MOSI 9 */
+  /* SPI0_MISO 8 */
+  /* SPI0_SSEL 7 */
+  LPC_SWM->PINASSIGN4 = 0xff070809UL;
 #endif
 }
 
