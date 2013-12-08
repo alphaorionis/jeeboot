@@ -8,6 +8,7 @@
 extern "C" {
 #include "uart.h"
 #include "rf69_12.h"
+#include "dataflash.h"
 }
 
 const int redLed = 17;
@@ -67,6 +68,17 @@ int main (void) {
   LPC_GPIO_PORT->DIR0 |= (1 << redLed) | (1 << greenLed) | (1 << blueLed);
   LPC_GPIO_PORT->SET0 = (1 << redLed) | (1 << greenLed) | (1 << blueLed);
 
+  int dfId = df_init();
+  printf("dfId 0x%04X\n", dfId);
+  
+#if 0
+  LPC_GPIO_PORT->NOT0 = (1 << greenLed);
+  df_eraseEntireChip();
+  while (df_busy())
+    ;
+  LPC_GPIO_PORT->NOT0 = (1 << greenLed);
+#endif
+  
   // printf("clock %u\n", __SYSTEM_CLOCK);
   rf12_initialize(31, RF12_868MHZ, 5);
 
