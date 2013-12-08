@@ -2,7 +2,7 @@
 
 // low-level access
 int df_init ();
-int df_busy ();
+int df_isBusy ();
 void df_eraseEntireChip ();
 void df_eraseSector (int addr);
 void df_writeBytes (int addr, const void* buf, int len);

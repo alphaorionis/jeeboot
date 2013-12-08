@@ -74,7 +74,7 @@ int main (void) {
 #if 0
   LPC_GPIO_PORT->NOT0 = (1 << greenLed);
   df_eraseEntireChip();
-  while (df_busy())
+  while (df_isBusy())
     ;
   LPC_GPIO_PORT->NOT0 = (1 << greenLed);
 #endif

@@ -58,7 +58,7 @@ int df_init () {
   return reply;
 }
 
-int df_busy () {
+int df_isBusy () {
   enable();
   xferByte(0x05); // Read Status Register-1
   int busy = xferByte(0) & 1;
