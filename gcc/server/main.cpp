@@ -80,6 +80,15 @@ int main (void) {
     ;
   LPC_GPIO_PORT->B0[greenLed] = 1;
 #endif
+
+#if 1
+  df_create(0x1234);
+  df_appendBytes("1", 100);
+  df_appendBytes("2", 100);
+  df_appendBytes("3", 200);
+  df_appendBytes("4", 50);
+  df_close();
+#endif
   
   MilliTimer startupTimer;
   while (!startupTimer.poll(20))

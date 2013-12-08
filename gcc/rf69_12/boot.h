@@ -8,7 +8,6 @@
 #define TOP_OF_BOOT BASE_ADDR
 #define CONFIG_ADDR (TOP_OF_BOOT - PAGE_SIZE)
 
-
 static void* memset(void* dst, uint8_t fill, int len) {
   uint8_t* to = (uint8_t*) dst;
   while (--len >= 0)
