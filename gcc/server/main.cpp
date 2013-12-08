@@ -15,29 +15,31 @@ const int redLed = 17;
 const int greenLed = 16;
 const int blueLed = 7;
 
-volatile uint32_t msTicks;
+volatile unsigned msTicks;
 
 class MilliTimer {
-    uint32_t lastTime;
-  public:
-    MilliTimer () : lastTime (msTicks) {}
+  unsigned lastTime;
+public:
+  MilliTimer () : lastTime (msTicks) {}
     
-    bool poll (unsigned ms) {
-      uint32_t now = msTicks;
-      if ((now - lastTime) < ms)
-        return false;
-      lastTime = now; // TODO: not accurate when done this way!
-      return true;
-    }
+  bool poll (unsigned ms) {
+    unsigned now = msTicks;
+    if ((now - lastTime) < ms)
+      return false;
+    lastTime += ms;
+    if (lastTime < now)
+      lastTime = now;
+    return true;
+  }
 };
 
 extern "C" void SysTick_Handler (void) {
   ++msTicks;
 }
 
-static void delay_ms (uint32_t ms) {
-  uint32_t now = msTicks;
-  while ((msTicks-now) < ms)
+static void delay_ms (unsigned ms) {
+  unsigned now = msTicks;
+  while ((msTicks - now) < ms)
     ;
 }
 
