@@ -79,6 +79,10 @@ int main (void) {
   LPC_GPIO_PORT->NOT0 = (1 << greenLed);
 #endif
   
+  MilliTimer startupTimer;
+  while (!startupTimer.poll(20))
+    ; // needed to make RFM69 work properly on power-up
+  
   // printf("clock %u\n", __SYSTEM_CLOCK);
   rf12_initialize(31, RF12_868MHZ, 5);
 
