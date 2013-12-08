@@ -72,11 +72,11 @@ int main (void) {
   printf("dfId 0x%04X\n", dfId);
   
 #if 0
-  LPC_GPIO_PORT->NOT0 = (1 << greenLed);
+  LPC_GPIO_PORT->B0[greenLed] = 0;
   df_eraseEntireChip();
   while (df_isBusy())
     ;
-  LPC_GPIO_PORT->NOT0 = (1 << greenLed);
+  LPC_GPIO_PORT->B0[greenLed] = 1;
 #endif
   
   MilliTimer startupTimer;
@@ -98,12 +98,12 @@ int main (void) {
     
     if (rf12_recvDone() && rf12_crc == 0) {
       // briefly turn red LED on while reporting incoming package over serial
-      LPC_GPIO_PORT->CLR0 = (1 << redLed);
+      LPC_GPIO_PORT->B0[redLed] = 0;
       printf("OK %d", rf12_hdr);
       for (int i = 0; i < rf12_len; ++i)
         printf(" %d", rf12_data[i]);
       printf("\n");
-      LPC_GPIO_PORT->SET0 = (1 << redLed);
+      LPC_GPIO_PORT->B0[redLed] = 1;
     }
   }
   
