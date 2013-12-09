@@ -86,7 +86,13 @@ int main (void) {
   df_appendBytes("1", 100);
   df_appendBytes("2", 100);
   df_appendBytes("3", 200);
-  df_appendBytes("4", 50);
+  df_appendBytes("4", 100);
+  df_close();
+
+  df_create(0x4321);
+  df_appendLine("123456789 123456789 123456789 123456789 123456789 123456789");
+  df_appendLine("123456789 123456789 123456789 123456789 123456789 123456789");
+  df_appendLine("123456789 123456789 123456789 123456789 123456789 123456789");
   df_close();
 #endif
   

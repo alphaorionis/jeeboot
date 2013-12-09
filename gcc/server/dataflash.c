@@ -119,21 +119,23 @@ void df_writeBytes (int addr, const void* buf, int len) {
 #define chunkSize (1 << chunkBits)
 #define chunkMask (chunkSize - 1)
 
-typedef struct {
-  uint32_t tag;
-  uint16_t start;
-  uint16_t crc;
-  uint32_t size;
-  uint16_t prevFile;
-  uint16_t prevStart;
-  uint32_t cursor;
-  uint16_t spare[6];
-} FileEntry;
+struct FileEntry {
+  uint32_t marker;    // fixed marker = 19890407
+  uint32_t tag;       // the "name" of this file
+  uint16_t start;     // starting chunk number
+  uint16_t crc;       // ccitt-16 over all bytes
+  uint32_t size;      // total number of bytes
+  uint32_t cursor;    // current file position when open
+  uint32_t seqNum;    // sequence number of this entry
+  uint16_t prevFile;  // chunk of previous file entry
+  uint16_t spare;     // total = 28 bytes
+};
 
-static FileEntry inFile, outFile, scanFile;
+static struct FileEntry inFile, outFile, scanFile;
 static char lineBuf [100];
 static uint16_t freeChunk;
 static uint16_t lastFile;
+static uint32_t lastSeq;
 
 static unsigned chunkToPos (int chunk) {
   return chunk << chunkBits;
@@ -143,9 +145,11 @@ static uint16_t posToChunk (int pos) {
   return pos >> chunkBits;
 }
 
-static void readFileEntry (int chunk, FileEntry* pEntry) {
-  int pos = chunkToPos(chunk) + chunkSize - sizeof (FileEntry);
-  df_readBytes(pos, pEntry, sizeof (FileEntry));
+static void readFileEntry (int chunk, struct FileEntry* pEntry) {
+  int pos = chunkToPos(chunk) + chunkSize - sizeof *pEntry;
+  df_readBytes(pos, pEntry, sizeof *pEntry);
+  if (pEntry->marker != 19890407)
+    pEntry->tag = pEntry->prevFile = 0;
 }
 
 unsigned df_scan (int* pPos) {
@@ -180,14 +184,20 @@ void df_open (unsigned tag) {
   inFile.cursor = 0;
 }
 
+void df_seek (int pos) {
+  inFile.cursor = pos;
+}
+
 void df_nextBytes (void* buf, int count) {
   int bytes = inFile.size - inFile.cursor;
-  if (bytes > count)
-    bytes = count;
-  df_readBytes(inFile.cursor, buf, bytes);
-  inFile.cursor += bytes;
-  count -= bytes;
-  buf = (char*) buf + bytes;
+  if (bytes > 0) {
+    if (bytes > count)
+      bytes = count;
+    df_readBytes(inFile.cursor, buf, bytes);
+    inFile.cursor += bytes;
+    count -= bytes;
+    buf = (char*) buf + bytes;
+  }
   memset(buf, 0xFF, count); // fill bytes past end with 0xFF's
 }
 
@@ -206,9 +216,11 @@ const char* df_nextLine (void) {
 
 void df_create (unsigned tag) {
   memset(&outFile, 0, sizeof outFile);
+  outFile.marker = 19890407;
   outFile.tag = tag;
   outFile.crc = ~0;
   outFile.start = freeChunk;
+  outFile.seqNum = ++lastSeq;
 }
 
 static void writeData (int pos, const void* buf, int count) {

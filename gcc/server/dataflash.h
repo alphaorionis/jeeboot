@@ -13,6 +13,7 @@ void df_writeBytes (int addr, const void* buf, int len);
 unsigned df_scan (int* pPos);
 int df_info (unsigned tag, int* pSize, int* pCrc);
 void df_open (unsigned tag);
+void df_seek (int pos);
 void df_nextBytes (void* buf, int count);
 const char* df_nextLine (void);
 void df_create (unsigned tag);
