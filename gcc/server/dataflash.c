@@ -139,6 +139,10 @@ static unsigned chunkToPos (int chunk) {
   return chunk << chunkBits;
 }
 
+static uint16_t posToChunk (int pos) {
+  return pos >> chunkBits;
+}
+
 static void readFileEntry (int chunk, FileEntry* pEntry) {
   int pos = chunkToPos(chunk) + chunkSize - sizeof (FileEntry);
   df_readBytes(pos, pEntry, sizeof (FileEntry));
@@ -190,16 +194,14 @@ void df_nextBytes (void* buf, int count) {
 const char* df_nextLine (void) {
   if (inFile.cursor >= inFile.size)
     return 0;
-  df_nextBytes(lineBuf, sizeof lineBuf);
-  lineBuf[sizeof lineBuf - 1] = '\n';
-  for (int i = 0; i < sizeof lineBuf; ++i)
-    if (lineBuf[i] == '\n' || lineBuf[i] == 0xFF) {
-      lineBuf[i] = 0;
-      // fix the seek pointer, since we've read too much
-      inFile.cursor -= sizeof lineBuf - i - 1;
-      return lineBuf;
-    }
-  return 0;
+  df_nextBytes(lineBuf, sizeof lineBuf - 1);
+  int i = 0;
+  while (i < sizeof lineBuf - 1 && lineBuf[i] != '\n' && lineBuf[i] != 0xFF)
+    ++i;
+  lineBuf[i] = 0;
+  // adjust the file cursor, since we've read too much
+  inFile.cursor -= sizeof lineBuf - i;
+  return lineBuf;
 }
 
 void df_create (unsigned tag) {
@@ -209,14 +211,20 @@ void df_create (unsigned tag) {
   outFile.start = freeChunk;
 }
 
+static void writeData (int pos, const void* buf, int count) {
+  if (posToChunk(pos) == freeChunk)
+    ++freeChunk;
+  /* df_writeBytes(pos, buf, count); */
+  printf("w %d #%d @ %u\n", pos, count, posToChunk(pos));
+}
+
 void df_appendBytes (const void* buf, int count) {
   while (count > 0) {
     int pos = chunkToPos(outFile.start) + outFile.cursor;
     int remain = chunkSize - (pos & chunkMask);
     if (remain > count)
       remain = count;
-    /* df_writeBytes(pos, buf, remain); */
-    printf("wb %d #%d\n", pos, remain);
+    writeData(pos, buf, remain);
     outFile.cursor += remain;
     count -= remain;
     buf = (const char*) buf + remain;
@@ -232,11 +240,9 @@ void df_appendLine (const char* buf) {
 }
 
 void df_close (void) {
-  int pos = chunkToPos(outFile.start) + outFile.cursor;
-  int remain = chunkSize - (pos & chunkMask);
-  int fpos = pos + remain - sizeof outFile;
-  if (remain < sizeof outFile)
-    fpos += chunkSize;
-  /* df_writeBytes(fpos, &outFile, sizeof outFile); */
-  printf("cl %d @ %d\n", fpos, fpos >> chunkBits);
+  int end = chunkToPos(outFile.start) + outFile.cursor;
+  // put the file info at the end of the last chunk, or next one if no space
+  // uses the truncation of chunk/pos conversions to get all the cases right
+  int pos = chunkToPos(posToChunk(end + sizeof outFile) + 1) - sizeof outFile;
+  writeData(pos, &outFile, sizeof outFile);
 }
