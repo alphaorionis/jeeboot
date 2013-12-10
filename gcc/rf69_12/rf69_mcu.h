@@ -20,8 +20,8 @@ static void spiInit (void) {
   LPC_SYSCON->PRESETCTRL &= ~(0x1<<0);
   LPC_SYSCON->PRESETCTRL |= (0x1<<0);
   
-  // 7.5 MHz, i.e. 30 MHz / 4, since 10 MHz was causing trouble during xmit
-  LPC_SPI0->DIV = 3;
+  // 10 MHz, i.e. 30 MHz / 3
+  LPC_SPI0->DIV = 2;
   LPC_SPI0->DLY = 0;
 
   LPC_SPI0->CFG = CFG_MASTER;

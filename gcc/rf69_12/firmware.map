@@ -357,14 +357,14 @@ OUTPUT(firmware.elf elf32-littlearm)
  .debug_line    0x000000000000064d      0x234 ../base/iap_driver.o
  .debug_line    0x0000000000000881       0x6d ../base/gcc_startup_lpc8xx.o
 
-.debug_str      0x0000000000000000      0xbf7
+.debug_str      0x0000000000000000      0xbcc
  .debug_str     0x0000000000000000      0x8b2 main.o
                                         0x926 (size before relaxing)
- .debug_str     0x00000000000008b2      0x156 rf69_12.o
+ .debug_str     0x00000000000008b2      0x12b rf69_12.o
                                         0x4ce (size before relaxing)
- .debug_str     0x0000000000000a08      0x116 ../base/iap_driver.o
+ .debug_str     0x00000000000009dd      0x116 ../base/iap_driver.o
                                         0x2a3 (size before relaxing)
- .debug_str     0x0000000000000b1e       0xd9 ../base/gcc_startup_lpc8xx.o
+ .debug_str     0x0000000000000af3       0xd9 ../base/gcc_startup_lpc8xx.o
                                         0x14d (size before relaxing)
 
 .comment        0x0000000000000000       0x70
