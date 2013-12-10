@@ -14,10 +14,12 @@ static void delay_ms (uint32_t ms) {
 
 int main (void) {
   SysTick_Config(__SYSTEM_CLOCK/1000);   // 1000 Hz
-  LPC_GPIO_PORT->DIR0 |= (1 << 17);
+  LPC_GPIO_PORT->DIR0 |= (1 << 3);
+  // disable SWD debugger pins so we can re-use them for the LEDs
+  LPC_SWM->PINENABLE0 |= (1 << 2) | (1 << 3);
 
   while (1) {
-    LPC_GPIO_PORT->NOT0 = 1 << 17;
+    LPC_GPIO_PORT->NOT0 = 1 << 3;
     delay_ms(250);
   }
   

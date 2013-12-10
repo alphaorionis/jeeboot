@@ -1,8 +1,8 @@
-#if LPC_MAX + LPC_NXP + LPC_JEE != 1
-#error must define one of LPC_MAX, LPC_NXP, or LPC_JEE
+#if LPC_MAX + LPC_NXP + LPC_JEEa + LPC_JEE != 1
+#error must define one of LPC_MAX, LPC_NXP, LPC_JEEa, or LPC_JEE
 #endif
 
-#define REMOTE_TYPE 0x200
+#define REMOTE_TYPE 0x300
 #define PAIRING_GROUP 212
 
 #define __VTOR_PRESENT 1
@@ -47,7 +47,7 @@ static void configurePins (void) {
 #ifndef printf
   /* U0_TXD */
   /* U0_RXD */
-#if LPC_JEE
+#if LPC_JEEa || LPC_JEE
   LPC_SWM->PINASSIGN0 = 0xffff0004UL; 
 #else
   LPC_SWM->PINASSIGN0 = 0xffff0106UL; 
@@ -70,13 +70,21 @@ static void configurePins (void) {
   /* SPI0_SSEL 10 */
   LPC_SWM->PINASSIGN4 = 0xff0a0c0dUL;
 #endif
-#if LPC_JEE
+#if LPC_JEEa
   /* SPI0_SCK 6 */
   LPC_SWM->PINASSIGN3 = 0x06ffffffUL; 
   /* SPI0_MOSI 9 */
   /* SPI0_MISO 8 */
   /* SPI0_SSEL 7 */
   LPC_SWM->PINASSIGN4 = 0xff070809UL;
+#endif
+#if LPC_JEE
+  /* SPI0_SCK 6 */
+  LPC_SWM->PINASSIGN3 = 0x06ffffffUL; 
+  /* SPI0_MOSI 9 */
+  /* SPI0_MISO 11 */
+  /* SPI0_SSEL 8 */
+  LPC_SWM->PINASSIGN4 = 0xff080b09UL;
 #endif
 }
 

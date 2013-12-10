@@ -34,7 +34,7 @@ Discarded input sections
                 0x0000000000000000       0x28 ../base/spi.o
  .debug_ranges  0x0000000000000000       0x18 ../base/spi.o
  .debug_line    0x0000000000000000       0xee ../base/spi.o
- .debug_str     0x0000000000000000      0x398 ../base/spi.o
+ .debug_str     0x0000000000000000      0x397 ../base/spi.o
  .comment       0x0000000000000000       0x71 ../base/spi.o
  .ARM.attributes
                 0x0000000000000000       0x32 ../base/spi.o
@@ -351,20 +351,20 @@ OUTPUT(firmware.elf elf32-littlearm)
  .debug_ranges  0x00000000000002e0       0x48 ../base/iap_driver.o
  .debug_ranges  0x0000000000000328       0x40 ../base/gcc_startup_lpc8xx.o
 
-.debug_line     0x0000000000000000      0x8c5
+.debug_line     0x0000000000000000      0x8ee
  .debug_line    0x0000000000000000      0x31c main.o
- .debug_line    0x000000000000031c      0x308 rf69_12.o
- .debug_line    0x0000000000000624      0x234 ../base/iap_driver.o
- .debug_line    0x0000000000000858       0x6d ../base/gcc_startup_lpc8xx.o
+ .debug_line    0x000000000000031c      0x331 rf69_12.o
+ .debug_line    0x000000000000064d      0x234 ../base/iap_driver.o
+ .debug_line    0x0000000000000881       0x6d ../base/gcc_startup_lpc8xx.o
 
-.debug_str      0x0000000000000000      0xbfb
+.debug_str      0x0000000000000000      0xbf7
  .debug_str     0x0000000000000000      0x8b2 main.o
                                         0x926 (size before relaxing)
- .debug_str     0x00000000000008b2      0x15a rf69_12.o
-                                        0x4d2 (size before relaxing)
- .debug_str     0x0000000000000a0c      0x116 ../base/iap_driver.o
+ .debug_str     0x00000000000008b2      0x156 rf69_12.o
+                                        0x4ce (size before relaxing)
+ .debug_str     0x0000000000000a08      0x116 ../base/iap_driver.o
                                         0x2a3 (size before relaxing)
- .debug_str     0x0000000000000b22       0xd9 ../base/gcc_startup_lpc8xx.o
+ .debug_str     0x0000000000000b1e       0xd9 ../base/gcc_startup_lpc8xx.o
                                         0x14d (size before relaxing)
 
 .comment        0x0000000000000000       0x70

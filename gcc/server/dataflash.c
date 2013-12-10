@@ -253,7 +253,7 @@ void df_appendLine (const char* buf) {
 
 void df_close (void) {
   int end = chunkToPos(outFile.start) + outFile.cursor;
-  // put the file info at the end of the last chunk, or next one if no space
+  // put file info at the end of the last chunk, or the next one if no space
   // uses the truncation of chunk/pos conversions to get all the cases right
   int pos = chunkToPos(posToChunk(end + sizeof outFile) + 1) - sizeof outFile;
   writeData(pos, &outFile, sizeof outFile);

@@ -58,7 +58,7 @@ lpcx: firmware.elf
 			 
 # this works with NXP's LPC812 board, using serial ISP
 isp: firmware.bin
-	lpc21isp -bin firmware.bin $(TTY) 115200 12000
+	lpc21isp -control -bin firmware.bin $(TTY) 115200 12000
 
 .PHONY: all clean flash dfu lpcx isp
   

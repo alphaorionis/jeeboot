@@ -90,9 +90,7 @@ void loop () {
         Serial.print(F("boot swId 0x"));
         Serial.println(reqp->swId, HEX);
         // const byte maxSections = sizeof sections / sizeof *sections;
-        byte newId = (reqp->swId + 1) % 3;
-        if (reqp->type == 0x0100)
-          newId += 3;
+        byte newId = ((reqp->type >> 8) - 1) * 3 + (reqp->swId + 1) % 3;
         Serial.print(F(" -> newId "));
         Serial.println(newId);
         static struct UpgradeReply reply;
