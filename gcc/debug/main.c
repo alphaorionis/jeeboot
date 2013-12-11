@@ -21,7 +21,6 @@ static void delay_ms (uint32_t ms) {
 static void configurePins (void) {
   /* Enable clocks to IOCON & SWM */
   LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 18) | (1 << 7);
-  /* Pin Assign 8 bit Configuration */
   /* U0_TXD */
   /* U0_RXD */
 #if LPC_JEE || LPC_BES

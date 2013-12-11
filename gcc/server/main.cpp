@@ -33,7 +33,7 @@ public:
   }
 };
 
-extern "C" void SysTick_Handler (void) {
+extern "C" void SysTick_Handler () {
   ++msTicks;
 }
 
