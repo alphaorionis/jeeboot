@@ -10,7 +10,7 @@ extern "C" {
 void uart0Init     (uint32_t baudRate);
 void uart0SendChar (char buffer);
 void uart0Send     (const char *buffer, uint32_t length);
-int  uart0RecvChar ();
+int  uart0RecvChar (void);
 
 #ifdef __cplusplus
 }

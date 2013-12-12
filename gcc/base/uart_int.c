@@ -5,43 +5,50 @@
 #define UART_PARITY_NONE     (0 << 4)
 #define UART_STOP_BIT_1      (0 << 6)
 
-/* Status bits */
 #define UART_STATUS_RXRDY    (1 << 0)
-#define UART_STATUS_RXIDLE   (1 << 1)
 #define UART_STATUS_TXRDY    (1 << 2)
-#define UART_STATUS_TXIDLE   (1 << 3)
 #define UART_STATUS_CTSDEL   (1 << 5)
 #define UART_STATUS_RXBRKDEL (1 << 11)
 
 #define UART_INTEN_RXRDY     (1 << 0)
 #define UART_INTEN_TXRDY     (1 << 2)
 
-template <int SIZE>
-class RingBuffer {
-  uint8_t buffer[SIZE];
+typedef struct {
   volatile uint8_t fill, take;
-public:
-  RingBuffer () : fill (SIZE), take (SIZE) {}
-  
-  bool isEmpty () const { return fill == take; }
-  bool isFull () const { return (fill + 1) % SIZE == take; }
-  
-  void add (int c) {
-    buffer[fill] = c;
-    fill = (fill + 1) % SIZE;
-  }
-  
-  uint8_t pop () {
-    uint8_t c = buffer[take];
-    take = (take + 1) % SIZE;
-    return c;
-  }
-};
+  uint8_t buffer[64];
+} RingBuffer;
 
-RingBuffer<100> rxBuf;
-RingBuffer<100> txBuf;
+static RingBuffer rxBuf, txBuf;
+
+static void rbInit (RingBuffer* rb) {
+  rb->fill = rb->take = 0;
+}
+
+static int rbIsEmpty (RingBuffer* rb) {
+  return rb->fill == rb->take;
+}
+
+static int isFull (RingBuffer* rb) {
+  return (rb->fill + 1) % sizeof rb->buffer == rb->take;
+}
+  
+static void rbAdd (RingBuffer* rb, int c) {
+  int n = rb->fill;
+  rb->buffer[n] = c;
+  rb->fill = (n + 1) % sizeof rb->buffer;
+}
+
+static uint8_t rbPop (RingBuffer* rb) {
+  int n = rb->take;
+  uint8_t c = rb->buffer[n];
+  rb->take = (n + 1) % sizeof rb->buffer;
+  return c;
+}
 
 void uart0Init (uint32_t baudRate) {
+  rbInit(&rxBuf);
+  rbInit(&txBuf);
+  
   uint32_t clk;
   const uint32_t UARTCLKDIV=1;
 
@@ -71,9 +78,9 @@ void uart0Init (uint32_t baudRate) {
 }
 
 void uart0SendChar (char buffer) {
-  while (txBuf.isFull())
+  while (isFull(&txBuf))
     ;
-  txBuf.add(buffer);
+  rbAdd(&txBuf, buffer);
   LPC_USART0->INTENSET = UART_INTEN_TXRDY;
 }
 
@@ -82,23 +89,23 @@ void uart0Send (const char *buffer, uint32_t length) {
     uart0SendChar(*buffer++);
 }
 
-int uart0RecvChar () {
+int uart0RecvChar (void) {
   int result = -1;
   LPC_USART0->INTENCLR = UART_INTEN_RXRDY;
-  if (!rxBuf.isEmpty())
-    result = rxBuf.pop();
+  if (!rbIsEmpty(&rxBuf))
+    result = rbPop(&rxBuf);
   LPC_USART0->INTENSET = UART_INTEN_RXRDY;
   return result;
 }
 
-extern "C" void UART0_IRQHandler () {
+void UART0_IRQHandler () {
   uint32_t stat = LPC_USART0->STAT;
   if (stat & UART_STATUS_RXRDY)
-    rxBuf.add(LPC_USART0->RXDATA);
+    rbAdd(&rxBuf, LPC_USART0->RXDATA);
   if (stat & UART_STATUS_TXRDY) {
-    if (txBuf.isEmpty())
+    if (rbIsEmpty(&txBuf))
       LPC_USART0->INTENCLR = UART_INTEN_TXRDY;
     else
-      LPC_USART0->TXDATA = txBuf.pop();
+      LPC_USART0->TXDATA = rbPop(&txBuf);
   }
 }
