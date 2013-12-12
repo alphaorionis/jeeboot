@@ -1,5 +1,5 @@
 OBJS = main.o dataflash.o \
-			 ../rf69_12/rf69_12.o ../base/spi.o ../base/uart.o \
+			 ../rf69_12/rf69_12.o ../base/spi.o ../base/uart_int.o \
        ../base/printf.o ../base/printf-retarget.o \
 			 ../base/system_LPC8xx.o ../base/gcc_startup_lpc8xx.o
        
@@ -7,6 +7,7 @@ include ../base/rules.mk
 
 CFLAGS += -DLPC_BES -I../rf69_12
 CXXFLAGS += -DLPC_BES -I../rf69_12
+ISPOPTS = -term
 
 -include ../base/local.mk
 -include local.mk

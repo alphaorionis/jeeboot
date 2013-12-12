@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 extern "C" {
-#include "uart.h"
+#include "uart_int.h"
 #include "rf69_12.h"
 #include "dataflash.h"
 }
@@ -61,12 +61,18 @@ static void configurePins (void) {
 #endif
 }
 
+static void processCmd (char ch) {
+  uart0SendChar(ch);
+}
+
 int main (void) {
   configurePins();
-  uart0Init(57600);
+  uart0Init(115200);
+
+  SysTick_Config(__SYSTEM_CLOCK/1000);   // 1000 Hz
+  delay_ms(500); // just to get clean terminal output from lpc21isp
   printf("\n[server]\n");
   
-  SysTick_Config(__SYSTEM_CLOCK/1000);   // 1000 Hz
   LPC_GPIO_PORT->DIR0 |= (1 << redLed) | (1 << greenLed) | (1 << blueLed);
   LPC_GPIO_PORT->SET0 = (1 << redLed) | (1 << greenLed) | (1 << blueLed);
 
@@ -111,6 +117,10 @@ int main (void) {
       interval = 1000 - interval;
     }
     
+    int ch = uart0RecvChar();
+    if (ch >= 0)
+      processCmd(ch);
+
     if (rf12_recvDone() && rf12_crc == 0) {
       // briefly turn red LED on while reporting incoming package over serial
       LPC_GPIO_PORT->B0[redLed] = 0;
