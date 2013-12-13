@@ -61,8 +61,30 @@ static void configurePins (void) {
 #endif
 }
 
-static void processCmd (char ch) {
-  uart0SendChar(ch);
+static char cmd;
+static uint8_t stack[100], fill;
+static int value;
+
+static char parseCmd (int ch) {
+  if (cmd)
+    cmd = fill = value = 0;
+  if (ch >= 0) {
+    uart0SendChar(ch);
+    if ('0' <= ch && ch <= '9')
+      value = 10 * value + ch - '0';
+    else if ('a' <= ch && ch <= 'z') {
+      uart0SendChar('\n');
+      cmd = ch;
+    } else
+      switch (ch) {
+        case ',':
+          if (fill < sizeof stack)
+            stack[fill++] = value;
+          value = 0;
+          break;
+      }
+  }
+  return cmd;
 }
 
 int main (void) {
@@ -78,6 +100,7 @@ int main (void) {
 
   int dfId = df_init();
   printf("dfId 0x%04X\n", dfId);
+  // printf("clock %u\n", __SYSTEM_CLOCK);
   
 #if 0
   LPC_GPIO_PORT->B0[greenLed] = 0;
@@ -87,7 +110,7 @@ int main (void) {
   LPC_GPIO_PORT->B0[greenLed] = 1;
 #endif
 
-#if 1
+#if 0
   df_create(0x1234);
   df_appendBytes("1", 100);
   df_appendBytes("2", 100);
@@ -102,9 +125,7 @@ int main (void) {
   df_close();
 #endif
   
-  delay_ms(20); // needed to make RFM69 work properly on power-up
-  
-  // printf("clock %u\n", __SYSTEM_CLOCK);
+  delay_ms(20); // needed to make the radio work properly on power-up
   rf12_initialize(31, RF12_868MHZ, 5);
 
   MilliTimer blinkTimer;
@@ -117,18 +138,28 @@ int main (void) {
       interval = 1000 - interval;
     }
     
-    int ch = uart0RecvChar();
-    if (ch >= 0)
-      processCmd(ch);
+    // parse and process incoming serial commands
+    switch (parseCmd(uart0RecvChar())) {
+      case 'd':
+        printf("DUMP\n");
+        break;
+      case 'l':
+        printf("LIST\n");
+        break;
+      default:
+        printf("?\n");
+      case 0:
+        break;
+    }
 
+    // pick up incoming packets
     if (rf12_recvDone() && rf12_crc == 0) {
-      // briefly turn red LED on while reporting incoming package over serial
-      LPC_GPIO_PORT->B0[redLed] = 0;
+      LPC_GPIO_PORT->B0[redLed] = 0; // on
       printf("OK %d", rf12_hdr);
       for (int i = 0; i < rf12_len; ++i)
         printf(" %d", rf12_data[i]);
       printf("\n");
-      LPC_GPIO_PORT->B0[redLed] = 1;
+      LPC_GPIO_PORT->B0[redLed] = 1; // off
     }
   }
   
