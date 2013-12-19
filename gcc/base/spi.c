@@ -48,11 +48,11 @@
 
 void spiInit () {
   /* Enable SPI clock */
-  LPC_SYSCON->SYSAHBCLKCTRL |= (1<<11);
+  LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 11);
 
-  /* Peripheral reset control to SPI, a "1" bring it out of reset. */
-  LPC_SYSCON->PRESETCTRL &= ~(0x1<<0);
-  LPC_SYSCON->PRESETCTRL |= (0x1<<0);
+  /* Peripheral reset control to SPI0, a "1" bring it out of reset. */
+  LPC_SYSCON->PRESETCTRL &= ~(1 << 0);
+  LPC_SYSCON->PRESETCTRL |= (1 << 0);
   
   // 7.5 MHz, i.e. 30 MHz / 4
   LPC_SPI0->DIV = 3;
