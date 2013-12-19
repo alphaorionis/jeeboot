@@ -2,7 +2,12 @@
 #error must define one of LPC_MAX, LPC_NXP, LPC_JEEa, or LPC_JEE
 #endif
 
+#if LPC_MAX
+#define REMOTE_TYPE 0x200
+#else
 #define REMOTE_TYPE 0x300
+#endif
+
 #define PAIRING_GROUP 212
 
 #define __VTOR_PRESENT 1

@@ -7,7 +7,8 @@ include ../base/rules.mk
 # variable overrides and defaults can be placed in these optional files, e.g.
 # 	CFLAGS += -DLPC_MAX
 # 	TTY= /dev/tty.SLAB_USBtoUART
-CFLAGS += -DLPC_JEE
+#CFLAGS += -DLPC_JEE
+CFLAGS += -DLPC_MAX
 
 -include ../base/local.mk
 -include local.mk

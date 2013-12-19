@@ -34,7 +34,7 @@ Discarded input sections
                 0x0000000000000000       0x28 ../base/spi.o
  .debug_ranges  0x0000000000000000       0x18 ../base/spi.o
  .debug_line    0x0000000000000000       0xee ../base/spi.o
- .debug_str     0x0000000000000000      0x397 ../base/spi.o
+ .debug_str     0x0000000000000000      0x398 ../base/spi.o
  .comment       0x0000000000000000       0x71 ../base/spi.o
  .ARM.attributes
                 0x0000000000000000       0x32 ../base/spi.o
@@ -55,7 +55,7 @@ Discarded input sections
                 0x0000000000000000       0x30 ../base/uart.o
  .debug_ranges  0x0000000000000000       0x20 ../base/uart.o
  .debug_line    0x0000000000000000      0x11c ../base/uart.o
- .debug_str     0x0000000000000000      0x3b9 ../base/uart.o
+ .debug_str     0x0000000000000000      0x3ba ../base/uart.o
  .comment       0x0000000000000000       0x71 ../base/uart.o
  .ARM.attributes
                 0x0000000000000000       0x32 ../base/uart.o
@@ -79,7 +79,7 @@ Discarded input sections
                 0x0000000000000000       0x48 ../base/printf.o
  .debug_ranges  0x0000000000000000       0x38 ../base/printf.o
  .debug_line    0x0000000000000000      0x22c ../base/printf.o
- .debug_str     0x0000000000000000      0x12d ../base/printf.o
+ .debug_str     0x0000000000000000      0x12e ../base/printf.o
  .comment       0x0000000000000000       0x71 ../base/printf.o
  .ARM.attributes
                 0x0000000000000000       0x32 ../base/printf.o
@@ -96,7 +96,7 @@ Discarded input sections
                 0x0000000000000000       0x28 ../base/printf-retarget.o
  .debug_ranges  0x0000000000000000       0x18 ../base/printf-retarget.o
  .debug_line    0x0000000000000000       0x74 ../base/printf-retarget.o
- .debug_str     0x0000000000000000      0x13a ../base/printf-retarget.o
+ .debug_str     0x0000000000000000      0x13b ../base/printf-retarget.o
  .comment       0x0000000000000000       0x71 ../base/printf-retarget.o
  .ARM.attributes
                 0x0000000000000000       0x32 ../base/printf-retarget.o
@@ -125,7 +125,7 @@ Discarded input sections
                 0x0000000000000000       0x28 ../base/system_LPC8xx.o
  .debug_ranges  0x0000000000000000       0x18 ../base/system_LPC8xx.o
  .debug_line    0x0000000000000000      0x105 ../base/system_LPC8xx.o
- .debug_str     0x0000000000000000      0x36d ../base/system_LPC8xx.o
+ .debug_str     0x0000000000000000      0x36e ../base/system_LPC8xx.o
  .comment       0x0000000000000000       0x71 ../base/system_LPC8xx.o
  .ARM.attributes
                 0x0000000000000000       0x32 ../base/system_LPC8xx.o
@@ -351,21 +351,21 @@ OUTPUT(firmware.elf elf32-littlearm)
  .debug_ranges  0x00000000000002e0       0x48 ../base/iap_driver.o
  .debug_ranges  0x0000000000000328       0x40 ../base/gcc_startup_lpc8xx.o
 
-.debug_line     0x0000000000000000      0x8ee
- .debug_line    0x0000000000000000      0x31c main.o
- .debug_line    0x000000000000031c      0x331 rf69_12.o
- .debug_line    0x000000000000064d      0x234 ../base/iap_driver.o
- .debug_line    0x0000000000000881       0x6d ../base/gcc_startup_lpc8xx.o
+.debug_line     0x0000000000000000      0x8ed
+ .debug_line    0x0000000000000000      0x31b main.o
+ .debug_line    0x000000000000031b      0x331 rf69_12.o
+ .debug_line    0x000000000000064c      0x234 ../base/iap_driver.o
+ .debug_line    0x0000000000000880       0x6d ../base/gcc_startup_lpc8xx.o
 
-.debug_str      0x0000000000000000      0xbcc
+.debug_str      0x0000000000000000      0xba2
  .debug_str     0x0000000000000000      0x8b2 main.o
                                         0x926 (size before relaxing)
  .debug_str     0x00000000000008b2      0x12b rf69_12.o
                                         0x4ce (size before relaxing)
  .debug_str     0x00000000000009dd      0x116 ../base/iap_driver.o
                                         0x2a3 (size before relaxing)
- .debug_str     0x0000000000000af3       0xd9 ../base/gcc_startup_lpc8xx.o
-                                        0x14d (size before relaxing)
+ .debug_str     0x0000000000000af3       0xaf ../base/gcc_startup_lpc8xx.o
+                                        0x14e (size before relaxing)
 
 .comment        0x0000000000000000       0x70
  .comment       0x0000000000000000       0x70 main.o
