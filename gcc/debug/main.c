@@ -12,7 +12,7 @@ void SysTick_Handler (void) {
   ++msTicks;
 }
 
-static void delay_ms (uint32_t ms) {
+static void delayMillis (uint32_t ms) {
   uint32_t now = msTicks;
   while ((msTicks-now) < ms)
     ;
@@ -41,7 +41,7 @@ int main (void) {
     
   while (1) {
     LPC_GPIO_PORT->NOT0 = 1 << ledPin;
-    delay_ms(500);
+    delayMillis(500);
   }
   
   return 0;

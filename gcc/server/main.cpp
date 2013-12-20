@@ -37,7 +37,7 @@ extern "C" void SysTick_Handler () {
   ++msTicks;
 }
 
-static void delay_ms (unsigned ms) {
+static void delayMillis (unsigned ms) {
   unsigned now = msTicks;
   while ((msTicks - now) < ms)
     ;
@@ -92,7 +92,7 @@ int main (void) {
   uart0Init(115200);
 
   SysTick_Config(__SYSTEM_CLOCK/1000-1);   // 1000 Hz
-  delay_ms(500); // just to get clean terminal output from lpc21isp
+  delayMillis(500); // just to get clean terminal output from lpc21isp
   printf("\n[server]\n");
   
   LPC_GPIO_PORT->DIR0 |= (1 << redLed) | (1 << greenLed) | (1 << blueLed);
@@ -125,7 +125,7 @@ int main (void) {
   df_close();
 #endif
   
-  delay_ms(20); // needed to make the radio work properly on power-up
+  delayMillis(20); // needed to make the radio work properly on power-up
   rf12_initialize(31, RF12_868MHZ, 5);
 
   MilliTimer blinkTimer;
