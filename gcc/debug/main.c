@@ -34,7 +34,7 @@ int main (void) {
   configurePins();
   uart0Init(57600);
   
-  SysTick_Config(__SYSTEM_CLOCK/1000);   // 1000 Hz
+  SysTick_Config(__SYSTEM_CLOCK/1000-1);   // 1000 Hz
   LPC_GPIO_PORT->DIR0 |= (1 << ledPin);
 
   printf("clock %u\n", __SYSTEM_CLOCK);

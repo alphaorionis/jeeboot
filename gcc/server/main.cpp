@@ -91,7 +91,7 @@ int main (void) {
   configurePins();
   uart0Init(115200);
 
-  SysTick_Config(__SYSTEM_CLOCK/1000);   // 1000 Hz
+  SysTick_Config(__SYSTEM_CLOCK/1000-1);   // 1000 Hz
   delay_ms(500); // just to get clean terminal output from lpc21isp
   printf("\n[server]\n");
   

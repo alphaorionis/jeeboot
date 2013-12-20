@@ -109,7 +109,7 @@ int main (void) {
   uart0Init(57600);
 #endif
   
-  SysTick_Config(__SYSTEM_CLOCK/1000);   // 1000 Hz
+  SysTick_Config(__SYSTEM_CLOCK/1000-1);   // 1000 Hz
 
   printf("clock %lu\n", __SYSTEM_CLOCK);
   // int e = iap_init();
