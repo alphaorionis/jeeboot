@@ -30,9 +30,9 @@ class BootResponder extends stream.Transform
       hwId: msg.toString 'hex', 6, 22
     @doPairing info
     reply = new Buffer(20)
-    reply.writeUInt16LE 0, info.type
-    reply.writeUInt8LE 2, info.group
-    reply.writeUInt8LE 3, info.nodeId
+    reply.writeUInt16LE info.type, 0
+    reply.writeUInt8 info.group, 2
+    reply.writeUInt8 info.nodeId, 3
     if info.shKey
       new Buffer(info.shKey, 'hex').copy(reply, 4)
     else
@@ -47,10 +47,10 @@ class BootResponder extends stream.Transform
       swCheck: msg.readUInt16LE 6
     @doUpgrade info
     reply = new Buffer(8)
-    reply.writeUInt16LE 0, info.type
-    reply.writeUInt16LE 2, info.swId
-    reply.writeUInt16LE 4, info.swSize
-    reply.writeUInt16LE 6, info.swCheck
+    reply.writeUInt16LE info.type, 0
+    reply.writeUInt16LE info.swId, 2
+    reply.writeUInt16LE info.swSize, 4
+    reply.writeUInt16LE info.swCheck, 6
     reply
 
   downloadRequest: (msg) ->
@@ -59,7 +59,7 @@ class BootResponder extends stream.Transform
       swIndex: msg.readUInt16LE 2
     @doDownload info
     reply = new Buffer(66)
-    reply.writeUInt16LE 0, info.swId ^ info.swIndex
+    reply.writeUInt16LE info.swId ^ info.swIndex, 0
     reply
 
   doPairing: (info) ->
