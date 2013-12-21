@@ -1,2 +1,1 @@
-require('coffee-script');
-require('./app');
+require('primus-live');

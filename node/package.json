@@ -1,12 +1,6 @@
 {
   "name": "jeeboot",
-  "version": "0.0.1",
-  "description": "JeeBoot server",
-  "main": "index.js",
-  "author": "Jean-Claude Wippler",
-  "license": "ISC",
   "dependencies": {
-    "coffee-script": "~1.6.3",
-    "serialport": "~1.2.5"
+    "primus-live": "~0.3.4"
   }
 }
