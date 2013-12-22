@@ -44,12 +44,13 @@ getCode = (tgn) ->
   # loop through all entries and remember only the last one
   for swId,fileName of config.nodes[nodeName]
     swId |= 0 # convert to int
+  console.log 'glc1', nodeName, fileName, swId
   code = padToBinaryMultiple readIntelHexFile(fileName), 64
   swCheck = calculateCrc code
   swSize = code.length >> 4
   nodeConfigs["rf12-868,#{tgn.group},#{tgn.nodeId}"] = swId
   codeCache[swId] = {swCheck,swSize,code}
-  console.log 'glc', nodeName, fileName, swId, code.length, swSize, swCheck
+  console.log 'glc2', code.length, swSize, swCheck
 
 class BootResponder extends stream.Transform
   constructor: ->
