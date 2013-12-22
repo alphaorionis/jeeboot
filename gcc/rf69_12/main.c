@@ -18,7 +18,7 @@
 #include "rf69_12.h"
 #include "iap_driver.h"
 
-#define printf(...)
+// #define printf(...)
 #define dump(...)
 
 static volatile uint32_t msTicks;

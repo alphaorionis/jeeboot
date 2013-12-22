@@ -1,5 +1,55 @@
 stream = require 'stream'
 fs = require 'fs'
+config = require '../config'
+
+FIRMWARE_DIR = './firmware'
+
+nodeConfigs = {}
+codeCache = {}
+
+readIntelHexFile = (name) ->
+  hex = fs.readFileSync "#{FIRMWARE_DIR}/#{name}", 'utf8'
+  chunks = []
+  for line in hex.split '\n'
+    if line[0] is ':'
+      line = line.slice(0, -1)  if line[line.length-1] is '\r'
+      buf = new Buffer(line.slice(1), 'hex')
+      if buf[3] is 0
+        chunks.push buf.slice 4, -1
+  Buffer.concat chunks
+
+padToBinaryMultiple = (buf, count) ->
+  remain = buf.length % count
+  if remain
+    pad = new Buffer(count - remain)
+    pad.fill 0xFF
+    Buffer.concat [buf, pad]
+  else
+    buf
+
+crcTable = [
+  0x0000, 0xCC01, 0xD801, 0x1400, 0xF001, 0x3C00, 0x2800, 0xE401,
+  0xA001, 0x6C00, 0x7800, 0xB401, 0x5000, 0x9C01, 0x8801, 0x4400
+]
+
+calculateCrc = (buf) ->
+  crc = 0xFFFF
+  for data in buf
+    crc = (crc >> 4) ^ crcTable[crc & 0xF] ^ crcTable[data & 0xF]
+    crc = (crc >> 4) ^ crcTable[crc & 0xF] ^ crcTable[data >> 4]
+  crc
+
+getCode = (tgn) ->
+  nodeName = "#{config.types[tgn.type]},#{tgn.group},#{tgn.nodeId}"
+  # loop through all entries and remember only the last one
+  for swId,fileName of config.nodes[nodeName]
+    swId |= 0 # convert to int
+  code = padToBinaryMultiple readIntelHexFile(fileName), 64
+  swCheck = calculateCrc code
+  swSize = code.length >> 4
+  nodeConfigs["rf12-868,#{tgn.group},#{tgn.nodeId}"] = swId
+  codeCache[swId] = {swId,swCheck,swSize,code}
+  console.log 'glc', nodeName, fileName, swId, code.length, swSize, swCheck
 
 class BootResponder extends stream.Transform
   constructor: ->
@@ -12,13 +62,17 @@ class BootResponder extends stream.Transform
         when 23
           reply = @pairingRequest msg
         when 9
-          reply = @upgradeRequest msg
+          reply = @upgradeRequest msg, data.type
         when 5
           reply = @downloadRequest msg
         else
           console.log 'bad message:', data
       if reply
-        console.log ' ->', reply
+        cmd = reply.toJSON().toString() + ',0s'
+        console.log ' ->', reply.length
+        @push cmd
+    else
+      # console.log data
     done()
 
   pairingRequest: (msg) ->
@@ -39,12 +93,13 @@ class BootResponder extends stream.Transform
       reply.fill 0, 4
     reply
 
-  upgradeRequest: (msg) ->
+  upgradeRequest: (msg, cfg) ->
     info =
       type: msg.readUInt16LE 0
       swId: msg.readUInt16LE 2
       swSize: msg.readUInt16LE 4
       swCheck: msg.readUInt16LE 6
+      config: cfg
     @doUpgrade info
     reply = new Buffer(8)
     reply.writeUInt16LE info.type, 0
@@ -59,14 +114,25 @@ class BootResponder extends stream.Transform
       swIndex: msg.readUInt16LE 2
     @doDownload info
     reply = new Buffer(66)
+    #console.log 'dlr', info.swId, info.swIndex, info.swId ^ info.swIndex
     reply.writeUInt16LE info.swId ^ info.swIndex, 0
+    pos = info.swIndex * 64
+    code = codeCache[info.swId].code
+    #code.copy reply, 2, pos, pos+64
+    #console.log code.slice(pos, pos+64).toString 'hex'
+    for i in [0..63]
+      reply[2+i] = (code[pos+i] ^ (211*i)) & 0xFF # add data whitening
     reply
 
   doPairing: (info) ->
     console.log 'pairing', info
+    info[k] = v  for k,v of config.hwIds[info.hwId]
+    getCode info
 
   doUpgrade: (info) ->
-    console.log 'upgrade', info
+    swId = nodeConfigs[info.config]
+    console.log 'upgrade', info, swId
+    info[k] = v  for k,v of codeCache[swId]
 
   doDownload: (info) ->
     console.log 'download', info
