@@ -48,7 +48,7 @@ getCode = (tgn) ->
   swCheck = calculateCrc code
   swSize = code.length >> 4
   nodeConfigs["rf12-868,#{tgn.group},#{tgn.nodeId}"] = swId
-  codeCache[swId] = {swId,swCheck,swSize,code}
+  codeCache[swId] = {swCheck,swSize,code}
   console.log 'glc', nodeName, fileName, swId, code.length, swSize, swCheck
 
 class BootResponder extends stream.Transform
@@ -82,7 +82,11 @@ class BootResponder extends stream.Transform
       nodeId: msg[3]
       check: msg.readUInt16LE 4
       hwId: msg.toString 'hex', 6, 22
-    @doPairing info
+    
+    console.log 'pairing', info
+    info[k] = v  for k,v of config.hwIds[info.hwId]
+    getCode info
+    
     reply = new Buffer(20)
     reply.writeUInt16LE info.type, 0
     reply.writeUInt8 info.group, 2
@@ -100,7 +104,11 @@ class BootResponder extends stream.Transform
       swSize: msg.readUInt16LE 4
       swCheck: msg.readUInt16LE 6
       config: cfg
-    @doUpgrade info
+
+    console.log 'upgrade', info
+    info.swId = nodeConfigs[info.config]
+    info[k] = v  for k,v of codeCache[info.swId]
+
     reply = new Buffer(8)
     reply.writeUInt16LE info.type, 0
     reply.writeUInt16LE info.swId, 2
@@ -112,30 +120,17 @@ class BootResponder extends stream.Transform
     info =
       swId: msg.readUInt16LE 0
       swIndex: msg.readUInt16LE 2
-    @doDownload info
+
+    console.log 'download', info
+
     reply = new Buffer(66)
-    #console.log 'dlr', info.swId, info.swIndex, info.swId ^ info.swIndex
     reply.writeUInt16LE info.swId ^ info.swIndex, 0
+    # copy requested code chunk into reply with data whitening
     pos = info.swIndex * 64
     code = codeCache[info.swId].code
-    #code.copy reply, 2, pos, pos+64
-    #console.log code.slice(pos, pos+64).toString 'hex'
     for i in [0..63]
-      reply[2+i] = (code[pos+i] ^ (211*i)) & 0xFF # add data whitening
+      reply[2+i] = (code[pos+i] ^ (211*i)) & 0xFF
     reply
-
-  doPairing: (info) ->
-    console.log 'pairing', info
-    info[k] = v  for k,v of config.hwIds[info.hwId]
-    getCode info
-
-  doUpgrade: (info) ->
-    swId = nodeConfigs[info.config]
-    console.log 'upgrade', info, swId
-    info[k] = v  for k,v of codeCache[swId]
-
-  doDownload: (info) ->
-    console.log 'download', info
 
 module.exports = (app, plugin) ->
 

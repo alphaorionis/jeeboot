@@ -6,8 +6,9 @@ module.exports =
 
   types:
     0x100: 'JNv6-868'
-    0x200: 'JN2/69-868'
+    0x200: 'MAX/69-868'
+    0x300: 'JN2/69-868'
 
   nodes:
-    'JN2/69-868,212,17':
+    'MAX/69-868,212,17':
       1001: 'blinkArm2.hex'
