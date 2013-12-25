@@ -59,7 +59,8 @@ void uart0Init (uint32_t baudRate) {
   LPC_SYSCON->PRESETCTRL    |=  (1 << 3);
 
   /* Configure UART0 */
-  uint32_t clk = __SYSTEM_CLOCK / UARTCLKDIV;
+  SystemCoreClockUpdate();
+  uint32_t clk = SystemCoreClock / UARTCLKDIV;
   LPC_USART0->CFG = UART_DATA_LENGTH_8 | UART_PARITY_NONE | UART_STOP_BIT_1;
   LPC_USART0->BRG = clk / 16 / baudRate - 1;
   LPC_SYSCON->UARTFRGDIV = 0xFF;
