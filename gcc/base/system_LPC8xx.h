@@ -116,13 +116,16 @@ extern "C" {
 // PLL is set to 60 MHz
 // AHBClkdiv divides the clock by 2
 
+#ifndef CLOCK_SETUP
 #define CLOCK_SETUP           0
+#endif
+
 #define SYSOSCCTRL_Val        0x00000000              // Reset: 0x000
 #define WDTOSCCTRL_Val        0x00000000              // Reset: 0x000
-#define SYSPLLCTRL_Val        0x00000000              // Reset: 0x000
+#define SYSPLLCTRL_Val        0x00000024              // Reset: 0x000
 #define SYSPLLCLKSEL_Val      0x00000000              // Reset: 0x000
-#define MAINCLKSEL_Val        0x00000000              // Reset: 0x000
-#define SYSAHBCLKDIV_Val      0x00000001              // Reset: 0x001
+#define MAINCLKSEL_Val        0x00000003              // Reset: 0x000
+#define SYSAHBCLKDIV_Val      0x00000002              // Reset: 0x001
 
 
 
