@@ -11,7 +11,8 @@
 #include <avr/wdt.h>
 #include <util/crc16.h>
 
-#define DEBUG 1
+// undef->none, 1->LED, 2->serial
+#define DEBUG 2
 
 #define bit(b) (1 << (b))
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
@@ -36,40 +37,9 @@ static void sleep (word ms) {
   // ...
 }
 
-#if DEBUG
-#include <stdio.h>
-static int putch(char, FILE *stream);
-static inline void flash_led(uint8_t);
-static FILE serout = FDEV_SETUP_STREAM(putch, NULL, _FDEV_SETUP_WRITE);
-#define dump(...)
-#else
-#define putch(...)
-#define printf(...)
-#define flash_led(...)
-#define dump(...)
-#endif
-
+#include "debug.h"
 #include "ota_RF12.h"
 #include "boot.h"
-
-#ifdef DEBUG
-#define BAUD_RATE 57600L
-#define UART 0
-#if UART == 0
-# define UART_SRA UCSR0A
-# define UART_SRB UCSR0B
-# define UART_SRC UCSR0C
-# define UART_SRL UBRR0L
-# define UART_UDR UDR0
-#else
-#error UART == 1, but no UART1 on device
-#endif
-
-#define LED_DDR     DDRD
-#define LED_PORT    PORTD
-#define LED_PIN     PIND
-#define LED         PIND4
-#endif /* DEBUG */
 
 /* The main function is in init9, which removes the interrupt vector table */
 /* we don't need. It is also 'naked', which means the compiler does not    */
@@ -78,31 +48,32 @@ int main(void) __attribute__ ((naked)) __attribute__ ((section (".init9")));
 
 int main () {
   // cli();
-  // SP=RAMEND;  // This is done by hardware reset
   asm volatile ("clr __zero_reg__");
+  //SP=RAMEND;  // This is done by hardware reset
 
   // find out whether we got here through a watchdog reset
   byte launch = bitRead(MCUSR, EXTRF);
   MCUSR = 0;
   wdt_disable();
 
-#ifdef DEBUG
+#if DEBUG == 2
   // init UART
   UART_SRA = _BV(U2X0); //Double speed mode USART0
   UART_SRB = _BV(RXEN0) | _BV(TXEN0);
   UART_SRC = _BV(UCSZ00) | _BV(UCSZ01);
   UART_SRL = (uint8_t)( (4000000L + BAUD_RATE * 4L) / (BAUD_RATE * 8L) - 1 );
+#endif
+#if DEBUG == 1
   // Set up Timer 1 for timeout counter
   TCCR1B = _BV(CS12) | _BV(CS10); // div 1024
   // Set LED pin as output
   LED_DDR |= _BV(LED);
-  stdout = &serout;
 #endif
 
   // similar to Adaboot no-wait mod
   if (!launch) {
     flash_led(12); // 6 flashes
-		printf("Reset!\n");
+		P("\n\nReset!\n");
     clock_prescale_set(clock_div_1);
     ((void(*)()) 0)(); // Jump to RST vector
   }
@@ -111,7 +82,9 @@ int main () {
   clock_prescale_set(clock_div_4);
 
   flash_led(4); // 2 flashes
-	printf("Cold start!\n");
+	P("\n\nBOOT!\n");
+	P("SP="); P_X16(SP); P_LN();
+	//P("&launch="); P_X16((uint16_t)&launch); P_LN();
 
   bootLoader();
 
@@ -121,29 +94,3 @@ int main () {
   for (;;)
     ;
 }
-
-#ifdef DEBUG
-
-static int putch(char ch, FILE *stream) {
-  while (!(UART_SRA & _BV(UDRE0)));
-  UART_UDR = ch;
-	return 0;
-}
-
-void watchdogReset();
-void flash_led(uint8_t count) {
-  do {
-    TCNT1 = -(F_CPU/(1024*16));
-    TIFR1 = _BV(TOV1);
-    while(!(TIFR1 & _BV(TOV1)));
-    LED_PIN |= _BV(LED);
-    watchdogReset();
-  } while (--count);
-}
-// Watchdog functions. These are only safe with interrupts turned off.
-void watchdogReset() {
-  __asm__ __volatile__ (
-    "wdr\n"
-  );
-}
-#endif

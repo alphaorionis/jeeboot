@@ -326,7 +326,7 @@ static void rf12_sendStart (uint8_t hdr, const void* ptr, uint8_t len) {
 static void rf12_initialize (uint8_t id, uint8_t band, uint8_t g) {
     nodeid = id;
     group = g;
-		printf("RF12 id=%d b=%d g=%d\n", id, band, g);
+		P("RF12 id="); P_I8(id); P(" b="); P_I8(band); P(" g="); P_I8(g); P_LN();
     
     spi_initialize();
     

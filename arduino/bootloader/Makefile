@@ -74,7 +74,7 @@ isp: $(TARGET)
 	$(ISPFUSES)
 	$(ISPFLASH)
 
-ota_boot.o: ota_boot.c boot.h packet.h ota_RF12.h
+ota_boot.o: ota_boot.c boot.h packet.h ota_RF12.h debug.h
 
 %.elf: $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)

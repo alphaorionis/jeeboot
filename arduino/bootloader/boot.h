@@ -29,7 +29,7 @@ static uint16_t calcCRC (const void* ptr, int len) {
   int crc = ~0;
   for (uint16_t i = 0; i < len; ++i)
     crc = _crc16_update(crc, ((const char*) ptr)[i]);
-  printf("crc %04X\n", crc);
+  //P("  crc "); P_X16(crc); P_LN();
   return crc;
 }
 
@@ -50,20 +50,20 @@ static void dump (const char* msg, const void* buf, int len) {
 // return 1 if good reply, 0 if crc error, -1 if timeout
 static int sendRequest (const void* buf, int len, int hdrOr) {
   dump("send", buf, len);
-  printf("SEND %db\n", len);
+  P("SEND "); P_I8(len); P(" -> ");
   rf12_sendNow(RF12_HDR_CTL | RF12_HDR_ACK | hdrOr, buf, len);
   rf12_sendWait(0);
   uint32_t now = millis();
   while (!rf12_recvDone() || rf12_len == 0) // TODO: 0-check to avoid std acks?
     if ((millis() - now) >= 250) {
-      printf("timed out\n");
+      P("timeout\n");
       return -1;
     }
   if (rf12_crc) {
-    printf("bad crc %04X\n", rf12_crc);
+    P("bad crc "); P_X16(rf12_crc); P_LN();
     return 0;
   }
-  printf("got %d b hdr 0x%X crc %X\n", rf12_len, rf12_hdr, rf12_crc);
+  P("got "); P_I8(rf12_len); P(" hdr=0x"); P_X8(rf12_hdr); P_LN();
   dump("recv", (const uint8_t*) rf12_data, rf12_len);
   return 1;
 }
@@ -85,7 +85,7 @@ static void copyPageToFlash (void* ram, void* flash) {
 #endif
 }
 
-int backOffCounter;
+static byte backOffCounter;
 
 struct Config {
   uint32_t version;
@@ -102,7 +102,7 @@ struct Config {
 static void loadConfig () {
   memcpy(&config, CONFIG_ADDR, sizeof config);
   if (calcCRC(&config, sizeof config) != 0) {
-    printf("default config\n");
+    //P("default config\n");
     memset(&config, 0, sizeof config);
   }
 }
@@ -111,27 +111,37 @@ static void saveConfig () {
   config.version = 1;
   if (calcCRC(&config, sizeof config) != 0) {
     config.check = calcCRC(&config, sizeof config - 2);
-    printf("save config 0x%X\n", config.check);
+    //P("save config 0x"); P_X16(config.check); P_LN();
     copyPageToFlash(&config, CONFIG_ADDR);
   }
 }
 
 static void sendPairingCheck () {
   struct PairingRequest request;
+  struct PairingReply reply;
   request.type = REMOTE_TYPE;
   request.group = config.group;
   request.nodeId = config.nodeId;
   request.check = calcCRC(&config.shKey, sizeof config.shKey);
   memcpy(request.hwId, hwId, sizeof request.hwId);
+	P("hwId "); P_A(&hwId, sizeof(hwId));
   
-  struct PairingReply reply;
   if (sendRequest(&request, sizeof request, RF12_HDR_DST) > 0 && rf12_len == sizeof reply) {
+		P("RQ "); P_A(&request, sizeof(request));
+		P("PK "); P_A((void *)rf12_data, sizeof(reply));
+		P("RP "); P_A(&reply, sizeof(reply));
     memcpy(&reply, (const void*) rf12_data, sizeof reply);
+		P("RP "); P_A(&reply, sizeof(reply));
+		P("g="); P_X8(reply.group);
+		P(" id="); P_X8(reply.nodeId); P_LN();
     config.group = reply.group;
     config.nodeId = reply.nodeId;
+		P_A(&config, sizeof(config));
     memcpy(config.shKey, reply.shKey, sizeof config.shKey);
     saveConfig();
-    printf("paired group %d node %d\n", config.group, config.nodeId);
+    P("paired id="); P_I8(config.nodeId); P(" g="); P_I8(config.group);
+		P(" config="); P_X16((uint16_t)&config); P_LN();
+		P_A(&config, sizeof(config));
   }
 }
 
@@ -141,7 +151,7 @@ static void sendPairingCheck () {
 // without server, this'll listen for 250 ms up to 85x/day = 21 s = 0.25% duty
 
 static void exponentialBackOff () {
-  printf("wait %d\n", 250 << backOffCounter);
+  //P("wait "); P_I8(backOffCounter); P_LN();
   sleep(250L << backOffCounter);
   if (backOffCounter < 16)
     ++backOffCounter;
@@ -171,6 +181,7 @@ static int sendUpgradeCheck () {
 }
 
 static int sendDownloadRequest (int index) {
+#if 1
   struct DownloadRequest request;
   request.swId = config.swId;
   request.swIndex = index;
@@ -186,16 +197,17 @@ static int sendDownloadRequest (int index) {
     dump("in flash", flash, PAGE_SIZE);
     return 1;
   }
+#endif
   return 0;
 }
 
 static void bootLoaderLogic () {
-  printf("1\n");
   loadConfig();
   
+	// Pairing: figure out who we're supposed to communicate with (and boot from)
   rf12_initialize(1, RF12_915MHZ, PAIRING_GROUP);
 
-  printf("2\n");
+  P("== Pairing\n");
   backOffCounter = 0;
   while (1) {
     sendPairingCheck();
@@ -204,9 +216,10 @@ static void bootLoaderLogic () {
     exponentialBackOff();
   }
   
+	// Upgrade check: figure out whether we have the right sketch loaded
   rf12_initialize(config.nodeId, RF12_915MHZ, config.group);
 
-  printf("3\n");
+  P("== Upgrade chk\n");
   backOffCounter = 0;
   do {
     if (sendUpgradeCheck())
@@ -214,7 +227,8 @@ static void bootLoaderLogic () {
     exponentialBackOff();
   } while (! appIsValid());
   
-  printf("4\n");
+	// Download: if the app we have is not the right one then download the right one
+  P("== Download\n");
   if (! appIsValid()) {
     int limit = ((config.swSize << 4) + PAGE_SIZE - 1) / PAGE_SIZE;
     for (int i = 0; i < limit; ++i) {
@@ -224,7 +238,7 @@ static void bootLoaderLogic () {
     }
   }
 
-  printf("5\n");
+  //P("== Ready!\n");
 }
 
 static void bootLoader () {
