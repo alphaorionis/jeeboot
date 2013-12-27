@@ -50,7 +50,7 @@ static void dump (const char* msg, const void* buf, int len) {
 // return 1 if good reply, 0 if crc error, -1 if timeout
 static int sendRequest (const void* buf, int len, int hdrOr) {
   dump("send", buf, len);
-  // printf("sending %d b\n", len);
+  printf("SEND %db\n", len);
   rf12_sendNow(RF12_HDR_CTL | RF12_HDR_ACK | hdrOr, buf, len);
   rf12_sendWait(0);
   uint32_t now = millis();
@@ -193,7 +193,7 @@ static void bootLoaderLogic () {
   printf("1\n");
   loadConfig();
   
-  rf12_initialize(1, RF12_868MHZ, PAIRING_GROUP);
+  rf12_initialize(1, RF12_915MHZ, PAIRING_GROUP);
 
   printf("2\n");
   backOffCounter = 0;
@@ -204,7 +204,7 @@ static void bootLoaderLogic () {
     exponentialBackOff();
   }
   
-  rf12_initialize(config.nodeId, RF12_868MHZ, config.group);
+  rf12_initialize(config.nodeId, RF12_915MHZ, config.group);
 
   printf("3\n");
   backOffCounter = 0;

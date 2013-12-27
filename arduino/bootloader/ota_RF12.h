@@ -326,6 +326,7 @@ static void rf12_sendStart (uint8_t hdr, const void* ptr, uint8_t len) {
 static void rf12_initialize (uint8_t id, uint8_t band, uint8_t g) {
     nodeid = id;
     group = g;
+		printf("RF12 id=%d b=%d g=%d\n", id, band, g);
     
     spi_initialize();
     
@@ -347,7 +348,8 @@ static void rf12_initialize (uint8_t id, uint8_t band, uint8_t g) {
     rf12_xfer(0x80C7 | (band << 4)); // EL (ena TX), EF (ena RX FIFO), 12.0pF 
     rf12_xfer(0xA640); // 868MHz 
     rf12_xfer(0xC606); // approx 49.2 Kbps, i.e. 10000/29/(1+6) Kbps
-    rf12_xfer(0x94A2); // VDI,FAST,134kHz,0dBm,-91dBm 
+    //rf12_xfer(0x94A2); // VDI,FAST,134kHz,0dBm,-91dBm 
+    rf12_xfer(0x94B2); // VDI,FAST,134kHz,-?dBm,-91dBm 
     rf12_xfer(0xC2AC); // AL,!ml,DIG,DQD4 
     if (group != 0) {
         rf12_xfer(0xCA83); // FIFO8,2-SYNC,!ff,DR 
@@ -357,7 +359,8 @@ static void rf12_initialize (uint8_t id, uint8_t band, uint8_t g) {
         rf12_xfer(0xCE2D); // SYNC=2D； 
     }
     rf12_xfer(0xC483); // @PWR,NO RSTRIC,!st,!fi,OE,EN 
-    rf12_xfer(0x9850); // !mp,90kHz,MAX OUT 
+    //rf12_xfer(0x9850); // !mp,90kHz,MAX OUT 
+    rf12_xfer(0x9857); // !mp,90kHz,MIN OUT 
     rf12_xfer(0xCC77); // OB1，OB0, LPX,！ddy，DDIT，BW0 
     rf12_xfer(0xE000); // NOT USE 
     rf12_xfer(0xC800); // NOT USE 

@@ -49,7 +49,10 @@ void setup () {
   Serial.begin(57600);
   Serial.println("\n[testServer2]");
 #endif
-  rf12_initialize(31, RF12_868MHZ, PAIRING_GROUP);
+  rf12_initialize(31, RF12_915MHZ, PAIRING_GROUP);
+	Serial.println(F("  low TX power"));
+	rf12_control(0x9857); // reduce tx power
+	rf12_control(0x94B2); // attenuate receiver 0x94B2 or 0x94Ba
 }
 
 #define THROTTLE 5

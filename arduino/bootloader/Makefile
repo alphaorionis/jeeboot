@@ -7,18 +7,30 @@
 PROGRAM = ota_boot
 MCU_TARGET = atmega328
 TARGET = atmega328
+PART = m328p
 AVR_FREQ = 16000000L
 LDSECTION = --section-start=.text=0x7800
 
+# If you have the Linux arduino software installed set ARDUINODIR as you're used to to get
+# the toolchain
+ifdef ARDUINODIR
+TOOLDIR := $(ARDUINODIR)/hardware/tools/avr/bin/
+DUDEDIR := $(ARDUINODIR)/hardware/tools/
+else
+TOOLDIR :=
+DUDEDIR :=
+endif
+
 # enter the parameters for the avrdude isp tool
 # ISP_ARGS = -c stk500v2 -P usb -b 115200
-ISP_ARGS = -c stk500v1 -P /dev/tty.usbserial-A600dW8R -b 9600
+#ISP_ARGS = -c stk500v1 -P /dev/tty.usbserial-A600dW8R -b 9600
+ISP_ARGS = -c avrisp -P net:bbb:2012 -C $(DUDEDIR)avrdude.conf
 
-ISPFUSES = avrdude $(ISP_ARGS) -p $(MCU_TARGET) \
+ISPFUSES = $(DUDEDIR)avrdude $(ISP_ARGS) -p $(PART) \
  -e -u -U lock:w:0x3f:m -qq \
  -U efuse:w:0x$(EFUSE):m -U hfuse:w:0x$(HFUSE):m -U lfuse:w:0x$(LFUSE):m \
  -U lock:w:0x0f:m
-ISPFLASH = avrdude -c $(ISP_ARGS) -p $(MCU_TARGET) \
+ISPFLASH = $(DUDEDIR)avrdude $(ISP_ARGS) -p $(PART) \
  -V -q -s -U flash:w:$(PROGRAM)_$(TARGET).hex
 
 OBJ = $(PROGRAM).o
@@ -27,14 +39,14 @@ OPTIMIZE = -Os -fno-inline-small-functions -fno-split-wide-types -mshort-calls
 DEFS = 
 LIBS =
 
-CC      = avr-gcc
-OBJCOPY = avr-objcopy
-OBJDUMP = avr-objdump
+CC      = $(TOOLDIR)avr-gcc
+OBJCOPY = $(TOOLDIR)avr-objcopy
+OBJDUMP = $(TOOLDIR)avr-objdump
 
 # Override is only needed by avr-lib build system.
 
 override CFLAGS = -g -Wall $(OPTIMIZE) -mmcu=$(MCU_TARGET) -DF_CPU=$(AVR_FREQ) \
- -std=gnu99 $(DEFS)
+ -std=gnu99 -Wl,-u,vfprintf -lprintf_min $(DEFS)
 override LDFLAGS = -Wl,$(LDSECTION) -Wl,--relax -nostartfiles
 
 atmega328: MCU_TARGET = atmega328p
@@ -62,9 +74,11 @@ isp: $(TARGET)
 	$(ISPFUSES)
 	$(ISPFLASH)
 
+ota_boot.o: ota_boot.c boot.h packet.h ota_RF12.h
+
 %.elf: $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
-	avr-size $@
+	$(TOOLDIR)avr-size $@
 
 clean:
 	rm -rf *.o *.elf *.lst *.map *.sym *.lss *.eep *.srec *.bin *.hex
