@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <avr/boot.h>
@@ -86,7 +87,8 @@ int main () {
   bootLoader();
 
   // force a clean reset to launch the actual code
-	P("RESET...\n");
+	flash_led(6); // 3 flashes
+	P("APP\n");
   clock_prescale_set(clock_div_1);
   wdt_enable(WDTO_15MS);
   for (;;)
