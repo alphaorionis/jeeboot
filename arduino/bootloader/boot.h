@@ -117,31 +117,24 @@ static void saveConfig () {
 }
 
 static void sendPairingCheck () {
+	// form the pairing request message
   struct PairingRequest request;
-  struct PairingReply reply;
   request.type = REMOTE_TYPE;
   request.group = config.group;
   request.nodeId = config.nodeId;
   request.check = calcCRC(&config.shKey, sizeof config.shKey);
   memcpy(request.hwId, hwId, sizeof request.hwId);
-	P("hwId "); P_A(&hwId, sizeof(hwId));
   
-  if (sendRequest(&request, sizeof request, RF12_HDR_DST) > 0 && rf12_len == sizeof reply) {
-		P("RQ "); P_A(&request, sizeof(request));
-		P("PK "); P_A((void *)rf12_data, sizeof(reply));
-		P("RP "); P_A(&reply, sizeof(reply));
-    memcpy(&reply, (const void*) rf12_data, sizeof reply);
-		P("RP "); P_A(&reply, sizeof(reply));
-		P("g="); P_X8(reply.group);
-		P(" id="); P_X8(reply.nodeId); P_LN();
-    config.group = reply.group;
-    config.nodeId = reply.nodeId;
-		P_A(&config, sizeof(config));
-    memcpy(config.shKey, reply.shKey, sizeof config.shKey);
+	// send the message and assuming we get a reply, set the config from the reply
+  struct PairingReply *reply;
+  if (sendRequest(&request, sizeof request, RF12_HDR_DST) > 0 && rf12_len == sizeof(*reply)) {
+		reply = (struct PairingReply *)rf12_data;
+    config.group = reply->group;
+    config.nodeId = reply->nodeId;
+    memcpy(config.shKey, reply->shKey, sizeof config.shKey);
     saveConfig();
-    P("paired id="); P_I8(config.nodeId); P(" g="); P_I8(config.group);
-		P(" config="); P_X16((uint16_t)&config); P_LN();
-		P_A(&config, sizeof(config));
+    P("paired id="); P_I8(config.nodeId); P(" g="); P_I8(config.group); P_LN();
+		P("config @0x"); P_A(&config, sizeof(config));
   }
 }
 
@@ -151,37 +144,45 @@ static void sendPairingCheck () {
 // without server, this'll listen for 250 ms up to 85x/day = 21 s = 0.25% duty
 
 static void exponentialBackOff () {
-  //P("wait "); P_I8(backOffCounter); P_LN();
+  P("  backoff "); P_I8(backOffCounter); P_LN();
   sleep(250L << backOffCounter);
   if (backOffCounter < 16)
     ++backOffCounter;
 }
 
 static int appIsValid () {
-  return calcCRC(BASE_ADDR, config.swSize << 4) == config.swCheck;
+  //return calcCRC(BASE_ADDR, config.swSize << 4) == config.swCheck;
+  uint16_t curr = calcCRC(BASE_ADDR, config.swSize << 4);
+	P("  app: curr="); P_X16(curr);
+	P(" want="); P_X16(config.swCheck);
+	P(curr == config.swCheck ? " OK\n" : " NOPE\n");
+	return curr == config.swCheck;
 }
 
 static int sendUpgradeCheck () {
+	// form upgrade check message
   struct UpgradeRequest request;
   request.type = REMOTE_TYPE;
   request.swId = config.swId;
   request.swSize = config.swSize;
   request.swCheck = config.swCheck;
-  struct UpgradeReply reply;
-  if (sendRequest(&request, sizeof request, 0) > 0 && rf12_len == sizeof reply) {
-    memcpy(&reply, (const void*) rf12_data, sizeof reply);
-    // ...
-    config.swId = reply.swId;
-    config.swSize = reply.swSize;
-    config.swCheck = reply.swCheck;
+	// send the message and update the config based on the reply, if we get one
+  struct UpgradeReply *reply;
+  if (sendRequest(&request, sizeof request, 0) > 0 && rf12_len == sizeof(*reply)) {
+		reply = (struct UpgradeReply *)rf12_data;
+    config.swId = reply->swId;
+    config.swSize = reply->swSize;
+    config.swCheck = reply->swCheck;
     saveConfig();
+		P("sw: id="); P_X16(config.swId); P(" sz="); P_X16(config.swSize);
+		P(" crc="); P_X16(config.swCheck); P_LN();
+		P("config @0x"); P_A(&config, sizeof(config));
     return 1;
   }
   return 0;
 }
 
 static int sendDownloadRequest (int index) {
-#if 1
   struct DownloadRequest request;
   request.swId = config.swId;
   request.swIndex = index;
@@ -197,7 +198,6 @@ static int sendDownloadRequest (int index) {
     dump("in flash", flash, PAGE_SIZE);
     return 1;
   }
-#endif
   return 0;
 }
 
@@ -238,7 +238,7 @@ static void bootLoaderLogic () {
     }
   }
 
-  //P("== Ready!\n");
+  P("== Ready!\n");
 }
 
 static void bootLoader () {

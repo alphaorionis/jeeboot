@@ -44,12 +44,11 @@ static void sleep (word ms) {
 /* The main function is in init9, which removes the interrupt vector table */
 /* we don't need. It is also 'naked', which means the compiler does not    */
 /* generate any entry or exit code itself. */
-int main(void) __attribute__ ((naked)) __attribute__ ((section (".init9")));
+int main(void) __attribute__ ((OS_main)) __attribute__ ((section (".init9")));
 
 int main () {
   // cli();
   asm volatile ("clr __zero_reg__");
-  //SP=RAMEND;  // This is done by hardware reset
 
   // find out whether we got here through a watchdog reset
   byte launch = bitRead(MCUSR, EXTRF);
@@ -72,7 +71,7 @@ int main () {
 
   // similar to Adaboot no-wait mod
   if (!launch) {
-    flash_led(12); // 6 flashes
+    flash_led(2); // 1 flash
 		P("\n\nReset!\n");
     clock_prescale_set(clock_div_1);
     ((void(*)()) 0)(); // Jump to RST vector
@@ -83,8 +82,6 @@ int main () {
 
   flash_led(4); // 2 flashes
 	P("\n\nBOOT!\n");
-	P("SP="); P_X16(SP); P_LN();
-	//P("&launch="); P_X16((uint16_t)&launch); P_LN();
 
   bootLoader();
 
