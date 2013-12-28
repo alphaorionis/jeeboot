@@ -183,19 +183,25 @@ static int sendUpgradeCheck () {
 }
 
 static int sendDownloadRequest (int index) {
+	// Compose download request
   struct DownloadRequest request;
   request.swId = config.swId;
   request.swIndex = index;
-  struct DownloadReply reply;
-  if (sendRequest(&request, sizeof request, 0) > 0 && rf12_len == sizeof reply) {
+	// Send request and if we got a reply copy it to flash
+  if (sendRequest(&request, sizeof request, 0) > 0 &&
+			rf12_len == sizeof(struct DownloadReply) &&
+			*(uint16_t*)rf12_data == request.swId ^ request.swIndex) // check reply.swIdXor
+	{
+		// de-whitening (prevents simple runs of all-0 or all-1 bits)
     for (int i = 0; i < BOOT_DATA_MAX; ++i)
       rf12_data[2+i] ^= 211 * i;
     // dump("de-whitened", (const void*) rf12_data, rf12_len);
-    union { uint32_t longs[16]; uint8_t bytes[64]; } aligned;
+    union { uint32_t longs[BOOT_DATA_MAX/4]; uint8_t bytes[BOOT_DATA_MAX]; } aligned;
     memcpy(aligned.bytes, (const void*) (rf12_data + 2), sizeof aligned);
     void* flash = BASE_ADDR + PAGE_SIZE * index;
     copyPageToFlash(aligned.bytes, flash);
     dump("in flash", flash, PAGE_SIZE);
+		P("  flashed ix="); P_X8(request.swIndex); P(" addr="); P_X16(flash); P_LN();
     return 1;
   }
   return 0;
@@ -252,6 +258,7 @@ static void bootLoader () {
     bootLoaderLogic();
     if (appIsValid())
       break;
+		P("  Ooops: invalid app!");
     sleep(100L << (backOff & 0x0F));
   }
 }

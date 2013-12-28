@@ -86,6 +86,7 @@ int main () {
   bootLoader();
 
   // force a clean reset to launch the actual code
+	P("RESET...\n");
   clock_prescale_set(clock_div_1);
   wdt_enable(WDTO_15MS);
   for (;;)
