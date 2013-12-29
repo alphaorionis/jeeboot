@@ -8,7 +8,7 @@
 
 #define PAGE_SIZE SPM_PAGESIZE          	// minimal chunk written to flash (128 on Atmega328p)
 #define BASE_ADDR ((uint8_t*) 0x0)			  // base address of user program
-#define CONFIG_ADDR (BASE_ADDR - PAGE_SIZE) // where config goes
+#define CONFIG_ADDR (BASE_ADDR - sizeof(config)) // where config goes
 
 static uint16_t calcCRC (const uint8_t *ptr, int len) {
   int crc = ~0;
@@ -134,20 +134,31 @@ struct Config {
 } config;
 
 static void loadConfig () {
-  //memcpy(&config, CONFIG_ADDR, sizeof config);
+  // copy config from program memory to config struct
+	for (uint8_t i=0; i<sizeof(config); i++) {
+		((uint8_t*)&config)[i] = pgm_read_byte_near(CONFIG_ADDR+i);
+	}
+	P_A(&config, sizeof config); P_LN();
+	// calculate checksum to verify it's valid
   if (calcCRC(&config, sizeof config) != 0) {
-    P("default config\n");
+    P("DEF!\n");
     memset(&config, 0, sizeof config);
   }
 }
 
+// Saves config by inserting it into the end of the last page program memory (flash)
 static void saveConfig () {
   config.version = 1;
   if (calcCRC(&config, sizeof config) != 0) {
     config.check = calcCRC(&config, sizeof config - 2);
     //P("save config 0x"); P_X16(config.check); P_LN();
 		//P("config @0x"); P_A(&config, sizeof(config));
-    //fillFlash(&config, CONFIG_ADDR);
+		// Load last page of program memory
+		uint8_t *tgt = (uint8_t *)flashBuffer;
+		for (uint8_t i=0; i<PAGE_SIZE; i++)
+				tgt[i] = pgm_read_byte_near(BASE_ADDR-PAGE_SIZE+i);
+		// Slap config on top and flash it!
+		fillFlash(CONFIG_ADDR, &config, sizeof(config));
   }
 }
 
@@ -170,7 +181,7 @@ static void sendPairingCheck () {
     config.nodeId = reply->nodeId;
     memcpy(config.shKey, reply->shKey, sizeof config.shKey);
     saveConfig();
-    P("paired id="); P_I8(config.nodeId); P(" g="); P_I8(config.group); P_LN();
+    P("P id="); P_I8(config.nodeId); P(" g="); P_I8(config.group); P_LN();
   }
 }
 
@@ -225,7 +236,7 @@ static int sendDownloadRequest (int index) {
       rf12_data[2+i] ^= 211 * i;
     void* flash = BASE_ADDR + BOOT_DATA_MAX * index;
     fillFlash(flash, rf12_data+2, BOOT_DATA_MAX);
-		P("  flash "); P_X8(request.swIndex); P(" @"); P_X16((uint16_t)flash); P_LN();
+		P("F "); P_X8(request.swIndex); P(" @"); P_X16((uint16_t)flash); P_LN();
     return 1;
   }
   return 0;
