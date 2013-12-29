@@ -13,7 +13,7 @@
 #include <util/crc16.h>
 
 // undef->none, 1->LED, 2->serial
-#define DEBUG 2
+#define DEBUG 3
 
 #define bit(b) (1 << (b))
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
@@ -56,14 +56,14 @@ int main () {
   MCUSR = 0;
   wdt_disable();
 
-#if DEBUG == 2
+#if DEBUG & 2
   // init UART
   UART_SRA = _BV(U2X0); //Double speed mode USART0
   UART_SRB = _BV(RXEN0) | _BV(TXEN0);
   UART_SRC = _BV(UCSZ00) | _BV(UCSZ01);
   UART_SRL = (uint8_t)( (4000000L + BAUD_RATE * 4L) / (BAUD_RATE * 8L) - 1 );
 #endif
-#if DEBUG == 1
+#if DEBUG & 1
   // Set up Timer 1 for timeout counter
   TCCR1B = _BV(CS12) | _BV(CS10); // div 1024
   // Set LED pin as output
@@ -73,7 +73,6 @@ int main () {
   // similar to Adaboot no-wait mod
   if (!launch) {
     flash_led(2); // 1 flash
-		P("\n\nReset!\n");
     clock_prescale_set(clock_div_1);
     ((void(*)()) 0)(); // Jump to RST vector
   }
@@ -87,8 +86,8 @@ int main () {
   bootLoader();
 
   // force a clean reset to launch the actual code
-	flash_led(6); // 3 flashes
 	P("APP\n");
+	flash_led(6); // 3 flashes
   clock_prescale_set(clock_div_1);
   wdt_enable(WDTO_15MS);
   for (;;)

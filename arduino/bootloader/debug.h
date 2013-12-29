@@ -3,7 +3,7 @@
 // value of 2 enables serial printing and disables the LED
 
 //===== LED FLASHES =====
-#if DEBUG == 1
+#if DEBUG & 1
 #define LED_DDR     DDRD
 #define LED_PORT    PORTD
 #define LED_PIN     PIND
@@ -31,8 +31,7 @@ static void flash_led(uint8_t count) {
 #endif
 
 //===== SERIAL PRINTING =====
-#if DEBUG == 2
-#define dump(...)
+#if DEBUG & 2
 
 // UART STUFF
 #define BAUD_RATE 57600L
@@ -66,7 +65,7 @@ static void P_X16(uint16_t v) {
 	P_X8(v&0xFF);
 }
 // print byte in decimal
-#define P_I8(v) P_X8(v)
+#define P_I8(v) P_X8(v) // sorry, too lazy..
 // print array of bytes
 static void P_A(void *arr, uint8_t n) {
 	uint8_t *v = arr;
@@ -84,6 +83,5 @@ static void P_A(void *arr, uint8_t n) {
 #define P_X16(...)
 #define P_I8(...)
 #define P_LN(...)
-#define dump(...)
 #endif
 

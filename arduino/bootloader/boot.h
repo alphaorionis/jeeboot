@@ -7,7 +7,7 @@
 #include "packet.h"												// packet format definitions
 
 #define PAGE_SIZE SPM_PAGESIZE          	// minimal chunk written to flash (128 on Atmega328p)
-#define BASE_ADDR ((uint8_t*) 0x1000)			// base address of user program
+#define BASE_ADDR ((uint8_t*) 0x0)			  // base address of user program
 #define CONFIG_ADDR (BASE_ADDR - PAGE_SIZE) // where config goes
 
 static uint16_t calcCRC (const uint8_t *ptr, int len) {
@@ -19,17 +19,12 @@ static uint16_t calcCRC (const uint8_t *ptr, int len) {
 }
 
 // calculate the CRC of a block in flash, len must be a multiple of 2!
-static uint16_t calcFlashCRC (const uint16_t *ptr, int len) {
-	P_X16(ptr); P(": ");
+static uint16_t calcFlashCRC (const uint8_t *ptr, int len) {
   uint16_t crc = ~0;
-	len >>= 1; // divide by 2: word vs byte ptr
 	while (len--) {
-		uint16_t w = pgm_read_word_near(ptr++);
-		P_X16(w);
-    crc = _crc16_update(crc, w&0xff);
-    crc = _crc16_update(crc, w>>8);
+		uint8_t b = pgm_read_byte_near(ptr++);
+    crc = _crc16_update(crc, b);
 	}
-	P_LN();
   //P("  crc "); P_X16(crc); P_LN();
   return crc;
 }
@@ -65,7 +60,7 @@ static uint16_t flashBuffer[(PAGE_SIZE+BOOT_DATA_MAX+1)/2];   // buffer for a fu
 // TODO: optimize for RWW section to erase while requesting data
 // TODO: use boot.h from optiboot 'cause it's faster and smaller
 static void writeFlash(void *flash) {
-	P("FW "); P_X16((uint16_t)flash); P_LN();
+	//P("FW "); P_X16((uint16_t)flash); P_LN();
 	//P_A(flashBuffer, PAGE_SIZE); P_LN();
   // first erase the page
 	boot_page_erase(flash);

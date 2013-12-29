@@ -329,7 +329,7 @@ static void rf12_initialize (uint8_t id, uint8_t band, uint8_t g) {
 		P("RF12 id="); P_I8(id); P(" b="); P_I8(band); P(" g="); P_I8(g); P_LN();
     
     spi_initialize();
-    
+
     // pinMode(RFM_IRQ, INPUT);
     // digitalWrite(RFM_IRQ, 1); // pull-up
     bitClear(RFM_IRQ_DDR, RFM_IRQ_BIT);
