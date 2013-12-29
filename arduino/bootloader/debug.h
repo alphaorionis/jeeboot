@@ -18,9 +18,9 @@ static void watchdogReset() {
 
 static void flash_led(uint8_t count) {
   do {
-    TCNT1 = -(F_CPU/(1024*16));
-    TIFR1 = _BV(TOV1);
-    while(!(TIFR1 & _BV(TOV1)));
+    timer_start(200);
+		while(!timer_done())
+			;
     LED_PIN |= _BV(LED);
     watchdogReset();
   } while (--count);
@@ -64,8 +64,6 @@ static void P_X16(uint16_t v) {
 	P_X8(v>>8);
 	P_X8(v&0xFF);
 }
-// print byte in decimal
-#define P_I8(v) P_X8(v) // sorry, too lazy..
 // print array of bytes
 static void P_A(void *arr, uint8_t n) {
 	uint8_t *v = arr;
@@ -81,7 +79,7 @@ static void P_A(void *arr, uint8_t n) {
 #define P(...)
 #define P_X8(...)
 #define P_X16(...)
-#define P_I8(...)
+#define P_A(...)
 #define P_LN(...)
 #endif
 

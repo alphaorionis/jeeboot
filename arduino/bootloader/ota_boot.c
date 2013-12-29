@@ -11,7 +11,7 @@
 #include <avr/wdt.h>
 #include <util/crc16.h>
 
-// undef->none, 1->LED, 2->serial
+// undef->none, 1->LED Port1-D, 2->serial 57600kbps
 #define DEBUG 3
 
 #define bit(b) (1 << (b))

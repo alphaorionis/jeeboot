@@ -36,7 +36,7 @@ ISPFLASH = $(DUDEDIR)avrdude $(ISP_ARGS) -p $(PART) \
 OBJ = $(PROGRAM).o
 OPTIMIZE = -Os -fno-inline-small-functions -fno-split-wide-types -mshort-calls
 
-DEFS = 
+DEFS = -DRF12_LOWPOWER
 LIBS =
 
 CC      = $(TOOLDIR)avr-gcc

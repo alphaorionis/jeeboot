@@ -35,7 +35,7 @@ static uint16_t calcFlashCRC (const void *start, int len) {
 
 // return 1 if good reply, 0 if crc error, -1 if timeout
 static int sendRequest (const void* buf, int len, int hdrOr) {
-  P("SND "); P_I8(len); P("->");
+  P("SND "); P_X8(len); P("->");
   rf12_sendNow(RF12_HDR_CTL | RF12_HDR_ACK | hdrOr, buf, len);
   rf12_sendWait(0);
 	timer_start(250); // arm timer for 250ms
@@ -48,7 +48,7 @@ static int sendRequest (const void* buf, int len, int hdrOr) {
     P("bad crc "); P_X16(rf12_crc); P_LN();
     return 0;
   }
-  P_I8(rf12_len); P(" hdr="); P_X8(rf12_hdr); P_LN();
+  P_X8(rf12_len); P(" hdr="); P_X8(rf12_hdr); P_LN();
   return 1;
 }
 
@@ -113,7 +113,7 @@ static void flushFlash(void *flash) {
 static byte backOffCounter;
 
 static void exponentialBackOff () {
-  P("Backoff "); P_I8(backOffCounter); P_LN();
+  P("Backoff "); P_X8(backOffCounter); P_LN();
   sleep(61L << backOffCounter);
   if (backOffCounter < 12)
     ++backOffCounter;
@@ -185,7 +185,7 @@ static void sendPairingCheck () {
     config.nodeId = reply->nodeId;
     memcpy(config.shKey, reply->shKey, sizeof config.shKey);
     saveConfig();
-    P("P id="); P_I8(config.nodeId); P(" g="); P_I8(config.group); P_LN();
+    P("P id="); P_X8(config.nodeId); P(" g="); P_X8(config.group); P_LN();
   }
 }
 
