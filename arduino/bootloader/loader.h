@@ -10,7 +10,8 @@
 #define BASE_ADDR ((uint8_t*) 0x0)			  // base address of user program
 #define CONFIG_ADDR (BASE_ADDR - sizeof(config)) // where config goes
 
-static uint16_t calcCRC (const uint8_t *ptr, int len) {
+static uint16_t calcCRC (const void *start, int len) {
+	const uint8_t *ptr = start;
   int crc = ~0;
 	while (len--)
     crc = _crc16_update(crc, *ptr++);
@@ -19,7 +20,8 @@ static uint16_t calcCRC (const uint8_t *ptr, int len) {
 }
 
 // calculate the CRC of a block in flash, len must be a multiple of 2!
-static uint16_t calcFlashCRC (const uint8_t *ptr, int len) {
+static uint16_t calcFlashCRC (const void *start, int len) {
+	const uint8_t *ptr = start;
   uint16_t crc = ~0;
 	while (len--) {
 		uint8_t b = pgm_read_byte_near(ptr++);
@@ -33,12 +35,12 @@ static uint16_t calcFlashCRC (const uint8_t *ptr, int len) {
 
 // return 1 if good reply, 0 if crc error, -1 if timeout
 static int sendRequest (const void* buf, int len, int hdrOr) {
-  P("SEND "); P_I8(len); P(" -> ");
+  P("SND "); P_I8(len); P("->");
   rf12_sendNow(RF12_HDR_CTL | RF12_HDR_ACK | hdrOr, buf, len);
   rf12_sendWait(0);
-  uint32_t now = millis();
+	timer_start(250); // arm timer for 250ms
   while (!rf12_recvDone() || rf12_len == 0) // TODO: 0-check to avoid std acks?
-    if ((millis() - now) >= 250) {
+    if (timer_done()) {
       P("timeout\n");
       return -1;
     }
@@ -46,7 +48,7 @@ static int sendRequest (const void* buf, int len, int hdrOr) {
     P("bad crc "); P_X16(rf12_crc); P_LN();
     return 0;
   }
-  P_I8(rf12_len); P(" hdr=0x"); P_X8(rf12_hdr); P_LN();
+  P_I8(rf12_len); P(" hdr="); P_X8(rf12_hdr); P_LN();
   return 1;
 }
 
@@ -58,9 +60,8 @@ static uint16_t flashBuffer[(PAGE_SIZE+BOOT_DATA_MAX+1)/2];   // buffer for a fu
 
 // Write a complete buffer to flash
 // TODO: optimize for RWW section to erase while requesting data
-// TODO: use boot.h from optiboot 'cause it's faster and smaller
 static void writeFlash(void *flash) {
-	//P("FW "); P_X16((uint16_t)flash); P_LN();
+	P("Flash "); P_X16((uint16_t)flash); P_LN();
 	//P_A(flashBuffer, PAGE_SIZE); P_LN();
   // first erase the page
 	boot_page_erase(flash);
@@ -75,7 +76,7 @@ static void writeFlash(void *flash) {
 }
 
 // copy a chunk from memory into the flash buffer and write flash if we've got a page full
-static void fillFlash (void *flash, uint8_t *ram, uint8_t sz) {
+static void fillFlash (void *flash, const void *ram, uint8_t sz) {
 	//P("FF "); P_X16((uint16_t)flash); P_LN();
 	// copy ram to buffer
 	uint16_t offset = (uint16_t)flash & (PAGE_SIZE-1);
@@ -101,17 +102,20 @@ static void flushFlash(void *flash) {
 
 //===== exponential back-off =====
 
-// retry up to 16 times to get a response, this make take several hours due to
-// the exponential back-off logic, which starts with a 250 ms timeout period
-// it'll stick to the maximum 4.5 hour cycle once the limit has been reached
-// without server, this'll listen for 250 ms up to 85x/day = 21 s = 0.25% duty
+// The goal of the exponential back-off is not to flood the airwaves with boot
+// traffic and not to drain the battery of a node that can't boot (for example because
+// the boot server is down. The target here is to have the radio on for 250ms
+// after sending to wait for a reply and to reach a steady-state where the radio
+// is on 0.1% of the time.
+// 0.1% = 1/1000 = 250ms/250s --> poll every 4.1 minutes
+// starting with a 61ms back-off that's 61 << 12
 
 static byte backOffCounter;
 
 static void exponentialBackOff () {
-  P("  backoff "); P_I8(backOffCounter); P_LN();
-  sleep(250L << backOffCounter);
-  if (backOffCounter < 16)
+  P("Backoff "); P_I8(backOffCounter); P_LN();
+  sleep(61L << backOffCounter);
+  if (backOffCounter < 12)
     ++backOffCounter;
 }
 
@@ -190,9 +194,9 @@ static void sendPairingCheck () {
 static int appIsValid () {
   //return calcCRC(BASE_ADDR, config.swSize << 4) == config.swCheck;
   uint16_t curr = calcFlashCRC(BASE_ADDR, config.swSize << 4);
-	P("SW: curr="); P_X16(curr);
+	P("SW="); P_X16(curr);
 	P(" want="); P_X16(config.swCheck);
-	P(curr == config.swCheck ? " OK\n" : " NOPE\n");
+	P(curr == config.swCheck ? " OK\n" : " NO\n");
 	return curr == config.swCheck;
 }
 
@@ -235,7 +239,7 @@ static int sendDownloadRequest (int index) {
     for (int i = 0; i < BOOT_DATA_MAX; ++i)
       rf12_data[2+i] ^= 211 * i;
     void* flash = BASE_ADDR + BOOT_DATA_MAX * index;
-    fillFlash(flash, rf12_data+2, BOOT_DATA_MAX);
+    fillFlash(flash, (const void *)(rf12_data+2), BOOT_DATA_MAX);
 		P("F "); P_X8(request.swIndex); P(" @"); P_X16((uint16_t)flash); P_LN();
     return 1;
   }
@@ -246,11 +250,13 @@ static int sendDownloadRequest (int index) {
 
 static void bootLoaderLogic () {
   loadConfig();
+
+top:
   
 	// Pairing: figure out who we're supposed to communicate with (and boot from)
   rf12_initialize(1, RF12_915MHZ, PAIRING_GROUP);
 
-  P("==P\n");
+  P("==Pair\n");
   backOffCounter = 0;
   while (1) {
     sendPairingCheck();
@@ -262,27 +268,30 @@ static void bootLoaderLogic () {
 	// Upgrade check: figure out whether we have the right sketch loaded
   rf12_initialize(config.nodeId, RF12_915MHZ, config.group);
 
-  P("==U\n");
+  P("==Upgrade\n");
   backOffCounter = 0;
-  do {
-    if (sendUpgradeCheck())
-      break;
+	uint8_t deadline = 73; // 73->abort after ~ 4 hours
+  while (!sendUpgradeCheck()) {
+		if (--deadline == 0) goto top;
     exponentialBackOff();
-  } while (! appIsValid());
+  }
   
 	// Download: if the app we have is not the right one then download the right one
-  P("==D\n");
+  P("==Download\n");
   if (! appIsValid()) {
     int limit = ((config.swSize << 4) + BOOT_DATA_MAX - 1) / BOOT_DATA_MAX;
     for (int i = 0; i < limit; ++i) {
       backOffCounter = 0;
-      while (sendDownloadRequest(i) == 0)
+		  uint8_t deadline = 73; // 73->abort after ~ 4 hours
+      while (sendDownloadRequest(i) == 0) {
+				if (--deadline == 0) goto top;
         exponentialBackOff();
+			}
     }
 		flushFlash(BASE_ADDR + BOOT_DATA_MAX*limit);
   }
 
-  P("==R!\n");
+  P("==Ready!\n");
 }
 
 static void bootLoader () {

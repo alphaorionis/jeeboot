@@ -46,7 +46,7 @@ OBJDUMP = $(TOOLDIR)avr-objdump
 # Override is only needed by avr-lib build system.
 
 override CFLAGS = -g -Wall $(OPTIMIZE) -mmcu=$(MCU_TARGET) -DF_CPU=$(AVR_FREQ) \
- -std=gnu99 -Wl,-u,vfprintf -lprintf_min $(DEFS)
+ -std=gnu99 $(DEFS)
 override LDFLAGS = -Wl,$(LDSECTION) -Wl,--relax -nostartfiles
 
 atmega328: MCU_TARGET = atmega328p
@@ -74,7 +74,7 @@ isp: $(TARGET)
 	$(ISPFUSES)
 	$(ISPFLASH)
 
-ota_boot.o: ota_boot.c boot.h packet.h ota_RF12.h debug.h
+ota_boot.o: ota_boot.c loader.h boot.h packet.h ota_RF12.h debug.h
 
 %.elf: $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
