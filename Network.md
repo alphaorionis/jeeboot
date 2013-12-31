@@ -7,20 +7,22 @@ RF12B packets format, except that instead of the CTL/DST/ACK flags a packet type
 where appropriate. The packet types and their RF12B flag settings are:
 
 ```
-Type        Purpose                                             CTL DST ACK NODE
-data_push   Normal data packet, no ACK requested                 0   1   0  dest
-data_req    Normal data packet, ACK requested                    0   1   1  dest
-bcast_push  Broadcast data packet, no ACK requested              0   0   0   src
-bcast_req   Broadcast data packet, ACK requested                 0   0   1   src
-ack_data    ACK reply packet for a data packet                   1   0   0   src
-ack_bcast   ACK reply packet for a broadcast packet              1   1   0  dest
-pairing     Pairing request (reply is a boot_reply)              1   1   1     0
-boot_req    Boot protocol request                                1   0   1   src
-boot_reply  Boot protocol reply                                  1   1   1  dest
+Type        Code Purpose                                             CTL DST ACK NODE
+data_push      2 Normal data packet, no ACK requested                 0   1   0  dest
+data_req       3 Normal data packet, ACK requested                    0   1   1  dest
+bcast_push     0 Broadcast data packet, no ACK requested              0   0   0   src
+bcast_req      1 Broadcast data packet, ACK requested                 0   0   1   src
+ack_data       4 ACK reply packet for a data packet                   1   0   0   src
+ack_bcast      6 ACK reply packet for a broadcast packet              1   1   0  dest
+pairing        8 Pairing request (reply is a boot_reply)              1   1   1     0
+boot_req       5 Boot protocol request                                1   0   1   src
+boot_reply     7 Boot protocol reply                                  1   1   1  dest
+debug          0 Non-routed point-to-point text for debug log         -   -   -     -
 ```
+(The debug type can be used by gw nodes to send a raw log to the hub server.)
 
-RF12B
------
+RFM12B
+------
 The packet format is binary and is sent using the RF12B radio. Each packet consists of:
  - Hardware SYN byte: 0x??
  - Network group byte (doubles as 2nd SYN byte): 0xD4 default, but can be changed by the user
@@ -56,7 +58,8 @@ UDP
 The packet format is binary and is sent via UDP. Each packet consists of:
  - standard UDP header with src/dst IPs and src/dst ports
  - the UDP payload consists of:
-   - a type byte (need to encode the table)
+   - a type code byte
+   - a group byte
    - a node id byte
    - the packet data
    - a packet CRC-16 that is calculated over the entire UDP payload
@@ -81,12 +84,22 @@ The packet format is base64 encoded binary. Each packet is encoded as a newline-
 
 A different line-start character could be used to pass RF69 format packets...
 
+SERIAL 3
+--------
+
+(This is a proposed more generic encoding)
+The packet format is base64 encoded binary. Each packet is encoded as a newline-terminated line.
+ - each line starts with '!', lines without '!' are ignored
+ - a length character encoding the number of base64 4-character groups to follow as 'A'+N (`N = (data_bytes+2)/3`)
+ - the payload in UDP payload format
+ - a terminating newline
+
 HTTP
 ----
 
 Each packet is transmitted using a POST request where the query string is used to encode
 header information and the packet data payload is in the POST body.
- - `type=<type encoding>` : the packet type from the table (ex: `type=data_req`)
+ - `type=<type code>` : the packet type from the table (ex: `type=data_req`)
  - `node=<node id>` : source/dest node id
  - the data payload is in the POST body with the content-type set of application/binary
    and the content-length set to the payload length
