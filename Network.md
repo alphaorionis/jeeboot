@@ -24,10 +24,10 @@ RF12B
 The packet format is binary and is sent using the RF12B radio. Each packet consists of:
  - Hardware SYN byte: 0x??
  - Network group byte (doubles as 2nd SYN byte): 0xD4 default, but can be changed by the user
- - Header byte: <CTL, DST, ACK, node_id>
+ - Header byte: `<CTL, DST, ACK, node_id>`
  - Length byte: length of data payload (i.e. the next field)
  - Data payload: 0..66 bytes
- - CEC: 16-bit CRC
+ - CRC: 16-bit CRC
 
 The A bit (ACK) indicates whether this packet wants to get an ACK back.
 The C bit needs to be zero in this case (the name is somewhat confusing).
@@ -48,7 +48,7 @@ a smaller maximum payload length.
  - Length byte: length of header byte + data payload
  - Header byte: `<CTL, DST, ACK, node_id>`
  - Data payload: 0..63 bytes
- - CEC: 16-bit CRC
+ - CRC: 16-bit CRC
 
 UDP
 ---
@@ -75,7 +75,7 @@ SERIAL 2
 (This is from a serial bridge sketch I wrote a while ago)
 The packet format is base64 encoded binary. Each packet is encoded as a newline-terminated line.
  - each line starts with '!', lines without '!' are ignored
- - a length character encoding the number of bytes (not characters) to follow as 'A'+(len/4)
+ - a length character encoding the number of base64 4-character groups to follow as 'A'+N (`N = (data_bytes+2)/3`)
  - rf12b packet from the group byte through the crc, all base64 encoded
  - a terminating newline
 
