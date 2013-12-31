@@ -1,8 +1,23 @@
 JeeNet Protocols
 ================
 
-This page summarises the packet formats and protocols used by the JeeLab networking
-over a variety of transports.
+This page summarizes the packet formats and protocols used by the JeeLab networking
+over a variety of transports. All the formats are pattered after the original JeeLib
+RF12B packets format, except that instead of the CTL/DST/ACK flags a packet type is used
+where appropriate. The packet types and their RF12B flag settings are:
+
+```
+Type        Purpose                                             CTL DST ACK NODE
+data_push   Normal data packet, no ACK requested                 0   1   0  dest
+data_req    Normal data packet, ACK requested                    0   1   1  dest
+bcast_push  Broadcast data packet, no ACK requested              0   0   0   src
+bcast_req   Broadcast data packet, ACK requested                 0   0   1   src
+ack_data    ACK reply packet for a data packet                   1   0   0   src
+ack_bcast   ACK reply packet for a broadcast packet              1   1   0  dest
+pairing     Pairing request (reply is a boot_reply)              1   1   1     0
+boot_req    Boot protocol request                                1   0   1   src
+boot_reply  Boot protocol reply                                  1   1   1  dest
+```
 
 RF12B
 -----
@@ -24,12 +39,6 @@ originating node.
 
 The C bit (CTL) is used to send ACKs, and in turn must be combined with the A bit set to zero.
 
-To summarize, the following combinations are used:
- - normal packet, no ACK requested: CTL = 0, ACK = 0
- - normal packet, wants ACK: CTL = 0, ACK = 1
- - ACK reply packet: CTL = 1, ACK = 0
- - the CTL = 1, ACK = 1 combination is not currently used
-
 RF69
 ----
 The RF69 packet format is almost identical to the RF12B one with a few transposed fields and
@@ -46,16 +55,14 @@ UDP
 
 The packet format is binary and is sent via UDP. Each packet consists of:
  - standard UDP header with src/dst IPs and src/dst ports
- - the UDP payload consists of the RF12B network group, header, length and data payload fields
- - (should we use the CRC too?)
+ - the UDP payload consists of:
+   - a type byte (need to encode the table)
+   - a node id byte
+   - the packet data
+   - a packet CRC-16 that is calculated over the entire UDP payload
 
-Note that this encoded the length twice: implicitly in the UDP packet length and explicitly
-in the length field.
-
-Questions:
- - Should we add some integrity check, such as the crc-16
- - Should we take the packet apart and have byte fields for source and dest
-   (setting them to 0 or -1 if unknown) and a separate header/flags byte?
+There is no registration defined in V1: the router and the clients must know a-priori whom
+to send what where.
 
 SERIAL 1
 --------
@@ -70,20 +77,28 @@ The packet format is base64 encoded binary. Each packet is encoded as a newline-
  - each line starts with '!', lines without '!' are ignored
  - a length character encoding the number of bytes (not characters) to follow as 'A'+(len/4)
  - rf12b packet from the group byte through the crc, all base64 encoded
- - terminating newline
+ - a terminating newline
+
+A different line-start character could be used to pass RF69 format packets...
 
 HTTP
 ----
 
 Each packet is transmitted using a POST request where the query string is used to encode
 header information and the packet data payload is in the POST body.
- - `hdr=CDA`: the 3 header flags from the rf12b packet where presence of a charcater
-   indicates that the bit is set, e.g., for a rf12b header of 0xC3 the query string
-   representation is "hdr=CD"
- - `source=<node id>` : source node id, if known
- - `dest=<node id>` : dest node id, if known
+ - `type=<type encoding>` : the packet type from the table (ex: `type=data_req`)
+ - `node=<node id>` : source/dest node id
  - the data payload is in the POST body with the content-type set of application/binary
    and the content-length set to the payload length
 
-Questions:
-  - Should we take the header flags apart?
+There is no registration defined in V1: the router and the clients must know a-priori whom
+to send what where.
+
+WS (web sockets)
+----------------
+
+The websocket connection is opened by the client (connecting to the hub router) and the query
+string of the connecting HTTP request contains the ID fo the source. The format of the query
+string is: `group=<group_id>&node=<node_id>`.
+
+Each packet is transmitted using a web sockets message. The encoding of the message is identical to the UDP packet encoding but without the CRC-16 at the end.
