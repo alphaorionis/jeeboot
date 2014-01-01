@@ -2,3 +2,10 @@
 *.esproj
 local.mk
 /html
+.*.swp
+.*.swo
+*.o
+*.s
+*.i
+.dep
+.lib
