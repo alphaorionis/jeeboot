@@ -14,7 +14,7 @@ bcast_push     0 Broadcast data packet, no ACK requested              0   0   0 
 bcast_req      1 Broadcast data packet, ACK requested                 0   0   1   src
 ack_data       4 ACK reply packet for a data packet                   1   0   0   src
 ack_bcast      6 ACK reply packet for a broadcast packet              1   1   0  dest
-pairing        8 Pairing request (reply is a boot_reply)              1   1   1     0
+pairing        8 Pairing request (reply is a boot_reply)              1   1   1     1
 boot_req       5 Boot protocol request                                1   0   1   src
 boot_reply     7 Boot protocol reply                                  1   1   1  dest
 debug          0 Non-routed point-to-point text for debug log         -   -   -     -
