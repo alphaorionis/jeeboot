@@ -24,7 +24,7 @@ debug          0 Non-routed point-to-point text for debug log         -   -   - 
 RFM12B
 ------
 The packet format is binary and is sent using the RF12B radio. Each packet consists of:
- - Hardware SYN byte: 0x??
+ - Hardware SYN byte: 0x2D
  - Network group byte (doubles as 2nd SYN byte): 0xD4 default, but can be changed by the user
  - Header byte: `<CTL, DST, ACK, node_id>`
  - Length byte: length of data payload (i.e. the next field)
@@ -45,7 +45,7 @@ RF69
 ----
 The RF69 packet format is almost identical to the RF12B one with a few transposed fields and
 a smaller maximum payload length.
- - Hardware SYN byte: 0x??
+ - Hardware SYN byte: 0x2D
  - Network group byte (doubles as 2nd SYN byte): 0xD4 default, but can be changed by the user
  - Length byte: length of header byte + data payload
  - Header byte: `<CTL, DST, ACK, node_id>`
@@ -54,7 +54,6 @@ a smaller maximum payload length.
 
 UDP
 ---
-
 The packet format is binary and is sent via UDP. Each packet consists of:
  - standard UDP header with src/dst IPs and src/dst ports
  - the UDP payload consists of:

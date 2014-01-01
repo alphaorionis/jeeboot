@@ -10,6 +10,8 @@
 #define BASE_ADDR ((uint8_t*) 0x0)			  // base address of user program
 #define CONFIG_ADDR (BASE_ADDR - sizeof(config)) // where config goes
 
+#define MAX_BACKOFF 4                     // std:12 -- 61*(2**MAX_BACKOFF) milliseconds
+
 static uint16_t calcCRC (const void *start, int len) {
 	const uint8_t *ptr = start;
   int crc = ~0;
@@ -115,7 +117,7 @@ static byte backOffCounter;
 static void exponentialBackOff () {
   P("Backoff "); P_X8(backOffCounter); P_LN();
   sleep(61L << backOffCounter);
-  if (backOffCounter < 12)
+  if (backOffCounter < MAX_BACKOFF)
     ++backOffCounter;
 }
 
@@ -142,7 +144,8 @@ static void loadConfig () {
 	for (uint8_t i=0; i<sizeof(config); i++) {
 		((uint8_t*)&config)[i] = pgm_read_byte_near(CONFIG_ADDR+i);
 	}
-	P_A(&config, sizeof config); P_LN();
+	P("Config ");
+  P_A(&config, sizeof config);
 	// calculate checksum to verify it's valid
   if (calcCRC(&config, sizeof config) != 0) {
     P("DEF!\n");
@@ -254,7 +257,7 @@ static void bootLoaderLogic () {
 top:
   
 	// Pairing: figure out who we're supposed to communicate with (and boot from)
-  rf12_initialize(1, RF12_915MHZ, PAIRING_GROUP);
+  rf12_initialize(1, RF12_BAND, PAIRING_GROUP);
 
   P("==Pair\n");
   backOffCounter = 0;
@@ -266,7 +269,7 @@ top:
   }
   
 	// Upgrade check: figure out whether we have the right sketch loaded
-  rf12_initialize(config.nodeId, RF12_915MHZ, config.group);
+  rf12_initialize(config.nodeId, RF12_BAND, config.group);
 
   P("==Upgrade\n");
   backOffCounter = 0;
