@@ -85,7 +85,7 @@ func loadConfig() (config Config) {
 	check(err)
 	err = json.Unmarshal(data, &config)
 	check(err)
-	log.Printf("CONFIG %+v", config)
+	log.Printf("CONFIG %d pairs %d files", len(config.Pairs), len(config.Files))
 	return
 }
 
@@ -179,7 +179,7 @@ func (s *JeeBootService) Send(reply interface{}) {
 	err := binary.Write(&buf, binary.LittleEndian, reply)
 	check(err)
 	cmd := strings.Replace(fmt.Sprintf("%v", buf.Bytes()), " ", ",", -1)
-	log.Printf("reply %s ,0s", cmd)
+	// log.Printf("reply %s ,0s", cmd)
 	msg := map[string]string{"text": cmd[1:len(cmd)-1] + ",0s"}
 	jeebus.Publish("if/RF12demo/"+s.dev, msg)
 }
@@ -236,24 +236,34 @@ func (s *JeeBootService) respondToRequest(req []byte) {
 		hdr := s.unpackReq(req, &preq)
 		board, group, node := s.config.LookupHwId(preq.HwId[:])
 		log.Printf("pairing %X board %d hdr %08b", preq.HwId, board, hdr)
-		s.Send(PairingReply{Board: board, Group: group, NodeId: node})
+		reply := PairingReply{Board: board, Group: group, NodeId: node}
+		s.Send(reply)
 
 	case 8:
 		var ureq UpgradeRequest
 		hdr := s.unpackReq(req, &ureq)
 		group, node := uint8(212), hdr&0x1F // FIXME hard-coded for now
 		// UpgradeRequest can be used as reply as well, it has the same fields
-		ureq.SwId = s.config.LookupSwId(group, node)
-		fw := s.fw[ureq.SwId]
-		ureq.SwSize = uint16(len(fw.data))
-		ureq.SwCheck = fw.crc
-		log.Printf("upgrade %+v hdr %08b", ureq, hdr)
-		s.Send(ureq)
+		reply := &ureq
+		reply.SwId = s.config.LookupSwId(group, node)
+		fw := s.fw[reply.SwId]
+		reply.SwSize = uint16(len(fw.data) >> 4)
+		reply.SwCheck = fw.crc
+		log.Printf("upgrade %v hdr %08b", reply, hdr)
+		s.Send(reply)
 
 	case 4:
 		var dreq DownloadRequest
 		hdr := s.unpackReq(req, &dreq)
-		log.Printf("download %+v hdr %08b", dreq, hdr)
+		fw := s.fw[dreq.SwId]
+		offset := 64 * dreq.SwIndex // FIXME hard-coded
+		reply := DownloadReply{SwIdXor: dreq.SwId ^ dreq.SwIndex}
+		log.Println("len", len(fw.data), "offset", offset, offset+64)
+		for i, v := range fw.data[offset : offset+64] {
+			reply.Data[i] = v ^ uint8(211*i)
+		}
+		log.Printf("download hdr %08b", hdr)
+		s.Send(reply)
 
 	default:
 		log.Printf("bad req? %d b = %d", len(req), req)
@@ -266,7 +276,7 @@ func (s *JeeBootService) unpackReq(data []byte, req interface{}) (h uint8) {
 	check(err)
 	err = binary.Read(reader, binary.LittleEndian, req)
 	check(err)
-	fmt.Printf("%08b %X\n", h, req)
+	log.Printf("%08b %X\n", h, req)
 	return
 }
 
