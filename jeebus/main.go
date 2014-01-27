@@ -80,12 +80,11 @@ func (s *JeeBootService) Handle(m *jeebus.Message) {
 			check(err)
 			buf.WriteByte(byte(n))
 		}
-		s.RespondToRequest(buf.Bytes())
+		s.respondToRequest(buf.Bytes())
 	}
 }
 
 type PairingRequest struct {
-	Header  uint8
 	Variant uint8     // variant of remote node, 1..250 freely available
 	Board   uint8     // type of remote node, 100..250 freely available
 	Group   uint8     // current network group, 1..250 or 0 if unpaired
@@ -103,7 +102,6 @@ type PairingReply struct {
 }
 
 type UpgradeRequest struct {
-	Header  uint8
 	Variant uint8  // variant of remote node, 1..250 freely available
 	Board   uint8  // type of remote node, 100..250 freely available
 	SwId    uint16 // current software ID 0 if unknown
@@ -120,7 +118,6 @@ type UpgradeReply struct {
 }
 
 type DownloadRequest struct {
-	Header  uint8
 	SwId    uint16 // current software ID
 	SwIndex uint16 // current download index, as multiple of payload size
 }
@@ -130,28 +127,33 @@ type DownloadReply struct {
 	Data    [64]uint8 // download payload
 }
 
-func (s *JeeBootService) RespondToRequest(req []byte) {
+func (s *JeeBootService) respondToRequest(req []byte) {
 	// fmt.Printf("%s %X %d\n", s.dev, req, len(req))
-	reader := bytes.NewReader(req)
-	switch len(req) {
-	case 23:
+	switch len(req) - 1 {
+	case 22:
 		var preq PairingRequest
-		err := binary.Read(reader, binary.LittleEndian, &preq)
-		fmt.Printf("%+v\n", &preq)
-		check(err)
-	case 9:
+		header := s.unpackReq(req, &preq)
+		fmt.Printf("%08b %+v\n", header, preq)
+	case 8:
 		var ureq UpgradeRequest
-		err := binary.Read(reader, binary.LittleEndian, &ureq)
-		fmt.Printf("%+v\n", &ureq)
-		check(err)
-	case 5:
+		header := s.unpackReq(req, &ureq)
+		fmt.Printf("%08b %+v\n", header, ureq)
+	case 4:
 		var dreq DownloadRequest
-		err := binary.Read(reader, binary.LittleEndian, &dreq)
-		fmt.Printf("%+v\n", &dreq)
-		check(err)
+		header := s.unpackReq(req, &dreq)
+		fmt.Printf("%08b %+v\n", header, dreq)
 	default:
 		log.Printf("bad req? %db = %X", len(req), req)
 	}
+}
+
+func (s *JeeBootService) unpackReq(req []byte, out interface{}) (h uint8) {
+	reader := bytes.NewReader(req)
+	err := binary.Read(reader, binary.LittleEndian, &h)
+	check(err)
+	err = binary.Read(reader, binary.LittleEndian, out)
+	check(err)
+	return
 }
 
 func check(err error) {
