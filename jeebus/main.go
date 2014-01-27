@@ -12,6 +12,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/jcw/jeebus"
 )
@@ -57,6 +58,27 @@ type Config struct {
 	Nodes map[string]map[string]float64
 	// map each swId to a filename
 	Files map[string]string
+}
+
+func (c *Config) LookupHwId(hwId []byte) (board, group, node uint8) {
+	key := hex.EncodeToString(hwId)
+	if info, ok := c.Pairs[key]; ok {
+		board = uint8(info.Board)
+		group = uint8(info.Group)
+		node = uint8(info.Node)
+	}
+	return
+}
+
+func (c *Config) LookupSwId(group, node uint8) uint16 {
+	sGroup := strconv.Itoa(int(group))
+	sNode := strconv.Itoa(int(node))
+	if group, ok := c.Nodes[sGroup]; ok {
+		if swId, ok := group[sNode]; ok {
+			return uint16(swId)
+		}
+	}
+	return 0
 }
 
 func loadConfig() (config Config) {
@@ -153,6 +175,17 @@ func (s *JeeBootService) Handle(m *jeebus.Message) {
 	}
 }
 
+func (s *JeeBootService) Send(reply interface{}) {
+	var buf bytes.Buffer
+	err := binary.Write(&buf, binary.LittleEndian, reply)
+	check(err)
+	cmd := strings.Replace(fmt.Sprintf("%v", buf.Bytes()), " ", ",", -1)
+	log.Printf("reply %s ,0s", cmd)
+	msg := map[string]string{"text": cmd[1:len(cmd)-1] + ",0s"}
+	time.Sleep(5 * time.Millisecond)
+	jeebus.Publish("if/RF12demo/"+s.dev, msg)
+}
+
 type PairingRequest struct {
 	Variant uint8     // variant of remote node, 1..250 freely available
 	Board   uint8     // type of remote node, 100..250 freely available
@@ -160,6 +193,12 @@ type PairingRequest struct {
 	NodeId  uint8     // current node ID, 1..30 or 0 if unpaired
 	Check   uint16    // crc checksum over the current shared key
 	HwId    [16]uint8 // unique hardware ID or 0's if not available
+}
+
+func (req *PairingRequest) Respond(hdr byte, jbs *JeeBootService) {
+	board, group, node := jbs.config.LookupHwId(req.HwId[:])
+	log.Printf("prep %X board %d", req.HwId, board)
+	jbs.Send(PairingReply{Board: board, Group: group, NodeId: node})
 }
 
 type PairingReply struct {
@@ -178,6 +217,11 @@ type UpgradeRequest struct {
 	SwCheck uint16 // current crc checksum over entire download
 }
 
+func (req *UpgradeRequest) Respond(hdr byte, jbs *JeeBootService) {
+	// swId := jbs.config.LookupSwId(group, node)
+	// log.Printf("pair %d %d", board, swId)
+}
+
 type UpgradeReply struct {
 	Variant uint8  // variant of remote node, 1..250 freely available
 	Board   uint8  // type of remote node, 100..250 freely available
@@ -191,6 +235,9 @@ type DownloadRequest struct {
 	SwIndex uint16 // current download index, as multiple of payload size
 }
 
+func (req *DownloadRequest) Respond(hdr byte, jbs *JeeBootService) {
+}
+
 type DownloadReply struct {
 	SwIdXor uint16    // current software ID xor current download index
 	Data    [64]uint8 // download payload
@@ -202,26 +249,27 @@ func (s *JeeBootService) respondToRequest(req []byte) {
 	case 22:
 		var preq PairingRequest
 		header := s.unpackReq(req, &preq)
-		fmt.Printf("%08b %+v\n", header, preq)
+		preq.Respond(header, s)
 	case 8:
 		var ureq UpgradeRequest
 		header := s.unpackReq(req, &ureq)
-		fmt.Printf("%08b %+v\n", header, ureq)
+		ureq.Respond(header, s)
 	case 4:
 		var dreq DownloadRequest
 		header := s.unpackReq(req, &dreq)
-		fmt.Printf("%08b %+v\n", header, dreq)
+		dreq.Respond(header, s)
 	default:
-		log.Printf("bad req? %db = %X", len(req), req)
+		log.Printf("bad req? %d b = %d", len(req), req)
 	}
 }
 
-func (s *JeeBootService) unpackReq(req []byte, out interface{}) (h uint8) {
-	reader := bytes.NewReader(req)
+func (s *JeeBootService) unpackReq(data []byte, req interface{}) (h uint8) {
+	reader := bytes.NewReader(data)
 	err := binary.Read(reader, binary.LittleEndian, &h)
 	check(err)
-	err = binary.Read(reader, binary.LittleEndian, out)
+	err = binary.Read(reader, binary.LittleEndian, req)
 	check(err)
+	fmt.Printf("%08b %X\n", h, req)
 	return
 }
 
