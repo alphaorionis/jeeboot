@@ -36,9 +36,8 @@ func boots(dev string) {
 	rdClient := jeebus.NewClient("rd")
 	rdClient.Register("RF12demo/"+dev, &JeeBootService{dev, loadConfig()})
 
-	var msg jeebus.Message
-	msg.Set("text", "8b 212g 31i 1c")
-	msg.Publish("if/RF12demo/" + dev)
+	msg := map[string]interface{}{"text": "8b 212g 31i 1c"}
+	jeebus.Publish("if/RF12demo/"+dev, msg)
 
 	// TODO need a mechanism to wait for client disconnect, possibly w/ retries
 	<-make(chan byte) // wait forever
