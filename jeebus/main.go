@@ -12,7 +12,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/jcw/jeebus"
 )
@@ -96,12 +95,12 @@ type Firmware struct {
 	data []byte
 }
 
-func loadAllFirmware(config Config) map[int]Firmware {
-	fw := make(map[int]Firmware)
+func loadAllFirmware(config Config) map[uint16]Firmware {
+	fw := make(map[uint16]Firmware)
 	for key, name := range config.Files {
 		swId, err := strconv.Atoi(key)
 		check(err)
-		fw[swId] = readFirmware(name)
+		fw[uint16(swId)] = readFirmware(name)
 	}
 	return fw
 }
@@ -157,7 +156,7 @@ func calculateCrc(buf []byte) uint16 {
 type JeeBootService struct {
 	dev    string
 	config Config
-	fw     map[int]Firmware
+	fw     map[uint16]Firmware
 }
 
 func (s *JeeBootService) Handle(m *jeebus.Message) {
@@ -182,7 +181,6 @@ func (s *JeeBootService) Send(reply interface{}) {
 	cmd := strings.Replace(fmt.Sprintf("%v", buf.Bytes()), " ", ",", -1)
 	log.Printf("reply %s ,0s", cmd)
 	msg := map[string]string{"text": cmd[1:len(cmd)-1] + ",0s"}
-	time.Sleep(5 * time.Millisecond)
 	jeebus.Publish("if/RF12demo/"+s.dev, msg)
 }
 
@@ -193,12 +191,6 @@ type PairingRequest struct {
 	NodeId  uint8     // current node ID, 1..30 or 0 if unpaired
 	Check   uint16    // crc checksum over the current shared key
 	HwId    [16]uint8 // unique hardware ID or 0's if not available
-}
-
-func (req *PairingRequest) Respond(hdr byte, jbs *JeeBootService) {
-	board, group, node := jbs.config.LookupHwId(req.HwId[:])
-	log.Printf("prep %X board %d", req.HwId, board)
-	jbs.Send(PairingReply{Board: board, Group: group, NodeId: node})
 }
 
 type PairingReply struct {
@@ -217,11 +209,6 @@ type UpgradeRequest struct {
 	SwCheck uint16 // current crc checksum over entire download
 }
 
-func (req *UpgradeRequest) Respond(hdr byte, jbs *JeeBootService) {
-	// swId := jbs.config.LookupSwId(group, node)
-	// log.Printf("pair %d %d", board, swId)
-}
-
 type UpgradeReply struct {
 	Variant uint8  // variant of remote node, 1..250 freely available
 	Board   uint8  // type of remote node, 100..250 freely available
@@ -235,9 +222,6 @@ type DownloadRequest struct {
 	SwIndex uint16 // current download index, as multiple of payload size
 }
 
-func (req *DownloadRequest) Respond(hdr byte, jbs *JeeBootService) {
-}
-
 type DownloadReply struct {
 	SwIdXor uint16    // current software ID xor current download index
 	Data    [64]uint8 // download payload
@@ -246,18 +230,31 @@ type DownloadReply struct {
 func (s *JeeBootService) respondToRequest(req []byte) {
 	// fmt.Printf("%s %X %d\n", s.dev, req, len(req))
 	switch len(req) - 1 {
+
 	case 22:
 		var preq PairingRequest
-		header := s.unpackReq(req, &preq)
-		preq.Respond(header, s)
+		hdr := s.unpackReq(req, &preq)
+		board, group, node := s.config.LookupHwId(preq.HwId[:])
+		log.Printf("pairing %X board %d hdr %08b", preq.HwId, board, hdr)
+		s.Send(PairingReply{Board: board, Group: group, NodeId: node})
+
 	case 8:
 		var ureq UpgradeRequest
-		header := s.unpackReq(req, &ureq)
-		ureq.Respond(header, s)
+		hdr := s.unpackReq(req, &ureq)
+		group, node := uint8(212), hdr&0x1F // FIXME hard-coded for now
+		// UpgradeRequest can be used as reply as well, it has the same fields
+		ureq.SwId = s.config.LookupSwId(group, node)
+		fw := s.fw[ureq.SwId]
+		ureq.SwSize = uint16(len(fw.data))
+		ureq.SwCheck = fw.crc
+		log.Printf("upgrade %+v hdr %08b", ureq, hdr)
+		s.Send(ureq)
+
 	case 4:
 		var dreq DownloadRequest
-		header := s.unpackReq(req, &dreq)
-		dreq.Respond(header, s)
+		hdr := s.unpackReq(req, &dreq)
+		log.Printf("download %+v hdr %08b", dreq, hdr)
+
 	default:
 		log.Printf("bad req? %d b = %d", len(req), req)
 	}
