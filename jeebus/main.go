@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/binary"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -36,6 +38,10 @@ func boots(dev string) {
 	rdClient := jeebus.NewClient("rd")
 	rdClient.Register("RF12demo/"+dev, &JeeBootService{dev, loadConfig()})
 
+	buf := readIntelHexFile("blinkArm2.hex")
+	hex := padToBinaryMultiple(buf, 64)
+	log.Printf("hex %d -> %d", buf.Len(), len(hex))
+
 	msg := map[string]interface{}{"text": "8b 212g 31i 1c"}
 	jeebus.Publish("if/RF12demo/"+dev, msg)
 
@@ -60,6 +66,46 @@ func loadConfig() (config Config) {
 	err = json.Unmarshal(data, &config)
 	check(err)
 	log.Printf("CONFIG %+v", config)
+	return
+}
+
+func readIntelHexFile(name string) bytes.Buffer {
+	fd, err := os.Open(FIRMWARE_PREFIX + name)
+	check(err)
+	scanner := bufio.NewScanner(fd)
+	var buf bytes.Buffer
+	for scanner.Scan() {
+		t := scanner.Text()
+		if strings.HasPrefix(t, ":") {
+			b, err := hex.DecodeString(t[1:])
+			check(err)
+			// TODO probably doesn't handle hex files over 64 KB
+			if b[3] == 0 {
+				buf.Write(b[4 : 4+b[0]])
+			}
+		}
+	}
+	return buf
+}
+
+func padToBinaryMultiple(buf bytes.Buffer, count int) []byte {
+	for buf.Len()%count != 0 {
+		buf.WriteByte(0xFF)
+	}
+	return buf.Bytes()
+}
+
+var crcTable = []uint16{
+	0x0000, 0xCC01, 0xD801, 0x1400, 0xF001, 0x3C00, 0x2800, 0xE401,
+	0xA001, 0x6C00, 0x7800, 0xB401, 0x5000, 0x9C01, 0x8801, 0x4400,
+}
+
+func calculateCrc(buf []byte) (crc uint16) {
+	crc = 0xFFFF
+	for data := range buf {
+		crc = crc>>4 ^ crcTable[crc&0x0F] ^ crcTable[data&0x0F]
+		crc = crc>>4 ^ crcTable[crc&0x0F] ^ crcTable[data>>4]
+	}
 	return
 }
 
