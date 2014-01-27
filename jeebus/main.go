@@ -35,12 +35,11 @@ func main() {
 }
 
 func boots(dev string) {
-	rdClient := jeebus.NewClient("rd")
-	rdClient.Register("RF12demo/"+dev, &JeeBootService{dev, loadConfig()})
+	config := loadConfig()
+	fw := loadAllFirmware(config)
 
-	buf := readIntelHexFile("blinkArm2.hex")
-	hex := padToBinaryMultiple(buf, 64)
-	log.Printf("hex %d -> %d", buf.Len(), len(hex))
+	rdClient := jeebus.NewClient("rd")
+	rdClient.Register("RF12demo/"+dev, &JeeBootService{dev, config, fw})
 
 	msg := map[string]interface{}{"text": "8b 212g 31i 1c"}
 	jeebus.Publish("if/RF12demo/"+dev, msg)
@@ -51,13 +50,13 @@ func boots(dev string) {
 
 type Config struct {
 	// map 16-byte hardware ID to the assigned pairing info
-	HwIds map[string]struct {
-		Type, Group, NodeId float64
+	Pairs map[string]struct {
+		Board, Group, Node float64
 	}
-	// names for each of the node types
-	Types map[string]string
-	// name nodetype-group-nodeid to a map of swId's to filenames
-	Nodes map[string]map[string]string
+	// swId's for each of the pairs
+	Nodes map[string]map[string]float64
+	// map each swId to a filename
+	Files map[string]string
 }
 
 func loadConfig() (config Config) {
@@ -67,6 +66,30 @@ func loadConfig() (config Config) {
 	check(err)
 	log.Printf("CONFIG %+v", config)
 	return
+}
+
+type Firmware struct {
+	name string
+	crc  uint16
+	data []byte
+}
+
+func loadAllFirmware(config Config) map[int]Firmware {
+	fw := make(map[int]Firmware)
+	for key, name := range config.Files {
+		swId, err := strconv.Atoi(key)
+		check(err)
+		fw[swId] = readFirmware(name)
+	}
+	return fw
+}
+
+func readFirmware(name string) Firmware {
+	buf := readIntelHexFile(name)
+	data := padToBinaryMultiple(buf, 64)
+	log.Printf("data %d -> %d bytes", buf.Len(), len(data))
+
+	return Firmware{name, calculateCrc(data), data}
 }
 
 func readIntelHexFile(name string) bytes.Buffer {
@@ -100,18 +123,19 @@ var crcTable = []uint16{
 	0xA001, 0x6C00, 0x7800, 0xB401, 0x5000, 0x9C01, 0x8801, 0x4400,
 }
 
-func calculateCrc(buf []byte) (crc uint16) {
-	crc = 0xFFFF
-	for data := range buf {
+func calculateCrc(buf []byte) uint16 {
+	var crc uint16 = 0xFFFF
+	for _, data := range buf {
 		crc = crc>>4 ^ crcTable[crc&0x0F] ^ crcTable[data&0x0F]
 		crc = crc>>4 ^ crcTable[crc&0x0F] ^ crcTable[data>>4]
 	}
-	return
+	return crc
 }
 
 type JeeBootService struct {
 	dev    string
 	config Config
+	fw     map[int]Firmware
 }
 
 func (s *JeeBootService) Handle(m *jeebus.Message) {
