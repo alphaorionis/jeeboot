@@ -21,17 +21,10 @@ const FIRMWARE_PREFIX = "./firmware/" // location of hex files to serve
 
 func main() {
 	if len(os.Args) <= 1 {
-		log.Fatalf("usage: jeeboot <cmd> ...")
+		log.Fatalf("usage: jeeboot serialport")
 	}
 
-	switch os.Args[1] {
-
-	case "boots":
-		boots(os.Args[2]) // expect "usb-..." as 2nd arg
-
-	default:
-		log.Fatal("unknown sub-command: jeeboot ", os.Args[1], " ...")
-	}
+	boots(os.Args[1]) // expect "usb-..." as arg
 }
 
 func boots(dev string) {
