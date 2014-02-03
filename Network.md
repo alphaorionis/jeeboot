@@ -61,7 +61,6 @@ The packet format is binary and is sent via UDP. Each packet consists of:
    - a group byte
    - a node id byte
    - the packet data
-   - a packet CRC-16 that is calculated over the entire UDP payload
 
 There is no registration defined in V1: the router and the clients must know a-priori whom
 to send what where.

@@ -9,14 +9,14 @@ module.exports =
       type: 0x200, group: 212, nodeId: 18
 
   types:
-    0x100: 'JNv6-868'
-    0x200: 'MAX/69-868'
-    0x300: 'JN2/69-868'
+    0x100: 'JNv6-915'
+    0x200: 'MAX/69-915'
+    0x300: 'JN2/69-915'
 
   nodes:
-    'JNv6-868,212,16':
+    'JNv6-915,212,16':
       100: 'blinkAvr1.hex'
-    'MAX/69-868,212,17':
+    'MAX/69-915,212,17':
       101: 'blinkArm2.hex'
-    'MAX/69-868,212,18':
+    'MAX/69-915,212,18':
       102: 'blinkArm2a.hex'
