@@ -16,8 +16,8 @@ import (
 	"github.com/jcw/jeebus"
 )
 
-const CONFIG_FILE = "./config.json"   // boot server configuration file
-const FIRMWARE_PREFIX = "./firmware/" // location of hex files to serve
+const CONFIG_FILE = "./config.json"         // boot server configuration file
+const FIRMWARE_PREFIX = "./files/firmware/" // location of hex files to serve
 
 func main() {
 	if len(os.Args) <= 1 {
