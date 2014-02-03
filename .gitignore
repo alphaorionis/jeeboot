@@ -2,10 +2,12 @@
 *.esproj
 local.mk
 /html
+/firmware
 .*.swp
 .*.swo
 *.o
 *.s
 *.i
-.dep
-.lib
+*.dep
+*.lib
+*.hex
