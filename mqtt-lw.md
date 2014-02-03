@@ -38,7 +38,7 @@ Link-level reliability:
 
 Automatic topics and subscriptions:
  - quickpub message data is published in a topic named
-   "/rfm12/<group_id>/<node_id>/<sub_topic>"
+   "/rfm12/\<group_id>/\<node_id>/\<sub_topic>"
    where <xxx> are the unsigned decimal string representation of the binary field,
    and the sub_topic is the value of the message type/topic byte field
  - the QoS of quickpub and publish messages is determined with the wants-ack flag and is
