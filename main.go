@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -17,7 +16,6 @@ import (
 	"github.com/jcw/jeebus"
 )
 
-const CONFIG_FILE = "./config.json"         // boot server configuration file
 const FIRMWARE_PREFIX = "./files/firmware/" // location of hex files to serve
 
 var client *jeebus.Client
@@ -32,26 +30,26 @@ func main() {
 }
 
 func boots(dev string) {
+	client = jeebus.NewClient(nil)
+
 	config := loadConfig()
 	fw := loadAllFirmware(config)
 
-	client = jeebus.NewClient(nil)
 	client.Register("rd/RF12demo/"+dev, &JeeBootService{dev, config, fw})
 
 	msg := map[string]interface{}{"text": "8b 212g 31i 1c"}
 	client.Publish("if/RF12demo/"+dev, msg)
-
-	// TODO need a mechanism to wait for client disconnect, possibly w/ retries
-	<-make(chan byte) // wait forever
+	<-client.Done
 }
+
+type HwIdStruct struct{ Board, Group, Node, SwId float64 }
+type SwIdStruct struct{ File string }
 
 type Config struct {
 	// map 16-byte hardware ID to the assigned pairing info
-	HwId map[string]struct {
-		Board, Group, Node, SwId float64
-	}
+	HwId map[string]HwIdStruct
 	// map each swId to a filename
-	Firmware map[string]string
+	Firmware map[string]SwIdStruct
 }
 
 func (c *Config) LookupHwId(hwId []byte) (board, group, node uint8) {
@@ -74,10 +72,34 @@ func (c *Config) LookupSwId(group, node uint8) uint16 {
 }
 
 func loadConfig() (config Config) {
-	data, err := ioutil.ReadFile(CONFIG_FILE)
+	// TODO this sort of dynamic decoding is still very tedious
+
+	hkeys, err := client.Call("db-keys", "/jeeboot/hwid/")
 	check(err)
-	err = json.Unmarshal(data, &config)
+	config.HwId = make(map[string]HwIdStruct)
+	for _, k := range hkeys.([]interface{}) {
+		v, err := client.Call("db-get", "/jeeboot/hwid/" + k.(string))
+		check(err)
+		log.Println(k, "=", v)
+		var hs HwIdStruct
+		err = json.Unmarshal([]byte(v.(string)), &hs)
+		check(err)
+		config.HwId[k.(string)] = hs
+	}
+
+	fkeys, err := client.Call("db-keys", "/jeeboot/firmware/")
 	check(err)
+	config.Firmware = make(map[string]SwIdStruct)
+	for _, k := range fkeys.([]interface{}) {
+		v, err := client.Call("db-get", "/jeeboot/firmware/" + k.(string))
+		check(err)
+		log.Println(k, "=", v)
+		var ss SwIdStruct
+		err = json.Unmarshal([]byte(v.(string)), &ss)
+		check(err)
+		config.Firmware[k.(string)] = ss
+	}
+
 	log.Printf("CONFIG %d hw %d fw", len(config.HwId), len(config.Firmware))
 	return
 }
@@ -93,7 +115,7 @@ func loadAllFirmware(config Config) map[uint16]Firmware {
 	for key, name := range config.Firmware {
 		swId, err := strconv.Atoi(key)
 		check(err)
-		fw[uint16(swId)] = readFirmware(name)
+		fw[uint16(swId)] = readFirmware(name.File)
 	}
 	return fw
 }
