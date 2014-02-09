@@ -49,7 +49,7 @@ type Config struct {
 	// map 16-byte hardware ID to the assigned pairing info
 	HwId map[string]HwIdStruct
 	// map each swId to a filename
-	Firmware map[string]SwIdStruct
+	SwId map[string]SwIdStruct
 }
 
 func (c *Config) LookupHwId(hwId []byte) (board, group, node uint8) {
@@ -86,19 +86,19 @@ func loadConfig() (config Config) {
 		config.HwId[k.(string)] = hs
 	}
 
-	fkeys, err := client.Call("db-keys", "/jeeboot/firmware/")
+	fkeys, err := client.Call("db-keys", "/jeeboot/swid/")
 	check(err)
-	config.Firmware = make(map[string]SwIdStruct)
+	config.SwId = make(map[string]SwIdStruct)
 	for _, k := range fkeys.([]interface{}) {
-		v, err := client.Call("db-get", "/jeeboot/firmware/"+k.(string))
+		v, err := client.Call("db-get", "/jeeboot/swid/"+k.(string))
 		check(err)
 		var ss SwIdStruct
 		err = json.Unmarshal([]byte(v.(string)), &ss)
 		check(err)
-		config.Firmware[k.(string)] = ss
+		config.SwId[k.(string)] = ss
 	}
 
-	log.Printf("CONFIG %d hw %d fw", len(config.HwId), len(config.Firmware))
+	log.Printf("CONFIG %d hw %d fw", len(config.HwId), len(config.SwId))
 	return
 }
 
@@ -110,7 +110,7 @@ type Firmware struct {
 
 func loadAllFirmware(config Config) map[uint16]Firmware {
 	fw := make(map[uint16]Firmware)
-	for key, name := range config.Firmware {
+	for key, name := range config.SwId {
 		swId, err := strconv.Atoi(key)
 		check(err)
 		fw[uint16(swId)] = readFirmware(name.File)
