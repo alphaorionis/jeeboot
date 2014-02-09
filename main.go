@@ -262,9 +262,13 @@ func (s *JeeBootService) respondToRequest(req []byte) {
 			s.Send(reply)
 		} else {
 			board, group, node := s.config.LookupHwId(preq.HwId[:])
-			log.Printf("pairing %X board %d hdr %08b", preq.HwId, board, hdr)
-			reply := PairingReply{Board: board, Group: group, NodeId: node}
-			s.Send(reply)
+			if board == preq.Board && group != 0 && node != 0 {
+				log.Printf("pair %x board %d hdr %08b", preq.HwId, board, hdr)
+				reply := PairingReply{Board: board, Group: group, NodeId: node}
+				s.Send(reply)
+			} else {
+				log.Printf("pair %x board %d - no entry", preq.HwId, board)
+			}
 		}
 
 	case 8:
