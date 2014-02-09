@@ -13,13 +13,17 @@ import (
 	"strconv"
 	"strings"
 
+	"code.google.com/p/go-uuid/uuid"
 	"github.com/jcw/jeebus"
 )
 
 const CONFIG_FILE = "./config.json"         // boot server configuration file
 const FIRMWARE_PREFIX = "./files/firmware/" // location of hex files to serve
 
+var client *jeebus.Client
+
 func main() {
+	log.Printf("%X", newRandomId())
 	if len(os.Args) <= 1 {
 		log.Fatalf("usage: jeeboot serialport")
 	}
@@ -31,11 +35,11 @@ func boots(dev string) {
 	config := loadConfig()
 	fw := loadAllFirmware(config)
 
-	rdClient := jeebus.NewClient("rd")
-	rdClient.Register("RF12demo/"+dev, &JeeBootService{dev, config, fw})
+	client = jeebus.NewClient(nil)
+	client.Register("rd/RF12demo/"+dev, &JeeBootService{dev, config, fw})
 
 	msg := map[string]interface{}{"text": "8b 212g 31i 1c"}
-	jeebus.Publish("if/RF12demo/"+dev, msg)
+	client.Publish("if/RF12demo/"+dev, msg)
 
 	// TODO need a mechanism to wait for client disconnect, possibly w/ retries
 	<-make(chan byte) // wait forever
@@ -174,7 +178,7 @@ func (s *JeeBootService) Send(reply interface{}) {
 	cmd := strings.Replace(fmt.Sprintf("%v", buf.Bytes()), " ", ",", -1)
 	// log.Printf("reply %s ,0s", cmd)
 	msg := map[string]string{"text": cmd[1:len(cmd)-1] + ",0s"}
-	jeebus.Publish("if/RF12demo/"+s.dev, msg)
+	client.Publish("if/RF12demo/"+s.dev, msg)
 }
 
 type PairingRequest struct {
@@ -271,6 +275,12 @@ func (s *JeeBootService) unpackReq(data []byte, req interface{}) (h uint8) {
 	check(err)
 	log.Printf("%08b %X\n", h, req)
 	return
+}
+
+func newRandomId() []byte {
+	// use the uuid package (overkill?) to come up with 16 random bytes
+	r, _ := hex.DecodeString(strings.Replace(uuid.New(), "-", "", -1))
+	return r
 }
 
 func check(err error) {
