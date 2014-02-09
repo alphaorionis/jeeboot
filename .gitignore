@@ -2,4 +2,4 @@
 *.esproj
 local.mk
 /html
-/firmware
+/files

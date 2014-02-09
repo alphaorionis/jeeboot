@@ -23,7 +23,7 @@ const FIRMWARE_PREFIX = "./files/firmware/" // location of hex files to serve
 var client *jeebus.Client
 
 func main() {
-	log.Printf("%X", newRandomId())
+	log.Printf("%x", newRandomId())
 	if len(os.Args) <= 1 {
 		log.Fatalf("usage: jeeboot serialport")
 	}
@@ -47,18 +47,16 @@ func boots(dev string) {
 
 type Config struct {
 	// map 16-byte hardware ID to the assigned pairing info
-	Pairs map[string]struct {
-		Board, Group, Node float64
+	HwId map[string]struct {
+		Board, Group, Node, SwId float64
 	}
-	// swId's for each of the pairs
-	Nodes map[string]map[string]float64
 	// map each swId to a filename
-	Files map[string]string
+	Firmware map[string]string
 }
 
 func (c *Config) LookupHwId(hwId []byte) (board, group, node uint8) {
 	key := hex.EncodeToString(hwId)
-	if info, ok := c.Pairs[key]; ok {
+	if info, ok := c.HwId[key]; ok {
 		board = uint8(info.Board)
 		group = uint8(info.Group)
 		node = uint8(info.Node)
@@ -67,11 +65,9 @@ func (c *Config) LookupHwId(hwId []byte) (board, group, node uint8) {
 }
 
 func (c *Config) LookupSwId(group, node uint8) uint16 {
-	sGroup := strconv.Itoa(int(group))
-	sNode := strconv.Itoa(int(node))
-	if group, ok := c.Nodes[sGroup]; ok {
-		if swId, ok := group[sNode]; ok {
-			return uint16(swId)
+	for _, h := range c.HwId {
+		if group == uint8(h.Group) && node == uint8(h.Node) {
+			return uint16(h.SwId)
 		}
 	}
 	return 0
@@ -82,7 +78,7 @@ func loadConfig() (config Config) {
 	check(err)
 	err = json.Unmarshal(data, &config)
 	check(err)
-	log.Printf("CONFIG %d pairs %d files", len(config.Pairs), len(config.Files))
+	log.Printf("CONFIG %d hw %d fw", len(config.HwId), len(config.Firmware))
 	return
 }
 
@@ -94,7 +90,7 @@ type Firmware struct {
 
 func loadAllFirmware(config Config) map[uint16]Firmware {
 	fw := make(map[uint16]Firmware)
-	for key, name := range config.Files {
+	for key, name := range config.Firmware {
 		swId, err := strconv.Atoi(key)
 		check(err)
 		fw[uint16(swId)] = readFirmware(name)

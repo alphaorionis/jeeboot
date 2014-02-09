@@ -1,25 +1,18 @@
 {
-	"pairs": {
+	"hwid": {
 	  "00000000000000000000000000000000": {
-	    "board": 1, "group": 212, "node": 16
+	    "board": 1, "group": 212, "node": 16, "swid": 1000
 		},
 	  "06300301c48461aeedb09351061900f5": {
-	    "board": 2, "group": 212, "node": 17
+	    "board": 2, "group": 212, "node": 17, "swid": 1001
 		},
 	  "35800405648861aee3e5ba50800200f5": {
-	    "board": 2, "group": 212, "node": 18
+	    "board": 2, "group": 212, "node": 18, "swid": 1002
 		}
 	},
-	"nodes": {
-	  "212": {
-      "16": 100,
-      "17": 101,
-      "18": 102
-    }
-	},
-	"files": {
-    "100": "blinkAvr1.hex",
-    "101": "blinkArm2.hex",
-    "102": "blinkArm2a.hex"
+	"firmware": {
+      "1000": "blinkAvr1.hex",
+      "1001": "blinkAvr2.hex",
+      "1002": "blinkAvr3.hex"
 	}
 }
