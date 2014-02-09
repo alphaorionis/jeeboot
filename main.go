@@ -78,7 +78,7 @@ func loadConfig() (config Config) {
 	check(err)
 	config.HwId = make(map[string]HwIdStruct)
 	for _, k := range hkeys.([]interface{}) {
-		v, err := client.Call("db-get", "/jeeboot/hwid/" + k.(string))
+		v, err := client.Call("db-get", "/jeeboot/hwid/"+k.(string))
 		check(err)
 		var hs HwIdStruct
 		err = json.Unmarshal([]byte(v.(string)), &hs)
@@ -90,7 +90,7 @@ func loadConfig() (config Config) {
 	check(err)
 	config.Firmware = make(map[string]SwIdStruct)
 	for _, k := range fkeys.([]interface{}) {
-		v, err := client.Call("db-get", "/jeeboot/firmware/" + k.(string))
+		v, err := client.Call("db-get", "/jeeboot/firmware/"+k.(string))
 		check(err)
 		var ss SwIdStruct
 		err = json.Unmarshal([]byte(v.(string)), &ss)
@@ -253,14 +253,16 @@ func (s *JeeBootService) respondToRequest(req []byte) {
 	case 22:
 		var preq PairingRequest
 		hdr := s.unpackReq(req, &preq)
-		board, group, node := s.config.LookupHwId(preq.HwId[:])
-		log.Printf("pairing %X board %d hdr %08b", preq.HwId, board, hdr)
+		// if HwId is all zeroes, we need to issue a new random value
 		if preq.HwId == [16]byte{} {
-			reply := PairingAssign{Board: board}
+			reply := PairingAssign{Board: preq.Board}
 			copy(reply.HwId[:], newRandomId())
-			log.Printf("assigning fresh hardware ID: %x", reply.HwId)
+			log.Printf("assigning fresh hardware ID %x for board %d hdr %08b",
+				reply.HwId, preq.Board, hdr)
 			s.Send(reply)
 		} else {
+			board, group, node := s.config.LookupHwId(preq.HwId[:])
+			log.Printf("pairing %X board %d hdr %08b", preq.HwId, board, hdr)
 			reply := PairingReply{Board: board, Group: group, NodeId: node}
 			s.Send(reply)
 		}
