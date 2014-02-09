@@ -80,7 +80,6 @@ func loadConfig() (config Config) {
 	for _, k := range hkeys.([]interface{}) {
 		v, err := client.Call("db-get", "/jeeboot/hwid/" + k.(string))
 		check(err)
-		log.Println(k, "=", v)
 		var hs HwIdStruct
 		err = json.Unmarshal([]byte(v.(string)), &hs)
 		check(err)
@@ -93,7 +92,6 @@ func loadConfig() (config Config) {
 	for _, k := range fkeys.([]interface{}) {
 		v, err := client.Call("db-get", "/jeeboot/firmware/" + k.(string))
 		check(err)
-		log.Println(k, "=", v)
 		var ss SwIdStruct
 		err = json.Unmarshal([]byte(v.(string)), &ss)
 		check(err)
@@ -208,6 +206,12 @@ type PairingRequest struct {
 	HwId    [16]uint8 // unique hardware ID or 0's if not available
 }
 
+type PairingAssign struct {
+	Variant uint8     // variant of remote node, 1..250 freely available
+	Board   uint8     // type of remote node, 100..250 freely available
+	HwId    [16]uint8 // freshly assigned hardware ID for boards which need it
+}
+
 type PairingReply struct {
 	Variant uint8     // variant of remote node, 1..250 freely available
 	Board   uint8     // type of remote node, 100..250 freely available
@@ -251,8 +255,15 @@ func (s *JeeBootService) respondToRequest(req []byte) {
 		hdr := s.unpackReq(req, &preq)
 		board, group, node := s.config.LookupHwId(preq.HwId[:])
 		log.Printf("pairing %X board %d hdr %08b", preq.HwId, board, hdr)
-		reply := PairingReply{Board: board, Group: group, NodeId: node}
-		s.Send(reply)
+		if preq.HwId == [16]byte{} {
+			reply := PairingAssign{Board: board}
+			copy(reply.HwId[:], newRandomId())
+			log.Printf("assigning fresh hardware ID: %x", reply.HwId)
+			s.Send(reply)
+		} else {
+			reply := PairingReply{Board: board, Group: group, NodeId: node}
+			s.Send(reply)
+		}
 
 	case 8:
 		var ureq UpgradeRequest
