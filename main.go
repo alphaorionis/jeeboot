@@ -38,7 +38,7 @@ func boots(dev string) {
 	client.Register("rd/RF12demo/"+dev, &JeeBootService{dev, config, fw})
 
 	msg := map[string]interface{}{"text": "8b 212g 31i 1c"}
-	client.Publish("if/RF12demo/"+dev, msg)
+	client.Publish("io/RF12demo/"+dev, msg)
 	<-client.Done
 }
 
@@ -72,7 +72,7 @@ func (c *Config) LookupSwId(group, node uint8) uint16 {
 }
 
 func loadConfig() (config Config) {
-	// TODO this sort of dynamic decoding is still very tedious
+	// TODO: this sort of dynamic decoding is still very tedious
 
 	hkeys, err := client.Call("db-keys", "/jeeboot/hwid/")
 	check(err)
@@ -136,7 +136,7 @@ func readIntelHexFile(name string) bytes.Buffer {
 		if strings.HasPrefix(t, ":") {
 			b, err := hex.DecodeString(t[1:])
 			check(err)
-			// TODO probably doesn't handle hex files over 64 KB
+			// TODO: probably doesn't handle hex files over 64 KB
 			if b[3] == 0 {
 				buf.Write(b[4 : 4+b[0]])
 			}
@@ -194,7 +194,7 @@ func (s *JeeBootService) Send(reply interface{}) {
 	cmd := strings.Replace(fmt.Sprintf("%v", buf.Bytes()), " ", ",", -1)
 	// log.Printf("reply %s ,0s", cmd)
 	msg := map[string]string{"text": cmd[1:len(cmd)-1] + ",0s"}
-	client.Publish("if/RF12demo/"+s.dev, msg)
+	client.Publish("io/RF12demo/"+s.dev, msg)
 }
 
 type PairingRequest struct {
