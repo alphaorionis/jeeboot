@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<title>= JeeBus (NG+ZF)</title>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <style>[ng-cloak] { display: none; }</style>
+    <title></title>
+    <link rel="stylesheet" href="/base/vendor/bower-foundation-css/foundation.min.css">
+    <link rel="stylesheet" href="/base/app.css">
+  </head>
+  <body ng-cloak ng-app="myApp">
+    <nav ng-controller="NavCtrl" class="top-bar">
+      <ul class="title-area">
+        <li class="name">
+          <h1><a ng-href="{{appInfo.home}}"><img src="/base/logo.png" height="22" width="22">&nbsp; {{appInfo.name}}</a></h1>
+        </li>
+        <li class="toggle-topbar menu-icon"><a href="#"><span></span></a></li>
+      </ul>
+      <section class="top-bar-section">
+        <ul class="left">
+          <li ng-repeat="nav in navbar" class="myNav"><a ng-href="{{nav.route}}">{{nav.title}}</a></li>
+          <li class="divider"></li>
+        </ul>
+        <ul class="right">
+          <li class="myNav"><a href="/admin">Admin</a></li>
+        </ul>
+      </section>
+    </nav>
+    <div ui-view></div>
+    <div class="row">
+      <div class="large-3 columns">
+        <p class="secondary label">Version <span app-version></span></p>
+      </div>
+      <div class="large-3 columns">
+        <div class="label">Conn: {{serverConnection}}</div>
+        <div class="secondary label">@ {{ serverTick | date:'HH:mm:ss' }}</div>
+      </div>
+    </div>
+    <script src="/base/vendor/angular/angular.min.js"></script>
+    <script>console.log('BEFORE vendor');</script>
+    <script src="/base/vendor/angular-ui-router.min.js"></script>
+    <script src="/base/vendor/angular-animate/angular-animate.min.js"></script>
+    <script src="/base/vendor/angular-foundation/mm-foundation.min.js"></script>
+    <script src="/base/vendor/raphael/raphael-min.js"></script>
+    <script src="/startup.js"></script>
+    <script src="/base/jeebus.js"></script>
+    <script src="/base/nav.js"></script>
+    <script>console.log('AFTER scripts');</script>
+    <!-- your code -->
+  </body>
+</html>

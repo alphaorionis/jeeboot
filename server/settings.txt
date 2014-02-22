@@ -1,0 +1,2 @@
+BASE_DIR = "../../jeebus/base"
+COMMON_DIR = "../../jeebus/common"

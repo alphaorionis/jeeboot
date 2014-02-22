@@ -1,1 +1,4 @@
-/files
+/server/db
+/server/files
+/server/gin-bin
+/server/logger
