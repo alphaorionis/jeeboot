@@ -1,6 +1,0 @@
-{
-  "name": "jeeboot",
-  "dependencies": {
-    "primus-live": "~0.3.4"
-  }
-}
