@@ -12,6 +12,6 @@ func init() {
 }
 
 func main() {
-    println("\nServer", Version, "/ JeeBus", jeebus.Version)
+    println("\nJeeBoot Server", Version, "/ JeeBus", jeebus.Version)
     jeebus.Run()
 }

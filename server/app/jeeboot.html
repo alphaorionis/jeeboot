@@ -3,6 +3,49 @@
   <div class="large-12 columns">
     <p></p>
     <h3>JeeBoot server</h3>
-    <p>haha haha</p>
+    <div class="row">
+      <div class="large-5 columns">
+        <h3>Firmware</h3>
+        <table>
+          <tr>
+            <th>SwID</th>
+            <th>File</th>
+          </tr>
+          <tr ng-repeat="(swid,row) in swid">
+            <td>{{ swid }}</td>
+            <td>{{ row.file }}</td>
+            <td><a ng-click="fwDel(swid)">x</a></td>
+          </tr>
+        </table>
+        <p on-file-drop="onFileDrop($files)" class="drop-box">To upload, drop file here</p>
+      </div>
+      <div class="large-7 columns">
+        <h3>Node allocations</h3>
+        <table>
+          <tr>
+            <th>Board</th>
+            <th>Group</th>
+            <th>Node</th>
+            <th>SwID</th>
+            <th>HwID</th>
+          </tr>
+          <tr ng-repeat="(hwid,row) in hwid | orderBy:[&quot;board&quot;,&quot;group&quot;,&quot;node&quot;]">
+            <td>{{ row.board }}</td>
+            <!-- TODO there has to be a cleaner way to forward these changes!-->
+            <td contentEditable="true" on-blur="hwSave(hwid,&quot;group&quot;,$value)">{{ row.group }}</td>
+            <td contentEditable="true" on-blur="hwSave(hwid,&quot;node&quot;,$value)">{{ row.node }}</td>
+            <td contentEditable="true" on-blur="hwSave(hwid,&quot;swid&quot;,$value)">{{ row.swid }}</td>
+            <td>{{ hwid }}</td>
+            <td><a ng-click="hwDel(hwid)">x</a></td>
+          </tr>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
+<style type="text/css">
+  div[contentEditable] {
+    cursor: pointer;
+    background-color: #D0D0D0;
+  }
+</style>

@@ -1,0 +1,12 @@
+.drop-box {
+  background: #f8f8f8;
+  border: 5px dashed #ddd;
+  text-align: center;
+}
+.dragActive {
+  background: #f0f0ff;
+}
+td[contentEditable] {
+  background: #f0f0ff;
+  cursor: pointer;
+}
