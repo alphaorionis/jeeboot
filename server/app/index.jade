@@ -1,0 +1,12 @@
+extends ../../../jeebus/base/layout
+
+block title
+  title JeeBoot
+  
+//- omit navigation menu and footer
+block nav
+block footer
+
+append scripts
+  script console.log('READY');
+  script(src='/jeeboot.js')

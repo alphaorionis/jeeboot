@@ -2,3 +2,4 @@
 /server/files
 /server/gin-bin
 /server/logger
+/server/node_modules
