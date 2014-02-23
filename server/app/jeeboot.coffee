@@ -1,6 +1,6 @@
 ng = angular.module 'myApp'
 
-ng.config ($stateProvider, navbarProvider) ->
+ng.config ($stateProvider) ->
   $stateProvider.state 'home',
     url: '/'
     templateUrl: 'jeeboot.html'
