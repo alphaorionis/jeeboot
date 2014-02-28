@@ -1,7 +1,7 @@
 {
-    "name": "jb-example",
-    "description": "JeeBus example",
-    "version": "0.0.1",
+    "name": "jeeboot",
+    "description": "JeeBoot server",
+    "version": "0.2.0",
     "main": "index.js",
     "dependencies": {
         "coffee-script": "*",
