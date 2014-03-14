@@ -37,6 +37,8 @@ OBJ = $(PROGRAM).o
 OPTIMIZE = -Os -fno-inline-small-functions -fno-split-wide-types -mshort-calls
 
 DEFS = -DRF12_BAND=3 # RF12_BAND:3=915,2=868,1=433
+ID = 0x$(shell od -vAn -N4 -tx4 < /dev/urandom | sed -e 's/^[ \t]*//')
+DEFS += -DID0=$(ID) -DID1=$(ID) -DID2=$(ID) -DID3=$(ID)
 LIBS =
 
 CC      = $(TOOLDIR)avr-gcc

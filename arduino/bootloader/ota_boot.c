@@ -27,7 +27,7 @@ typedef uint16_t word;
 #define REMOTE_TYPE 0x100
 #define PAIRING_GROUP 212
 
-uint32_t hwId [4];  
+uint32_t hwId [4] = { ID0, ID1, ID2, ID3 };  
 
 /* Timer 1 used for network time-out and for blinking LEDs */
 static void timer_init() {
