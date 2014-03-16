@@ -5,11 +5,6 @@
 local.mk
 
 /firmware
-/server/db
-/server/files
-/server/gin-bin
-/server/logger
-/server/node_modules
 
 *.o
 *.s
