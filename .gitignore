@@ -4,11 +4,8 @@
 
 local.mk
 
-/firmware
-
 *.o
 *.s
 *.i
 *.dep
 *.lib
-*.hex
