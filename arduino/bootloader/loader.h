@@ -40,18 +40,28 @@ static int sendRequest (const void* buf, int len, int hdrOr) {
   P("SND "); P_X8(len); P("->");
   rf12_sendNow(RF12_HDR_CTL | RF12_HDR_ACK | hdrOr, buf, len);
   rf12_sendWait(0);
-	timer_start(250); // arm timer for 250ms
-  while (!rf12_recvDone() || rf12_len == 0) // TODO: 0-check to avoid std acks?
-    if (timer_done()) {
-      P("timeout\n");
-      return -1;
+  timer_start(250); // arm timer for 250ms
+  while (!timer_done()) {
+    if (rf12_recvDone()) {
+      // extend the timeout when receiving an OOB ack
+      if (rf12_len == 0 && (rf12_hdr & RF12_HDR_CTL) && (rf12_hdr & RF12_HDR_ACK)) {
+        timer_start(2500);
+        P("extending timeout\n");
+        continue;
+      }
+
+      if (rf12_crc) {
+        P("bad crc "); P_X16(rf12_crc); P_LN();
+        return 0;
+      }
+
+      P_X8(rf12_len); P(" hdr="); P_X8(rf12_hdr); P_LN();
+      return 1;
     }
-  if (rf12_crc) {
-    P("bad crc "); P_X16(rf12_crc); P_LN();
-    return 0;
   }
-  P_X8(rf12_len); P(" hdr="); P_X8(rf12_hdr); P_LN();
-  return 1;
+
+  P("timeout\n");
+  return -1;
 }
 
 //===== writing to program memory flash =====
