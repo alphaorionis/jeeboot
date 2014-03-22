@@ -41,7 +41,8 @@ func main() {
 		panic(err)
 	}
 
-	// main flow is: serial -> rf12demo -> jeeboot -> serial
+	// main processing pipeline: serial, rf12demo, jeeboot, serial
+	// firmware: jeeboot, readtext, intelhex, binaryfill, calccrc, bootdata
 	// other valid packets are routed to the bootServer gadget
 
 	c := flow.NewCircuit()
