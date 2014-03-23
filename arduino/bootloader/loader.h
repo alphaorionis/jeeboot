@@ -213,7 +213,7 @@ static int appIsValid () {
 	return curr == config.swCheck;
 }
 
-static int sendUpgradeCheck () {
+static int sendUpgradeCheck (uint8_t processReply) {
 	// form upgrade check message
   struct UpgradeRequest request;
   request.type = REMOTE_TYPE;
@@ -222,7 +222,10 @@ static int sendUpgradeCheck () {
   request.swCheck = config.swCheck;
 	// send the message and update the config based on the reply, if we get one
   struct UpgradeReply *reply;
-  if (sendRequest(&request, sizeof request, 0) > 0 && rf12_len == sizeof(*reply)) {
+  if (sendRequest(&request, sizeof request, 0) > 0 &&
+            rf12_len == sizeof(*reply) &&
+            processReply)
+  {
 		reply = (struct UpgradeReply *)rf12_data;
     config.swId = reply->swId;
     config.swSize = reply->swSize;
@@ -284,7 +287,7 @@ top:
   P("==Upgrade\n");
   backOffCounter = 0;
 	uint8_t deadline = 73; // 73->abort after ~ 4 hours
-  while (!sendUpgradeCheck()) {
+  while (!sendUpgradeCheck(1)) {
 		if (--deadline == 0) goto top;
     exponentialBackOff();
   }
@@ -302,6 +305,7 @@ top:
 			}
     }
 		flushFlash(BASE_ADDR + BOOT_DATA_MAX*limit);
+    sendUpgradeCheck(0);
   }
 
   P("==Ready!\n");
