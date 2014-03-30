@@ -1,0 +1,15 @@
+{
+    "swids": {
+        "1001": "../firmware/blinkAvr1.hex",
+        "1002": "../firmware/blinkAvr2.hex",
+        "1003": "../firmware/blinkAvr3.hex"
+    },
+    "hwids": {
+        "06300301c48461aeedb09351061900f5": {
+            "board": 2,
+            "group": 212,
+            "node": 17,
+            "swid": 1001
+        }
+    }
+}
