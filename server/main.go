@@ -8,8 +8,8 @@ import (
 
 	"github.com/jcw/flow"
 	_ "github.com/jcw/flow/gadgets"
-	_ "github.com/jcw/jeebus/gadgets/rfdata"
-	_ "github.com/jcw/jeebus/gadgets/serial"
+	_ "github.com/jcw/jeebus/gadgets"
+	_ "github.com/jcw/housemon/gadgets"
 )
 
 const Version = "0.1.0"
