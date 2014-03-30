@@ -50,15 +50,15 @@ void setup () {
   Serial.println("\n[testServer2]");
 #endif
   rf12_initialize(31, RF12_915MHZ, PAIRING_GROUP);
-	Serial.println(F("  low TX power"));
-	rf12_control(0x9857); // reduce tx power
-	rf12_control(0x94B2); // attenuate receiver 0x94B2 or 0x94Ba
+  Serial.println(F("  low TX power"));
+  rf12_control(0x9857); // reduce tx power
+  rf12_control(0x94B2); // attenuate receiver 0x94B2 or 0x94Ba
 }
 
 #define THROTTLE 5
 
 void loop () {
-	// boot loader request packets haev a special header with CTL *and* ACK set
+  // boot loader request packets have a special header with CTL *and* ACK set
   if (rf12_recvDone() && rf12_crc == 0 &&
       (rf12_hdr & RF12_HDR_CTL) && (rf12_hdr & RF12_HDR_ACK)) {
     switch (rf12_len) {

@@ -1,21 +1,21 @@
 // 
-// Over-The-Air download nd programming logic
+// Over-The-Air download and programming logic
 //
 // The code here is somewhat Arduino-specific
 
-#define BOOT_DATA_MAX 64									// max bytes found in a boot packet
-#include "packet.h"												// packet format definitions
+#define BOOT_DATA_MAX 64                  // max bytes found in a boot packet
+#include "packet.h"                       // packet format definitions
 
-#define PAGE_SIZE SPM_PAGESIZE          	// minimal chunk written to flash (128 on Atmega328p)
-#define BASE_ADDR ((uint8_t*) 0x0)			  // base address of user program
+#define PAGE_SIZE SPM_PAGESIZE            // minimal chunk written to flash (128 on Atmega328p)
+#define BASE_ADDR ((uint8_t*) 0x0)        // base address of user program
 #define CONFIG_ADDR (BASE_ADDR - sizeof(config)) // where config goes
 
 #define MAX_BACKOFF 4                     // std:12 -- 61*(2**MAX_BACKOFF) milliseconds
 
 static uint16_t calcCRC (const void *start, int len) {
-	const uint8_t *ptr = start;
+  const uint8_t *ptr = start;
   int crc = ~0;
-	while (len--)
+  while (len--)
     crc = _crc16_update(crc, *ptr++);
   //P("  crc "); P_X16(crc); P_LN();
   return crc;
@@ -23,12 +23,12 @@ static uint16_t calcCRC (const void *start, int len) {
 
 // calculate the CRC of a block in flash, len must be a multiple of 2!
 static uint16_t calcFlashCRC (const void *start, int len) {
-	const uint8_t *ptr = start;
+  const uint8_t *ptr = start;
   uint16_t crc = ~0;
-	while (len--) {
-		uint8_t b = pgm_read_byte_near(ptr++);
+  while (len--) {
+    uint8_t b = pgm_read_byte_near(ptr++);
     crc = _crc16_update(crc, b);
-	}
+  }
   //P("  crc "); P_X16(crc); P_LN();
   return crc;
 }
@@ -40,7 +40,7 @@ static int sendRequest (const void* buf, int len, int hdrOr) {
   P("SND "); P_X8(len); P("->");
   rf12_sendNow(RF12_HDR_CTL | RF12_HDR_ACK | hdrOr, buf, len);
   rf12_sendWait(0);
-	timer_start(250); // arm timer for 250ms
+  timer_start(250); // arm timer for 250ms
   while (!rf12_recvDone() || rf12_len == 0) // TODO: 0-check to avoid std acks?
     if (timer_done()) {
       P("timeout\n");
@@ -63,43 +63,43 @@ static uint16_t flashBuffer[(PAGE_SIZE+BOOT_DATA_MAX+1)/2];   // buffer for a fu
 // Write a complete buffer to flash
 // TODO: optimize for RWW section to erase while requesting data
 static void writeFlash(void *flash) {
-	P("Flash "); P_X16((uint16_t)flash); P_LN();
-	//P_A(flashBuffer, PAGE_SIZE); P_LN();
+  P("Flash "); P_X16((uint16_t)flash); P_LN();
+  //P_A(flashBuffer, PAGE_SIZE); P_LN();
   // first erase the page
-	boot_page_erase(flash);
-	boot_spm_busy_wait();
-	// copy the in-memory buffer into the write-buffer
-	for (uint8_t i=0; i<PAGE_SIZE/2; i++) {
-		boot_page_fill(flash+2*i, flashBuffer[i]);
-	}
-	boot_page_write(flash);
-	boot_spm_busy_wait();
-	boot_rww_enable();
+  boot_page_erase(flash);
+  boot_spm_busy_wait();
+  // copy the in-memory buffer into the write-buffer
+  for (uint8_t i=0; i<PAGE_SIZE/2; i++) {
+    boot_page_fill(flash+2*i, flashBuffer[i]);
+  }
+  boot_page_write(flash);
+  boot_spm_busy_wait();
+  boot_rww_enable();
 }
 
 // copy a chunk from memory into the flash buffer and write flash if we've got a page full
 static void fillFlash (void *flash, const void *ram, uint8_t sz) {
-	//P("FF "); P_X16((uint16_t)flash); P_LN();
-	// copy ram to buffer
-	uint16_t offset = (uint16_t)flash & (PAGE_SIZE-1);
-	memcpy(flashBuffer+offset/2, ram, sz);
-	// time to to flash?
-	if (offset+sz >= PAGE_SIZE) {
-		writeFlash(flash-offset);
-		// shift excess data down
-		memcpy(flashBuffer, flashBuffer+PAGE_SIZE/2, offset+sz-PAGE_SIZE);
-	}
+  //P("FF "); P_X16((uint16_t)flash); P_LN();
+  // copy ram to buffer
+  uint16_t offset = (uint16_t)flash & (PAGE_SIZE-1);
+  memcpy(flashBuffer+offset/2, ram, sz);
+  // time to to flash?
+  if (offset+sz >= PAGE_SIZE) {
+    writeFlash(flash-offset);
+    // shift excess data down
+    memcpy(flashBuffer, flashBuffer+PAGE_SIZE/2, offset+sz-PAGE_SIZE);
+  }
 }
 
 // flush what's left in the buffer, argument is address of next byte we would have written to
 // buffer, i.e., address in flash of byte after the last one present in buffer
 static void flushFlash(void *flash) {
-	uint16_t offset = (uint16_t)flash & (PAGE_SIZE-1);
-	//P("FL "); P_X16((uint16_t)flash); P_LN();
-	if (offset != 0) {
-		memset(flashBuffer+offset/2, 0xFF, PAGE_SIZE-offset);   // fill rest of buffer with 1's
-		writeFlash(flash-offset);
-	}
+  uint16_t offset = (uint16_t)flash & (PAGE_SIZE-1);
+  //P("FL "); P_X16((uint16_t)flash); P_LN();
+  if (offset != 0) {
+    memset(flashBuffer+offset/2, 0xFF, PAGE_SIZE-offset);   // fill rest of buffer with 1's
+    writeFlash(flash-offset);
+  }
 }
 
 //===== exponential back-off =====
@@ -141,12 +141,12 @@ struct Config {
 
 static void loadConfig () {
   // copy config from program memory to config struct
-	for (uint8_t i=0; i<sizeof(config); i++) {
-		((uint8_t*)&config)[i] = pgm_read_byte_near(CONFIG_ADDR+i);
-	}
-	P("Config ");
+  for (uint8_t i=0; i<sizeof(config); i++) {
+    ((uint8_t*)&config)[i] = pgm_read_byte_near(CONFIG_ADDR+i);
+  }
+  P("Config ");
   P_A(&config, sizeof config);
-	// calculate checksum to verify it's valid
+  // calculate checksum to verify it's valid
   if (calcCRC(&config, sizeof config) != 0) {
     P("DEF!\n");
     memset(&config, 0, sizeof config);
@@ -159,20 +159,20 @@ static void saveConfig () {
   if (calcCRC(&config, sizeof config) != 0) {
     config.check = calcCRC(&config, sizeof config - 2);
     //P("save config 0x"); P_X16(config.check); P_LN();
-		//P("config @0x"); P_A(&config, sizeof(config));
-		// Load last page of program memory
-		uint8_t *tgt = (uint8_t *)flashBuffer;
-		for (uint8_t i=0; i<PAGE_SIZE; i++)
-				tgt[i] = pgm_read_byte_near(BASE_ADDR-PAGE_SIZE+i);
-		// Slap config on top and flash it!
-		fillFlash(CONFIG_ADDR, &config, sizeof(config));
+    //P("config @0x"); P_A(&config, sizeof(config));
+    // Load last page of program memory
+    uint8_t *tgt = (uint8_t *)flashBuffer;
+    for (uint8_t i=0; i<PAGE_SIZE; i++)
+      tgt[i] = pgm_read_byte_near(BASE_ADDR-PAGE_SIZE+i);
+    // Slap config on top and flash it!
+    fillFlash(CONFIG_ADDR, &config, sizeof(config));
   }
 }
 
 //===== Pairing =====
 
 static void sendPairingCheck () {
-	// form the pairing request message
+  // form the pairing request message
   struct PairingRequest request;
   request.type = REMOTE_TYPE;
   request.group = config.group;
@@ -180,10 +180,10 @@ static void sendPairingCheck () {
   request.check = calcCRC(&config.shKey, sizeof config.shKey);
   memcpy(request.hwId, hwId, sizeof request.hwId);
   
-	// send the message and assuming we get a reply, set the config from the reply
+  // send the message and assuming we get a reply, set the config from the reply
   struct PairingReply *reply;
   if (sendRequest(&request, sizeof request, RF12_HDR_DST) > 0 && rf12_len == sizeof(*reply)) {
-		reply = (struct PairingReply *)rf12_data;
+    reply = (struct PairingReply *)rf12_data;
     config.group = reply->group;
     config.nodeId = reply->nodeId;
     memcpy(config.shKey, reply->shKey, sizeof config.shKey);
@@ -197,30 +197,30 @@ static void sendPairingCheck () {
 static int appIsValid () {
   //return calcCRC(BASE_ADDR, config.swSize << 4) == config.swCheck;
   uint16_t curr = calcFlashCRC(BASE_ADDR, config.swSize << 4);
-	P("SW="); P_X16(curr);
-	P(" want="); P_X16(config.swCheck);
-	P(curr == config.swCheck ? " OK\n" : " NO\n");
-	return curr == config.swCheck;
+  P("SW="); P_X16(curr);
+  P(" want="); P_X16(config.swCheck);
+  P(curr == config.swCheck ? " OK\n" : " NO\n");
+  return curr == config.swCheck;
 }
 
 static int sendUpgradeCheck () {
-	// form upgrade check message
+  // form upgrade check message
   struct UpgradeRequest request;
   request.type = REMOTE_TYPE;
   request.swId = config.swId;
   request.swSize = config.swSize;
   request.swCheck = config.swCheck;
-	// send the message and update the config based on the reply, if we get one
+  // send the message and update the config based on the reply, if we get one
   struct UpgradeReply *reply;
   if (sendRequest(&request, sizeof request, 0) > 0 && rf12_len == sizeof(*reply)) {
-		reply = (struct UpgradeReply *)rf12_data;
+    reply = (struct UpgradeReply *)rf12_data;
     config.swId = reply->swId;
     config.swSize = reply->swSize;
     config.swCheck = reply->swCheck;
     saveConfig();
-		//P("sw: id="); P_X16(config.swId); P(" sz="); P_X16(config.swSize);
-		//P(" crc="); P_X16(config.swCheck); P_LN();
-		//P("config @0x"); P_A(&config, sizeof(config));
+    //P("sw: id="); P_X16(config.swId); P(" sz="); P_X16(config.swSize);
+    //P(" crc="); P_X16(config.swCheck); P_LN();
+    //P("config @0x"); P_A(&config, sizeof(config));
     return 1;
   }
   return 0;
@@ -229,21 +229,21 @@ static int sendUpgradeCheck () {
 //===== Download =====
 
 static int sendDownloadRequest (int index) {
-	// Compose download request
+  // Compose download request
   struct DownloadRequest request;
   request.swId = config.swId;
   request.swIndex = index;
-	// Send request and if we got a reply copy it to flash
+  // Send request and if we got a reply copy it to flash
   if (sendRequest(&request, sizeof request, 0) > 0 &&
-			rf12_len == sizeof(struct DownloadReply) &&
-			*(uint16_t*)rf12_data == (request.swId ^ request.swIndex)) // check reply.swIdXor
-	{
-		// de-whitening (prevents simple runs of all-0 or all-1 bits)
+      rf12_len == sizeof(struct DownloadReply) &&
+      *(uint16_t*)rf12_data == (request.swId ^ request.swIndex)) // check reply.swIdXor
+  {
+    // de-whitening (prevents simple runs of all-0 or all-1 bits)
     for (int i = 0; i < BOOT_DATA_MAX; ++i)
       rf12_data[2+i] ^= 211 * i;
     void* flash = BASE_ADDR + BOOT_DATA_MAX * index;
     fillFlash(flash, (const void *)(rf12_data+2), BOOT_DATA_MAX);
-		P("F "); P_X8(request.swIndex); P(" @"); P_X16((uint16_t)flash); P_LN();
+    P("F "); P_X8(request.swIndex); P(" @"); P_X16((uint16_t)flash); P_LN();
     return 1;
   }
   return 0;
@@ -256,7 +256,7 @@ static void bootLoaderLogic () {
 
 top:
   
-	// Pairing: figure out who we're supposed to communicate with (and boot from)
+  // Pairing: figure out who we're supposed to communicate with (and boot from)
   rf12_initialize(1, RF12_BAND, PAIRING_GROUP);
 
   P("==Pair\n");
@@ -268,30 +268,30 @@ top:
     exponentialBackOff();
   }
   
-	// Upgrade check: figure out whether we have the right sketch loaded
+  // Upgrade check: figure out whether we have the right sketch loaded
   rf12_initialize(config.nodeId, RF12_BAND, config.group);
 
   P("==Upgrade\n");
   backOffCounter = 0;
-	uint8_t deadline = 73; // 73->abort after ~ 4 hours
+  uint8_t deadline = 73; // 73->abort after ~ 4 hours
   while (!sendUpgradeCheck()) {
-		if (--deadline == 0) goto top;
+    if (--deadline == 0) goto top;
     exponentialBackOff();
   }
   
-	// Download: if the app we have is not the right one then download the right one
+  // Download: if the app we have is not the right one then download the right one
   P("==Download\n");
   if (! appIsValid()) {
     int limit = ((config.swSize << 4) + BOOT_DATA_MAX - 1) / BOOT_DATA_MAX;
     for (int i = 0; i < limit; ++i) {
       backOffCounter = 0;
-		  uint8_t deadline = 73; // 73->abort after ~ 4 hours
+      uint8_t deadline = 73; // 73->abort after ~ 4 hours
       while (sendDownloadRequest(i) == 0) {
-				if (--deadline == 0) goto top;
+        if (--deadline == 0) goto top;
         exponentialBackOff();
-			}
+      }
     }
-		flushFlash(BASE_ADDR + BOOT_DATA_MAX*limit);
+    flushFlash(BASE_ADDR + BOOT_DATA_MAX*limit);
   }
 
   P("==Ready!\n");
@@ -308,7 +308,7 @@ static void bootLoader () {
     bootLoaderLogic();
     if (appIsValid())
       break;
-		P("  WRONG APP!\n");
+    P("  WRONG APP!\n");
     sleep(100L << (backOff & 0x0F));
   }
 }
