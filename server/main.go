@@ -9,6 +9,7 @@ import (
 	"github.com/jcw/flow"
 	_ "github.com/jcw/flow/gadgets"
 	_ "github.com/jcw/housemon/gadgets/rfdata"
+	_ "github.com/jcw/jeeboot/server/gadgets"
 	_ "github.com/jcw/jeebus/gadgets/serial"
 )
 
@@ -69,14 +70,14 @@ func main() {
 	c.Feed("sp.Port", *serialPort)
 	c.Feed("cf.In", *configFile)
 	c.Feed("bf.Len", 64)
-	
+
 	if *describe {
 		desc, err := json.MarshalIndent(c.Describe(), "", "  ")
 		flow.Check(err)
 		fmt.Print(string(desc))
 		return
 	}
-	
+
 	c.Run()
 }
 
