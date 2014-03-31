@@ -2,19 +2,21 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 
 	"github.com/jcw/flow"
 	_ "github.com/jcw/flow/gadgets"
-	_ "github.com/jcw/jeebus/gadgets/serial"
 	_ "github.com/jcw/housemon/gadgets/rfdata"
+	_ "github.com/jcw/jeebus/gadgets/serial"
 )
 
 const Version = "0.1.0"
 
 var (
+	describe = flag.Bool("d", false,
+		"describe the main circuit used as JeeBoot server")
 	showInfo = flag.Bool("i", false,
 		"display some information about this tool")
 	serialPort = flag.String("dev", "/dev/ttyUSB0",
@@ -36,12 +38,6 @@ func main() {
 		return
 	}
 
-	// load configuration from file
-	config, err := ioutil.ReadFile(*configFile)
-	if err != nil {
-		panic(err)
-	}
-
 	// main processing pipeline: serial, rf12demo, jeeboot, serial
 	// firmware: jeeboot, readtext, intelhex, binaryfill, calccrc, bootdata
 	// other valid packets are routed to the bootServer gadget
@@ -50,27 +46,37 @@ func main() {
 	c.Add("sp", "SerialPort")
 	c.Add("rf", "Sketch-RF12demo")
 	c.Add("sk", "Sink")
+	c.Add("cf", "ReadFileJSON")
 	c.Add("jb", "JeeBoot")
 	c.Add("rd", "ReadFileText")
 	c.Add("hx", "IntelHexToBin")
 	c.Add("bf", "BinaryFill")
 	c.Add("cs", "CalcCrc16")
 	c.Add("bd", "BootData")
-	c.Add("server", "BootServer")
+	c.Add("sv", "BootServer")
 	c.Connect("sp.From", "rf.In", 0)
-	c.Connect("rf.Out", "server.In", 0)
+	c.Connect("rf.Out", "sv.In", 0)
 	c.Connect("rf.Rej", "sk.In", 0) // throw away rejected serial port msgs
 	c.Connect("rf.Oob", "jb.In", 0)
+	c.Connect("cf.Out", "jb.Cfg", 0)
 	c.Connect("jb.Files", "rd.In", 0)
 	c.Connect("rd.Out", "hx.In", 0)
 	c.Connect("hx.Out", "bf.In", 0)
 	c.Connect("bf.Out", "cs.In", 0)
 	c.Connect("cs.Out", "bd.In", 0)
 	c.Connect("jb.Out", "sp.To", 0)
-	c.Connect("server.Out", "sp.To", 0)
+	c.Connect("sv.Out", "sp.To", 0)
 	c.Feed("sp.Port", *serialPort)
-	c.Feed("jb.Cfg", config)
+	c.Feed("cf.In", *configFile)
 	c.Feed("bf.Len", 64)
+	
+	if *describe {
+		desc, err := json.MarshalIndent(c.Describe(), "", "  ")
+		flow.Check(err)
+		fmt.Print(string(desc))
+		return
+	}
+	
 	c.Run()
 }
 
