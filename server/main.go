@@ -8,8 +8,8 @@ import (
 
 	"github.com/jcw/flow"
 	_ "github.com/jcw/flow/gadgets"
-	_ "github.com/jcw/jeebus/gadgets"
-	_ "github.com/jcw/housemon/gadgets"
+	_ "github.com/jcw/jeebus/gadgets/serial"
+	_ "github.com/jcw/housemon/gadgets/rfdata"
 )
 
 const Version = "0.1.0"
@@ -32,6 +32,7 @@ func main() {
 
 	if *showInfo {
 		fmt.Println("JeeBus", Version, "+ Flow", flow.Version)
+		flow.PrintRegistry()
 		return
 	}
 
@@ -50,7 +51,7 @@ func main() {
 	c.Add("rf", "Sketch-RF12demo")
 	c.Add("sk", "Sink")
 	c.Add("jb", "JeeBoot")
-	c.Add("rd", "ReadTextFile")
+	c.Add("rd", "ReadFileText")
 	c.Add("hx", "IntelHexToBin")
 	c.Add("bf", "BinaryFill")
 	c.Add("cs", "CalcCrc16")
