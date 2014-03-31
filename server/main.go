@@ -31,7 +31,7 @@ func main() {
 	flag.Parse()
 
 	if *showInfo {
-		fmt.Println("JeeBus", Version, "+ Flow", flow.Version)
+		fmt.Printf("JeeBoot + JeeBus (%s) + Flow (%s)\n", Version, flow.Version)
 		flow.PrintRegistry()
 		return
 	}
@@ -56,7 +56,7 @@ func main() {
 	c.Add("bf", "BinaryFill")
 	c.Add("cs", "CalcCrc16")
 	c.Add("bd", "BootData")
-	c.AddCircuitry("server", &bootServer{})
+	c.Add("server", "BootServer")
 	c.Connect("sp.From", "rf.In", 0)
 	c.Connect("rf.Out", "server.In", 0)
 	c.Connect("rf.Rej", "sk.In", 0) // throw away rejected serial port msgs
@@ -74,13 +74,17 @@ func main() {
 	c.Run()
 }
 
-type bootServer struct {
+func init() {
+	flow.Registry["BootServer"] = func() flow.Circuitry { return new(BootServer) }
+}
+
+type BootServer struct {
 	flow.Gadget
 	In  flow.Input
 	Out flow.Output
 }
 
-func (g *bootServer) Run() {
+func (g *BootServer) Run() {
 	g.Out.Send(1) // reset the serial port
 	<-g.In        // wait for some input before sending out the init command
 	g.Out.Send(fmt.Sprintf("%db %dg 31i 1c 1q v", *freqBand/100, *netGroup))
