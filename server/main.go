@@ -2,7 +2,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 
@@ -72,9 +71,7 @@ func main() {
 	c.Feed("bf.Len", 64)
 
 	if *describe {
-		desc, err := json.MarshalIndent(c.Describe(), "", "  ")
-		flow.Check(err)
-		fmt.Print(string(desc))
+		flow.PrintDescription(c)
 		return
 	}
 
