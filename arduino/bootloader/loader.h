@@ -27,9 +27,11 @@ static uint16_t calcFlashCRC (const void *start, int len) {
   uint16_t crc = ~0;
   while (len--) {
     uint8_t b = pgm_read_byte_near(ptr++);
+    //P_X8(b);
     crc = _crc16_update(crc, b);
   }
-  //P("  crc "); P_X16(crc); P_LN();
+  //P_LN();
+  P("  crc "); P_X16(crc); P_LN();
   return crc;
 }
 
@@ -132,7 +134,8 @@ struct Config {
   uint8_t group;
   uint8_t nodeId;
   uint8_t spare [2];
-  uint8_t shKey [16];
+  //uint8_t shKey [16];  // FIXME: shKey not supported to make space for hwId
+  uint8_t hwId [16];
   uint16_t swId;
   uint16_t swSize;
   uint16_t swCheck;
@@ -150,12 +153,12 @@ static void loadConfig () {
   if (calcCRC(&config, sizeof config) != 0) {
     P("DEF!\n");
     memset(&config, 0, sizeof config);
+    config.version = REMOTE_TYPE;
   }
 }
 
 // Saves config by inserting it into the end of the last page program memory (flash)
 static void saveConfig () {
-  config.version = 1;
   if (calcCRC(&config, sizeof config) != 0) {
     config.check = calcCRC(&config, sizeof config - 2);
     //P("save config 0x"); P_X16(config.check); P_LN();
@@ -174,21 +177,29 @@ static void saveConfig () {
 static void sendPairingCheck () {
   // form the pairing request message
   struct PairingRequest request;
-  request.type = REMOTE_TYPE;
+  request.type = config.version;
   request.group = config.group;
   request.nodeId = config.nodeId;
-  request.check = calcCRC(&config.shKey, sizeof config.shKey);
-  memcpy(request.hwId, hwId, sizeof request.hwId);
+  request.check = 0; // FIXME: shKey not supported
+  //request.check = calcCRC(&config.shKey, sizeof config.shKey);
+  memcpy(request.hwId, config.hwId, sizeof request.hwId);
   
   // send the message and assuming we get a reply, set the config from the reply
   struct PairingReply *reply;
-  if (sendRequest(&request, sizeof request, RF12_HDR_DST) > 0 && rf12_len == sizeof(*reply)) {
-    reply = (struct PairingReply *)rf12_data;
-    config.group = reply->group;
-    config.nodeId = reply->nodeId;
-    memcpy(config.shKey, reply->shKey, sizeof config.shKey);
-    saveConfig();
-    P("P id="); P_X8(config.nodeId); P(" g="); P_X8(config.group); P_LN();
+  struct PairingAssign *assign;
+  if (sendRequest(&request, sizeof request, RF12_HDR_DST)) {
+    if (rf12_len == sizeof(*assign)) {
+      assign = (struct PairingAssign *)rf12_data;
+      memcpy(config.hwId, assign->hwId, sizeof config.hwId);
+      saveConfig();
+    } else if (rf12_len == sizeof(*reply)) {
+      reply = (struct PairingReply *)rf12_data;
+      config.group = reply->group;
+      config.nodeId = reply->nodeId;
+      //memcpy(config.shKey, reply->shKey, sizeof config.shKey); // FIXME: shKey not supported
+      saveConfig();
+      P("P id="); P_X8(config.nodeId); P(" g="); P_X8(config.group); P_LN();
+    }
   }
 }
 
@@ -206,7 +217,7 @@ static int appIsValid () {
 static int sendUpgradeCheck () {
   // form upgrade check message
   struct UpgradeRequest request;
-  request.type = REMOTE_TYPE;
+  request.type = config.version;
   request.swId = config.swId;
   request.swSize = config.swSize;
   request.swCheck = config.swCheck;

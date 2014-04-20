@@ -1,5 +1,6 @@
 // Boot packet types, exchanged between remote nodes and the boot server.
 // -jcw, 2013-11-17
+// -tve, 2014-04-19 added PairingAssign
 
 struct PairingRequest {
   uint16_t type;      // type of this remote node, 100..999 freely available
@@ -7,6 +8,11 @@ struct PairingRequest {
   uint8_t nodeId;     // current node ID, 1..30 or 0 if unpaired
   uint16_t check;     // crc checksum over the current shared key
   uint8_t hwId [16];  // unique hardware ID or 0's if not available
+};
+
+struct PairingAssign {
+  uint16_t type;      // type of this remote node, 100..999 freely available
+  uint8_t hwId [16];  // unique hardware ID being assigned to the node
 };
 
 struct PairingReply {

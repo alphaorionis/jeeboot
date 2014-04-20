@@ -27,34 +27,32 @@ typedef uint16_t word;
 #define REMOTE_TYPE 0x100
 #define PAIRING_GROUP 212
 
-uint32_t hwId [4];  
-
 /* Timer 1 used for network time-out and for blinking LEDs */
 static void timer_init() {
   TCCR1B = _BV(CS12) | _BV(CS10);            // div 1024 -- @4Mhz=3906Hz
 }
 static void timer_start(int16_t millis) {
-	TCNT1 = -(4000L * (int32_t)millis / 1024); // 4000=4Mhz/1000, 1024=clk divider
-	TIFR1 = _BV(TOV1);                         // clear overflow flag
+  TCNT1 = -(4000L * (int32_t)millis / 1024); // 4000=4Mhz/1000, 1024=clk divider
+  TIFR1 = _BV(TOV1);                         // clear overflow flag
 }
 
 static uint8_t timer_done() {
   return TIFR1 & _BV(TOV1);
 }
 
-// TODO: LOW POWER!
+// TODO: LOW POWER! This needs to power down when sleeping!
 static void sleep(uint32_t ms) {
-	while(ms > 1000) {
-		timer_start(1000);
-		while (!timer_done())
-			;
-		ms -= 1000;
-	}
-	if (ms > 0) {
-		timer_start(ms);
-		while (!timer_done())
-			;
-	}
+  while(ms > 1000) {
+    timer_start(1000);
+    while (!timer_done())
+      ;
+    ms -= 1000;
+  }
+  if (ms > 0) {
+    timer_start(ms);
+    while (!timer_done())
+      ;
+  }
 }
 
 #include "debug.h"
@@ -75,7 +73,7 @@ int main () {
   MCUSR = 0;
   wdt_disable();
 
-	timer_init();
+  timer_init();
 
 #if DEBUG & 2
   // init UART
@@ -100,13 +98,13 @@ int main () {
   clock_prescale_set(clock_div_4);
 
   flash_led(4); // 2 flashes
-	P("\n\nBOOT!\n");
+  P("\n\nBOOT!\n");
 
   bootLoader();
 
   // force a clean reset to launch the actual code
-	P("APP\n");
-	flash_led(6); // 3 flashes
+  P("APP\n");
+  flash_led(6); // 3 flashes
   clock_prescale_set(clock_div_1);
   wdt_enable(WDTO_15MS);
   for (;;)

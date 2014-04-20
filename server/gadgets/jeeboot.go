@@ -45,11 +45,16 @@ func (w *BootData) Run() {
 				bootFiles[name].crc = v.Msg.(uint16)
 			case "<close>":
 				fw := bootFiles[name]
-				glog.Infof("bootFile %s = addr %d crc %d (0x%04x) len %d",
-					name, fw.addr, fw.crc, fw.crc, len(fw.data))
+				glog.Infof("bootFile %s = addr %d crc 0x%04x len %d",
+					name, fw.addr, fw.crc, len(fw.data))
 			}
 		case []byte:
-			bootFiles[name].data = v
+			bootFiles[name].data = make([]byte, len(v))
+                        copy(bootFiles[name].data, v) // FIXME: this is a work-around because
+                        // all the "v" we get are the same []byte over and over just with new
+                        // data inside, so all of the bootFiles[*].data end up sharing the same
+                        // underlying array, which doesn't work
+                        //glog.Infof("bootfile %s -> %x", name, v)
 		}
 	}
 }
@@ -68,22 +73,32 @@ type JeeBoot struct {
 
 // Start decoding JeeBoot packets.
 func (w *JeeBoot) Run() {
-	if m, ok := <-w.Cfg; ok {
-		data, err := json.Marshal(m) // TODO: messy, encode again, then decode!
-		flow.Check(err)
-		err = json.Unmarshal(data, &w.cfg)
-		flow.Check(err)
-		glog.Infof("config: %+v", w.cfg)
-		for _, f := range w.cfg.SwIDs {
-			w.Files.Send(f)
-		}
-		w.Files.Disconnect()
+        //glog.Infof("JeeBoot waiting for config")
+	for m := range w.Cfg {
+                switch m.(type) {
+                case flow.Tag:
+                        glog.Infof("  JeeBoot config file %s", m.(flow.Tag).Msg)
+                case map[string]interface{}:
+                        //glog.Infof("  JeeBoot config: %#v\n", m)
+		        data, err := json.Marshal(m) // TODO: messy, encode again, then decode!
+		        flow.Check(err)
+		        err = json.Unmarshal(data, &w.cfg)
+		        flow.Check(err)
+		        glog.Infof("config: %+v", w.cfg)
+		        for _, f := range w.cfg.SwIDs {
+			        w.Files.Send(f)
+		        }
+		        w.Files.Disconnect()
+                        break
+                default:
+                        glog.Warningf("  JeeBoot bad config: %#v", m)
+                }
 	}
 	for m := range w.In {
 		if req, ok := m.([]byte); ok {
-			reply := w.respondToRequest(req)
+			nodeId, reply := w.respondToRequest(req)
 			if reply != nil {
-				cmd := convertReplyToCmd(reply)
+				cmd := convertReplyToCmd(nodeId, reply)
 				// fmt.Println("JB reply #", len(req), "->", cmd)
 				w.Out.Send(cmd)
 			}
@@ -91,13 +106,16 @@ func (w *JeeBoot) Run() {
 	}
 }
 
-func convertReplyToCmd(reply interface{}) string {
+func convertReplyToCmd(nodeId byte, reply interface{}) []byte {
 	var buf bytes.Buffer
-	err := binary.Write(&buf, binary.LittleEndian, reply)
+	err := binary.Write(&buf, binary.LittleEndian, 0xE0 | nodeId)
+	flow.Check(err)
+	err = binary.Write(&buf, binary.LittleEndian, reply)
 	flow.Check(err)
 	fmt.Printf("JB reply %x\n", buf.Bytes())
-	cmd := strings.Replace(fmt.Sprintf("%v", buf.Bytes()), " ", ",", -1)
-	return cmd[1:len(cmd)-1] + ",81s" // FIXME: hard-coded 64+17!
+        return buf.Bytes()
+	//cmd := strings.Replace(fmt.Sprintf("%v", buf.Bytes()), " ", ",", -1)
+	//return cmd[1:len(cmd)-1] + ",81s" // FIXME: hard-coded 64+17!
 }
 
 type firmware struct {
@@ -131,8 +149,11 @@ func (c *config) LookupSwID(group, node uint8) uint16 {
 }
 
 func (c *config) GetFirmware(swId uint16) *firmware {
+        //for name, fw := range bootFiles {
+        //        glog.V(3).Infof("bootfile %s -> %x", name, fw.data)
+        //}
 	filename := c.SwIDs[strconv.Itoa(int(swId))]
-	// fmt.Println("gfw", swId, filename)
+	glog.V(2).Infof("SwID %d -> %s 0x%x", swId, filename, bootFiles[filename].crc)
 	return bootFiles[filename]
 }
 
@@ -179,10 +200,15 @@ type downloadReply struct {
 	Data    [64]uint8 // download payload
 }
 
-func (w *JeeBoot) respondToRequest(req []byte) interface{} {
+func nodeId(hdr byte) byte {
+        return hdr & 0x1f
+}
+
+func (w *JeeBoot) respondToRequest(req []byte) (byte, interface{}) {
 	// fmt.Printf("rtr %s %x %d\n", w.dev, req, len(req))
 	switch len(req) - 1 {
 
+        // Pairing request -- Assign HW ID if not set and network params (group/node)
 	case 22:
 		var preq pairingRequest
 		hdr := unpackReq(req, &preq)
@@ -192,17 +218,19 @@ func (w *JeeBoot) respondToRequest(req []byte) interface{} {
 			copy(reply.HwID[:], newRandomID())
 			fmt.Printf("assigning fresh hardware ID %x for board %d hdr %08b\n",
 				reply.HwID, preq.Board, hdr)
-			return reply
+			return 1, reply // using node=1 for pairing
 		}
+                // got a HwID, now lookup group, node, and swid
 		board, group, node := w.cfg.LookupHwID(preq.HwID[:])
-		glog.Infoln("key", preq.HwID, "b/g/n", board, group, node)
+		glog.Infof("key %x  board %x g%di%d", preq.HwID, board, group, node)
 		if board == preq.Board && group != 0 && node != 0 {
 			fmt.Printf("pair %x board %d hdr %08b\n", preq.HwID, board, hdr)
 			reply := pairingReply{Board: board, Group: group, NodeID: node}
-			return reply
+			return 1, reply // using node=1 for pairing
 		}
 		fmt.Printf("pair %x board %d - no entry\n", preq.HwID, board)
 
+        // Upgrade request -- Tell the node which software it's supposed to be running
 	case 8:
 		var ureq upgradeRequest
 		hdr := unpackReq(req, &ureq)
@@ -213,35 +241,41 @@ func (w *JeeBoot) respondToRequest(req []byte) interface{} {
 		if fw := w.cfg.GetFirmware(reply.SwID); fw != nil {
 			reply.SwSize = uint16(len(fw.data) >> 4)
 			reply.SwCheck = fw.crc
-			fmt.Printf("upgrade %v hdr %08b\n", reply, hdr)
-			return reply
+			fmt.Printf("upgrade hdr=%x to SwID=%d SwCheck=%x\n",
+                                hdr, reply.SwID, reply.SwCheck)
+			return nodeId(hdr), reply
 		}
+                fmt.Printf("cannot locate firmware for g%di%d with swID=%d\n",
+                        group, node, reply.SwID)
 
+        // Download request -- Send the node a payload of software bits
 	case 4:
 		var dreq downloadRequest
 		hdr := unpackReq(req, &dreq)
 		if fw := w.cfg.GetFirmware(dreq.SwID); fw != nil {
 			offset := 64 * dreq.SwIndex // FIXME hard-coded
 			reply := downloadReply{SwIDXor: dreq.SwID ^ dreq.SwIndex}
-			fmt.Println("len", len(fw.data), "offset", offset, offset+64)
+			fmt.Printf("SwID=%d len%d offset=%d..%d\n", dreq.SwID, len(fw.data),
+                                offset, offset+64)
+                        //fmt.Printf("Firmware: %#v\n", fw)
 			if int(offset+64) > len(fw.data) {
 				fmt.Printf("no data at %d..%d\n", offset, offset+64)
-				return &struct{ SwIDXor uint16 }{
+				return nodeId(hdr), &struct{ SwIDXor uint16 }{
 					SwIDXor: dreq.SwID ^ dreq.SwIndex,
 				}
 			}
 			for i, v := range fw.data[offset : offset+64] {
 				reply.Data[i] = v ^ uint8(211*i)
 			}
-			fmt.Printf("download hdr %08b\n", hdr)
-			return reply
+			//fmt.Printf("download hdr=%x data=%x\n", hdr, fw.data[offset : offset+64])
+			return nodeId(hdr), reply
 		}
 
 	default:
 		fmt.Printf("bad req? %d b = %d\n", len(req), req)
 	}
 
-	return nil
+	return 0, nil
 }
 
 func unpackReq(data []byte, req interface{}) (h uint8) {
