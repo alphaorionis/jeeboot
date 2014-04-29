@@ -4,10 +4,10 @@
 
 //===== LED FLASHES =====
 #if DEBUG & 1
-#define LED_DDR     DDRD
-#define LED_PORT    PORTD
-#define LED_PIN     PIND
-#define LED         PIND4
+#define LED_DDR     DDRB
+#define LED_PORT    PORTB
+#define LED_PIN     PINB
+#define LED         PINB1
 
 // Watchdog functions. These are only safe with interrupts turned off.
 static void watchdogReset() {

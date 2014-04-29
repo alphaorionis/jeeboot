@@ -10,7 +10,7 @@
 #define BASE_ADDR ((uint8_t*) 0x0)        // base address of user program
 #define CONFIG_ADDR (BASE_ADDR - sizeof(config)) // where config goes
 
-#define MAX_BACKOFF 4                     // std:12 -- 61*(2**MAX_BACKOFF) milliseconds
+#define MAX_BACKOFF 8                     // std:12 -- 61*(2**MAX_BACKOFF) milliseconds
 
 static uint16_t calcCRC (const void *start, int len) {
   const uint8_t *ptr = start;
@@ -214,6 +214,13 @@ static int appIsValid () {
   return curr == config.swCheck;
 }
 
+// invalidate the loaded app
+static void appInvalidate () {
+  config.swSize = 0;
+  config.swCheck = 0;
+  saveConfig();
+}
+
 static int sendUpgradeCheck () {
   // form upgrade check message
   struct UpgradeRequest request;
@@ -262,8 +269,13 @@ static int sendDownloadRequest (int index) {
 
 //===== Boot process =====
 
-static void bootLoaderLogic () {
+// go through the pairing, upgrade and boot process. The quick flag skips the pairing and does
+// just one upgrade check and if all is well it boots the sketch; but if the sketch is not
+// bootable or got changed then it reverts to the full process
+static void bootLoaderLogic (byte quick) {
   loadConfig();
+
+  if (quick) goto quick;
 
 top:
   
@@ -279,6 +291,7 @@ top:
     exponentialBackOff();
   }
   
+quick:
   // Upgrade check: figure out whether we have the right sketch loaded
   rf12_initialize(config.nodeId, RF12_BAND, config.group);
 
@@ -286,9 +299,11 @@ top:
   backOffCounter = 0;
   uint8_t deadline = 73; // 73->abort after ~ 4 hours
   while (!sendUpgradeCheck()) {
+    if (quick) break; // for a quick boot we don't retry
     if (--deadline == 0) goto top;
     exponentialBackOff();
   }
+  quick = 0; // if we retry this stuff we will do the full process
   
   // Download: if the app we have is not the right one then download the right one
   P("==Download\n");
@@ -308,7 +323,7 @@ top:
   P("==Ready!\n");
 }
 
-static void bootLoader () {
+static void bootLoader (byte quick) {
   sleep(20); // needed to make RFM69 work properly on power-up
   
   // this will not catch the runaway case when the server replies with data,
@@ -316,10 +331,11 @@ static void bootLoader () {
   // in this case, we'll constantly keep retrying... and drain the battery :(
   // to avoid this, an extra level of exponential back-off has been added here
   for (int backOff = 0; /*forever*/; ++backOff) {
-    bootLoaderLogic();
+    bootLoaderLogic(quick);
     if (appIsValid())
       break;
     P("  WRONG APP!\n");
     sleep(100L << (backOff & 0x0F));
+    quick = 0;
   }
 }

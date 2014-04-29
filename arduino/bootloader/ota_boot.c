@@ -11,8 +11,19 @@
 #include <avr/wdt.h>
 #include <util/crc16.h>
 
-// undef->none, 1->LED Port1-D, 2->serial 57600kbps
-#define DEBUG 3
+//===== CONFIGURATION =====
+
+// Enable debug functions (LED blinking and/or serial output)
+// 0->none, 1->LED Port1-D, 2->serial 57600kbps
+#define DEBUG 2
+// Set the board type and board version
+#define REMOTE_TYPE 0x100  // "board=1 version=0"
+// Check upgrade on watchdog reset
+#define WDT_UPGRADE 0
+// RF group to use for pairing protocol
+#define PAIRING_GROUP 212
+
+//===== END OF CONFIGURATION =====
 
 #define bit(b) (1 << (b))
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
@@ -23,9 +34,6 @@ typedef uint8_t byte;
 typedef uint16_t word;
 
 #define ARDUINO 1
-
-#define REMOTE_TYPE 0x100
-#define PAIRING_GROUP 212
 
 /* Timer 1 used for network time-out and for blinking LEDs */
 static void timer_init() {
@@ -59,6 +67,41 @@ static void sleep(uint32_t ms) {
 #include "ota_RF12.h"
 #include "loader.h"
 
+//===== BOOT PATTERN =====
+
+#define PATTADDR 0x100
+
+// save the pattern at boot time
+static uint32_t pattern __attribute__ ((section (".noinit")));
+void save_pattern(void) __attribute__ ((naked)) __attribute__ ((section (".init3")));
+void save_pattern(void) {
+  pattern = *(uint32_t*)(PATTADDR+0);
+}
+
+// pattern A says: reboot immediately on WDT reset
+static byte isPatternA() {
+#if 0
+  P("\nP:"); P_X16(pattern&0xffff); P_X16(pattern>>16);
+#endif
+  return pattern == 0xb00dbeef;
+}
+
+static void setPatternA() {
+  *(uint32_t *)PATTADDR = 0xb00dbeef;
+#if 0
+  P("\np:");
+  P_X16(*(uint16_t*)(PATTADDR+0));
+  P_X16(*(uint16_t*)(PATTADDR+2));
+#endif
+}
+
+// pattern B says: invalidate the sketch on WDT reset
+static byte isPatternB() {
+  return pattern == 0x0badf00d;
+}
+
+//===== MAIN =====
+
 /* The main function is in init9, which removes the interrupt vector table */
 /* we don't need. It is also 'naked', which means the compiler does not    */
 /* generate any entry or exit code itself. */
@@ -68,8 +111,8 @@ int main () {
   // cli();
   asm volatile ("clr __zero_reg__");
 
-  // find out whether we got here through a watchdog reset
-  byte launch = bitRead(MCUSR, EXTRF);
+  // read reset cause and clear it, make sure WDT is disabled
+  byte cause = MCUSR;
   MCUSR = 0;
   wdt_disable();
 
@@ -85,13 +128,43 @@ int main () {
 #if DEBUG & 1
   // Set LED pin as output
   LED_DDR |= _BV(LED);
+  LED_PIN |= _BV(LED); // necessary to turn off LED if LED is on when pin is low
 #endif
 
-  // similar to Adaboot no-wait mod
-  if (!launch) {
+#if 0
+  clock_prescale_set(clock_div_4);
+  P("\nc");
+  P_X8(cause);
+  P(" pA ");
+  P(isPatternA()?"Y":"N");
+  P_LN;
+#endif
+
+  // check whether the sketch is valid
+  loadConfig();
+  byte valid = appIsValid();
+
+  // if we got power-on reset or brown-out reset and the sketch is valid, run it
+  // if we got a wdt reset and the sketchy is valid and we have pattern A in RAM then run sketch
+  // this is similar to Adaboot no-wait mod
+  if ((valid && (cause & (1<<BORF) || cause & (1<<PORF)))
+  ||  (valid && (cause & (1<<WDRF) && isPatternA())))
+  {
     flash_led(2); // 1 flash
     clock_prescale_set(clock_div_1);
+    *(byte *)0x100 = config.group;
+    *(byte *)0x101 = config.nodeId;
     ((void(*)()) 0)(); // Jump to RST vector
+  }
+
+  byte quick = 0;
+  // we're gonna zero the target software ID to force an upgrade if we have an external reset
+  // or a WDT reset with pattern B in RAM
+  if (cause & (1<<EXTRF) || ( (cause & (1<<WDRF) && isPatternB()) )) {
+    appInvalidate();
+  // we do a single upgrade check and then run the sketch if we have a WDT reset and no RAM pattern
+  } else if (valid && (cause & (1<<WDRF))) {
+    quick = 1;
   }
 
   // switch to 4 MHz, the minimum rate needed to use the RFM12B
@@ -100,12 +173,13 @@ int main () {
   flash_led(4); // 2 flashes
   P("\n\nBOOT!\n");
 
-  bootLoader();
+  bootLoader(quick);
 
   // force a clean reset to launch the actual code
   P("APP\n");
   flash_led(6); // 3 flashes
   clock_prescale_set(clock_div_1);
+  setPatternA();
   wdt_enable(WDTO_15MS);
   for (;;)
     ;
