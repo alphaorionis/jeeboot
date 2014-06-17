@@ -3,1522 +3,2151 @@ ota_boot_atmega328.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         0000083c  00007000  00007000  00000074  2**1
+  0 .data         0000012e  00800100  00007d26  00000dba  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         00000d26  00007000  00007000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .bss          0000006f  00800100  00800100  000008b0  2**0
+  2 .bss          0000013e  0080022e  0080022e  00000ee8  2**0
                   ALLOC
-  2 .debug_aranges 00000028  00000000  00000000  000008b0  2**0
+  3 .stab         000021b4  00000000  00000000  00000ee8  2**2
                   CONTENTS, READONLY, DEBUGGING
-  3 .debug_pubnames 00000076  00000000  00000000  000008d8  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  4 .debug_info   00000c14  00000000  00000000  0000094e  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  5 .debug_abbrev 0000038b  00000000  00000000  00001562  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  6 .debug_line   00000898  00000000  00000000  000018ed  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  7 .debug_frame  00000100  00000000  00000000  00002188  2**2
-                  CONTENTS, READONLY, DEBUGGING
-  8 .debug_str    000003fe  00000000  00000000  00002288  2**0
-                  CONTENTS, READONLY, DEBUGGING
-  9 .debug_loc    00000394  00000000  00000000  00002686  2**0
-                  CONTENTS, READONLY, DEBUGGING
- 10 .debug_ranges 000001b0  00000000  00000000  00002a1a  2**0
+  4 .stabstr      000013e4  00000000  00000000  0000309c  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
 
 00007000 <__ctors_end>:
-    7000:	11 e0       	ldi	r17, 0x01	; 1
+    7000:	12 e0       	ldi	r17, 0x02	; 2
     7002:	a0 e0       	ldi	r26, 0x00	; 0
     7004:	b1 e0       	ldi	r27, 0x01	; 1
-    7006:	ec e3       	ldi	r30, 0x3C	; 60
-    7008:	f8 e7       	ldi	r31, 0x78	; 120
-    700a:	02 c0       	rjmp	.+4      	; 0x7010 <.do_copy_data_start>
-
-0000700c <.do_copy_data_loop>:
+    7006:	e6 e2       	ldi	r30, 0x26	; 38
+    7008:	fd e7       	ldi	r31, 0x7D	; 125
+    700a:	02 c0       	rjmp	.+4      	; 0x7010 <__ctors_end+0x10>
     700c:	05 90       	lpm	r0, Z+
     700e:	0d 92       	st	X+, r0
-
-00007010 <.do_copy_data_start>:
-    7010:	a0 30       	cpi	r26, 0x00	; 0
+    7010:	ae 32       	cpi	r26, 0x2E	; 46
     7012:	b1 07       	cpc	r27, r17
-    7014:	d9 f7       	brne	.-10     	; 0x700c <.do_copy_data_loop>
+    7014:	d9 f7       	brne	.-10     	; 0x700c <__ctors_end+0xc>
 
 00007016 <__do_clear_bss>:
-    7016:	11 e0       	ldi	r17, 0x01	; 1
-    7018:	a0 e0       	ldi	r26, 0x00	; 0
-    701a:	b1 e0       	ldi	r27, 0x01	; 1
+    7016:	13 e0       	ldi	r17, 0x03	; 3
+    7018:	ae e2       	ldi	r26, 0x2E	; 46
+    701a:	b2 e0       	ldi	r27, 0x02	; 2
     701c:	01 c0       	rjmp	.+2      	; 0x7020 <.do_clear_bss_start>
 
 0000701e <.do_clear_bss_loop>:
     701e:	1d 92       	st	X+, r1
 
 00007020 <.do_clear_bss_start>:
-    7020:	af 36       	cpi	r26, 0x6F	; 111
+    7020:	ac 36       	cpi	r26, 0x6C	; 108
     7022:	b1 07       	cpc	r27, r17
     7024:	e1 f7       	brne	.-8      	; 0x701e <.do_clear_bss_loop>
 
 00007026 <main>:
-/* The main function is in init9, which removes the interrupt vector table */
-/* we don't need. It is also 'naked', which means the compiler does not    */
-/* generate any entry or exit code itself. */
-int main(void) __attribute__ ((naked)) __attribute__ ((section (".init9")));
+    7026:	cd b7       	in	r28, 0x3d	; 61
+    7028:	de b7       	in	r29, 0x3e	; 62
+    702a:	a2 97       	sbiw	r28, 0x22	; 34
+    702c:	de bf       	out	0x3e, r29	; 62
+    702e:	cd bf       	out	0x3d, r28	; 61
+    7030:	11 24       	eor	r1, r1
+    7032:	94 b7       	in	r25, 0x34	; 52
+    7034:	14 be       	out	0x34, r1	; 52
+    7036:	88 e1       	ldi	r24, 0x18	; 24
+    7038:	0f b6       	in	r0, 0x3f	; 63
+    703a:	f8 94       	cli
+    703c:	80 93 60 00 	sts	0x0060, r24
+    7040:	10 92 60 00 	sts	0x0060, r1
+    7044:	0f be       	out	0x3f, r0	; 63
+    7046:	25 e0       	ldi	r18, 0x05	; 5
+    7048:	20 93 81 00 	sts	0x0081, r18
+    704c:	22 e0       	ldi	r18, 0x02	; 2
+    704e:	20 93 c0 00 	sts	0x00C0, r18
+    7052:	80 93 c1 00 	sts	0x00C1, r24
+    7056:	86 e0       	ldi	r24, 0x06	; 6
+    7058:	80 93 c2 00 	sts	0x00C2, r24
+    705c:	88 e0       	ldi	r24, 0x08	; 8
+    705e:	80 93 c4 00 	sts	0x00C4, r24
+    7062:	91 fd       	sbrc	r25, 1
+    7064:	0b c0       	rjmp	.+22     	; 0x707c <main+0x56>
+    7066:	e0 e0       	ldi	r30, 0x00	; 0
+    7068:	f0 e0       	ldi	r31, 0x00	; 0
+    706a:	80 e8       	ldi	r24, 0x80	; 128
+    706c:	0f b6       	in	r0, 0x3f	; 63
+    706e:	f8 94       	cli
+    7070:	80 93 61 00 	sts	0x0061, r24
+    7074:	e0 93 61 00 	sts	0x0061, r30
+    7078:	0f be       	out	0x3f, r0	; 63
+    707a:	09 95       	icall
+    707c:	82 e0       	ldi	r24, 0x02	; 2
+    707e:	90 e0       	ldi	r25, 0x00	; 0
+    7080:	20 e8       	ldi	r18, 0x80	; 128
+    7082:	0f b6       	in	r0, 0x3f	; 63
+    7084:	f8 94       	cli
+    7086:	20 93 61 00 	sts	0x0061, r18
+    708a:	80 93 61 00 	sts	0x0061, r24
+    708e:	0f be       	out	0x3f, r0	; 63
+    7090:	89 e5       	ldi	r24, 0x59	; 89
+    7092:	91 e0       	ldi	r25, 0x01	; 1
+    7094:	70 d2       	rcall	.+1248   	; 0x7576 <P>
+    7096:	64 e1       	ldi	r22, 0x14	; 20
+    7098:	70 e0       	ldi	r23, 0x00	; 0
+    709a:	80 e0       	ldi	r24, 0x00	; 0
+    709c:	90 e0       	ldi	r25, 0x00	; 0
+    709e:	37 d2       	rcall	.+1134   	; 0x750e <sleep>
+    70a0:	88 24       	eor	r8, r8
+    70a2:	99 24       	eor	r9, r9
+    70a4:	1e 01       	movw	r2, r28
+    70a6:	08 94       	sec
+    70a8:	21 1c       	adc	r2, r1
+    70aa:	31 1c       	adc	r3, r1
+    70ac:	ac e4       	ldi	r26, 0x4C	; 76
+    70ae:	b3 e0       	ldi	r27, 0x03	; 3
+    70b0:	e0 ee       	ldi	r30, 0xE0	; 224
+    70b2:	ff ef       	ldi	r31, 0xFF	; 255
+    70b4:	84 91       	lpm	r24, Z+
+    70b6:	8d 93       	st	X+, r24
+    70b8:	31 96       	adiw	r30, 0x01	; 1
+    70ba:	e1 f7       	brne	.-8      	; 0x70b4 <main+0x8e>
+    70bc:	82 e6       	ldi	r24, 0x62	; 98
+    70be:	91 e0       	ldi	r25, 0x01	; 1
+    70c0:	5a d2       	rcall	.+1204   	; 0x7576 <P>
+    70c2:	a1 d4       	rcall	.+2370   	; 0x7a06 <P_A.clone.1>
+    70c4:	8c e4       	ldi	r24, 0x4C	; 76
+    70c6:	93 e0       	ldi	r25, 0x03	; 3
+    70c8:	60 e2       	ldi	r22, 0x20	; 32
+    70ca:	70 e0       	ldi	r23, 0x00	; 0
+    70cc:	98 d3       	rcall	.+1840   	; 0x77fe <calcCRC>
+    70ce:	00 97       	sbiw	r24, 0x00	; 0
+    70d0:	d9 f1       	breq	.+118    	; 0x7148 <main+0x122>
+    70d2:	8a e6       	ldi	r24, 0x6A	; 106
+    70d4:	91 e0       	ldi	r25, 0x01	; 1
+    70d6:	4f d2       	rcall	.+1182   	; 0x7576 <P>
+    70d8:	80 e7       	ldi	r24, 0x70	; 112
+    70da:	91 e0       	ldi	r25, 0x01	; 1
+    70dc:	4c d2       	rcall	.+1176   	; 0x7576 <P>
+    70de:	80 91 4c 03 	lds	r24, 0x034C
+    70e2:	56 d2       	rcall	.+1196   	; 0x7590 <P_X8>
+    70e4:	83 e8       	ldi	r24, 0x83	; 131
+    70e6:	91 e0       	ldi	r25, 0x01	; 1
+    70e8:	46 d2       	rcall	.+1164   	; 0x7576 <P>
+    70ea:	80 91 51 03 	lds	r24, 0x0351
+    70ee:	50 d2       	rcall	.+1184   	; 0x7590 <P_X8>
+    70f0:	85 e9       	ldi	r24, 0x95	; 149
+    70f2:	91 e0       	ldi	r25, 0x01	; 1
+    70f4:	40 d2       	rcall	.+1152   	; 0x7576 <P>
+    70f6:	04 e5       	ldi	r16, 0x54	; 84
+    70f8:	13 e0       	ldi	r17, 0x03	; 3
+    70fa:	78 01       	movw	r14, r16
+    70fc:	f7 01       	movw	r30, r14
+    70fe:	81 91       	ld	r24, Z+
+    7100:	7f 01       	movw	r14, r30
+    7102:	46 d2       	rcall	.+1164   	; 0x7590 <P_X8>
+    7104:	f4 e6       	ldi	r31, 0x64	; 100
+    7106:	ef 16       	cp	r14, r31
+    7108:	f3 e0       	ldi	r31, 0x03	; 3
+    710a:	ff 06       	cpc	r15, r31
+    710c:	b9 f7       	brne	.-18     	; 0x70fc <main+0xd6>
+    710e:	80 e2       	ldi	r24, 0x20	; 32
+    7110:	ec e4       	ldi	r30, 0x4C	; 76
+    7112:	f3 e0       	ldi	r31, 0x03	; 3
+    7114:	11 92       	st	Z+, r1
+    7116:	8a 95       	dec	r24
+    7118:	e9 f7       	brne	.-6      	; 0x7114 <main+0xee>
+    711a:	80 e7       	ldi	r24, 0x70	; 112
+    711c:	91 e0       	ldi	r25, 0x01	; 1
+    711e:	2b d2       	rcall	.+1110   	; 0x7576 <P>
+    7120:	80 91 4c 03 	lds	r24, 0x034C
+    7124:	35 d2       	rcall	.+1130   	; 0x7590 <P_X8>
+    7126:	83 e8       	ldi	r24, 0x83	; 131
+    7128:	91 e0       	ldi	r25, 0x01	; 1
+    712a:	25 d2       	rcall	.+1098   	; 0x7576 <P>
+    712c:	80 91 51 03 	lds	r24, 0x0351
+    7130:	2f d2       	rcall	.+1118   	; 0x7590 <P_X8>
+    7132:	85 e9       	ldi	r24, 0x95	; 149
+    7134:	91 e0       	ldi	r25, 0x01	; 1
+    7136:	1f d2       	rcall	.+1086   	; 0x7576 <P>
+    7138:	f8 01       	movw	r30, r16
+    713a:	81 91       	ld	r24, Z+
+    713c:	8f 01       	movw	r16, r30
+    713e:	28 d2       	rcall	.+1104   	; 0x7590 <P_X8>
+    7140:	f3 e0       	ldi	r31, 0x03	; 3
+    7142:	04 36       	cpi	r16, 0x64	; 100
+    7144:	1f 07       	cpc	r17, r31
+    7146:	c1 f7       	brne	.-16     	; 0x7138 <main+0x112>
+    7148:	86 ea       	ldi	r24, 0xA6	; 166
+    714a:	91 e0       	ldi	r25, 0x01	; 1
+    714c:	14 d2       	rcall	.+1064   	; 0x7576 <P>
+    714e:	80 91 64 03 	lds	r24, 0x0364
+    7152:	90 91 65 03 	lds	r25, 0x0365
+    7156:	30 d2       	rcall	.+1120   	; 0x75b8 <P_X16>
+    7158:	83 eb       	ldi	r24, 0xB3	; 179
+    715a:	91 e0       	ldi	r25, 0x01	; 1
+    715c:	0c d2       	rcall	.+1048   	; 0x7576 <P>
+    715e:	80 91 66 03 	lds	r24, 0x0366
+    7162:	90 91 67 03 	lds	r25, 0x0367
+    7166:	28 d2       	rcall	.+1104   	; 0x75b8 <P_X16>
+    7168:	88 eb       	ldi	r24, 0xB8	; 184
+    716a:	91 e0       	ldi	r25, 0x01	; 1
+    716c:	04 d2       	rcall	.+1032   	; 0x7576 <P>
+    716e:	80 91 68 03 	lds	r24, 0x0368
+    7172:	90 91 69 03 	lds	r25, 0x0369
+    7176:	20 d2       	rcall	.+1088   	; 0x75b8 <P_X16>
+    7178:	09 d2       	rcall	.+1042   	; 0x758c <P_LN>
+    717a:	8e eb       	ldi	r24, 0xBE	; 190
+    717c:	91 e0       	ldi	r25, 0x01	; 1
+    717e:	fb d1       	rcall	.+1014   	; 0x7576 <P>
+    7180:	42 d4       	rcall	.+2180   	; 0x7a06 <P_A.clone.1>
+    7182:	61 2c       	mov	r6, r1
+    7184:	f1 e0       	ldi	r31, 0x01	; 1
+    7186:	7f 2e       	mov	r7, r31
+    7188:	e5 e0       	ldi	r30, 0x05	; 5
+    718a:	4e 2e       	mov	r4, r30
+    718c:	51 2c       	mov	r5, r1
+    718e:	4c 0e       	add	r4, r28
+    7190:	5d 1e       	adc	r5, r29
+    7192:	81 e0       	ldi	r24, 0x01	; 1
+    7194:	64 ed       	ldi	r22, 0xD4	; 212
+    7196:	4d d4       	rcall	.+2202   	; 0x7a32 <rf12_initialize.clone.2>
+    7198:	89 ec       	ldi	r24, 0xC9	; 201
+    719a:	91 e0       	ldi	r25, 0x01	; 1
+    719c:	ec d1       	rcall	.+984    	; 0x7576 <P>
+    719e:	10 92 2e 02 	sts	0x022E, r1
+    71a2:	8c e4       	ldi	r24, 0x4C	; 76
+    71a4:	93 e0       	ldi	r25, 0x03	; 3
+    71a6:	60 e2       	ldi	r22, 0x20	; 32
+    71a8:	70 e0       	ldi	r23, 0x00	; 0
+    71aa:	29 d3       	rcall	.+1618   	; 0x77fe <calcCRC>
+    71ac:	00 97       	sbiw	r24, 0x00	; 0
+    71ae:	19 f0       	breq	.+6      	; 0x71b6 <main+0x190>
+    71b0:	81 ed       	ldi	r24, 0xD1	; 209
+    71b2:	91 e0       	ldi	r25, 0x01	; 1
+    71b4:	e0 d1       	rcall	.+960    	; 0x7576 <P>
+    71b6:	7e 86       	std	Y+14, r7	; 0x0e
+    71b8:	6d 86       	std	Y+13, r6	; 0x0d
+    71ba:	80 91 50 03 	lds	r24, 0x0350
+    71be:	8f 87       	std	Y+15, r24	; 0x0f
+    71c0:	80 91 51 03 	lds	r24, 0x0351
+    71c4:	88 8b       	std	Y+16, r24	; 0x10
+    71c6:	84 e5       	ldi	r24, 0x54	; 84
+    71c8:	93 e0       	ldi	r25, 0x03	; 3
+    71ca:	60 e1       	ldi	r22, 0x10	; 16
+    71cc:	70 e0       	ldi	r23, 0x00	; 0
+    71ce:	17 d3       	rcall	.+1582   	; 0x77fe <calcCRC>
+    71d0:	9a 8b       	std	Y+18, r25	; 0x12
+    71d2:	89 8b       	std	Y+17, r24	; 0x11
+    71d4:	de 01       	movw	r26, r28
+    71d6:	53 96       	adiw	r26, 0x13	; 19
+    71d8:	e3 ef       	ldi	r30, 0xF3	; 243
+    71da:	f2 e0       	ldi	r31, 0x02	; 2
+    71dc:	80 e1       	ldi	r24, 0x10	; 16
+    71de:	01 90       	ld	r0, Z+
+    71e0:	0d 92       	st	X+, r0
+    71e2:	81 50       	subi	r24, 0x01	; 1
+    71e4:	e1 f7       	brne	.-8      	; 0x71de <main+0x1b8>
+    71e6:	ce 01       	movw	r24, r28
+    71e8:	0d 96       	adiw	r24, 0x0d	; 13
+    71ea:	66 e1       	ldi	r22, 0x16	; 22
+    71ec:	70 e0       	ldi	r23, 0x00	; 0
+    71ee:	40 e4       	ldi	r20, 0x40	; 64
+    71f0:	50 e0       	ldi	r21, 0x00	; 0
+    71f2:	dc d4       	rcall	.+2488   	; 0x7bac <sendRequest>
+    71f4:	18 16       	cp	r1, r24
+    71f6:	19 06       	cpc	r1, r25
+    71f8:	1c f5       	brge	.+70     	; 0x7240 <main+0x21a>
+    71fa:	80 91 05 03 	lds	r24, 0x0305
+    71fe:	84 31       	cpi	r24, 0x14	; 20
+    7200:	f9 f4       	brne	.+62     	; 0x7240 <main+0x21a>
+    7202:	80 91 08 03 	lds	r24, 0x0308
+    7206:	80 93 50 03 	sts	0x0350, r24
+    720a:	80 91 09 03 	lds	r24, 0x0309
+    720e:	80 93 51 03 	sts	0x0351, r24
+    7212:	a4 e5       	ldi	r26, 0x54	; 84
+    7214:	b3 e0       	ldi	r27, 0x03	; 3
+    7216:	ea e0       	ldi	r30, 0x0A	; 10
+    7218:	f3 e0       	ldi	r31, 0x03	; 3
+    721a:	80 e1       	ldi	r24, 0x10	; 16
+    721c:	01 90       	ld	r0, Z+
+    721e:	0d 92       	st	X+, r0
+    7220:	81 50       	subi	r24, 0x01	; 1
+    7222:	e1 f7       	brne	.-8      	; 0x721c <main+0x1f6>
+    7224:	75 d3       	rcall	.+1770   	; 0x7910 <saveConfig>
+    7226:	8e ed       	ldi	r24, 0xDE	; 222
+    7228:	91 e0       	ldi	r25, 0x01	; 1
+    722a:	a5 d1       	rcall	.+842    	; 0x7576 <P>
+    722c:	80 91 51 03 	lds	r24, 0x0351
+    7230:	af d1       	rcall	.+862    	; 0x7590 <P_X8>
+    7232:	85 e3       	ldi	r24, 0x35	; 53
+    7234:	91 e0       	ldi	r25, 0x01	; 1
+    7236:	9f d1       	rcall	.+830    	; 0x7576 <P>
+    7238:	80 91 50 03 	lds	r24, 0x0350
+    723c:	a9 d1       	rcall	.+850    	; 0x7590 <P_X8>
+    723e:	a6 d1       	rcall	.+844    	; 0x758c <P_LN>
+    7240:	60 91 50 03 	lds	r22, 0x0350
+    7244:	66 23       	and	r22, r22
+    7246:	21 f0       	breq	.+8      	; 0x7250 <main+0x22a>
+    7248:	80 91 51 03 	lds	r24, 0x0351
+    724c:	88 23       	and	r24, r24
+    724e:	11 f4       	brne	.+4      	; 0x7254 <main+0x22e>
+    7250:	17 d3       	rcall	.+1582   	; 0x7880 <exponentialBackOff>
+    7252:	a7 cf       	rjmp	.-178    	; 0x71a2 <main+0x17c>
+    7254:	ee d3       	rcall	.+2012   	; 0x7a32 <rf12_initialize.clone.2>
+    7256:	84 ee       	ldi	r24, 0xE4	; 228
+    7258:	91 e0       	ldi	r25, 0x01	; 1
+    725a:	8d d1       	rcall	.+794    	; 0x7576 <P>
+    725c:	10 92 2e 02 	sts	0x022E, r1
+    7260:	09 e4       	ldi	r16, 0x49	; 73
+    7262:	01 c0       	rjmp	.+2      	; 0x7266 <main+0x240>
+    7264:	0d d3       	rcall	.+1562   	; 0x7880 <exponentialBackOff>
+    7266:	7e 82       	std	Y+6, r7	; 0x06
+    7268:	6d 82       	std	Y+5, r6	; 0x05
+    726a:	80 91 64 03 	lds	r24, 0x0364
+    726e:	90 91 65 03 	lds	r25, 0x0365
+    7272:	98 87       	std	Y+8, r25	; 0x08
+    7274:	8f 83       	std	Y+7, r24	; 0x07
+    7276:	80 91 66 03 	lds	r24, 0x0366
+    727a:	90 91 67 03 	lds	r25, 0x0367
+    727e:	9a 87       	std	Y+10, r25	; 0x0a
+    7280:	89 87       	std	Y+9, r24	; 0x09
+    7282:	80 91 68 03 	lds	r24, 0x0368
+    7286:	90 91 69 03 	lds	r25, 0x0369
+    728a:	9c 87       	std	Y+12, r25	; 0x0c
+    728c:	8b 87       	std	Y+11, r24	; 0x0b
+    728e:	c2 01       	movw	r24, r4
+    7290:	68 e0       	ldi	r22, 0x08	; 8
+    7292:	70 e0       	ldi	r23, 0x00	; 0
+    7294:	40 e0       	ldi	r20, 0x00	; 0
+    7296:	50 e0       	ldi	r21, 0x00	; 0
+    7298:	89 d4       	rcall	.+2322   	; 0x7bac <sendRequest>
+    729a:	18 16       	cp	r1, r24
+    729c:	19 06       	cpc	r1, r25
+    729e:	0c f0       	brlt	.+2      	; 0x72a2 <main+0x27c>
+    72a0:	41 c0       	rjmp	.+130    	; 0x7324 <main+0x2fe>
+    72a2:	80 91 05 03 	lds	r24, 0x0305
+    72a6:	88 30       	cpi	r24, 0x08	; 8
+    72a8:	e9 f5       	brne	.+122    	; 0x7324 <main+0x2fe>
+    72aa:	80 91 08 03 	lds	r24, 0x0308
+    72ae:	90 91 09 03 	lds	r25, 0x0309
+    72b2:	90 93 65 03 	sts	0x0365, r25
+    72b6:	80 93 64 03 	sts	0x0364, r24
+    72ba:	80 91 0a 03 	lds	r24, 0x030A
+    72be:	90 91 0b 03 	lds	r25, 0x030B
+    72c2:	90 93 67 03 	sts	0x0367, r25
+    72c6:	80 93 66 03 	sts	0x0366, r24
+    72ca:	80 91 0c 03 	lds	r24, 0x030C
+    72ce:	90 91 0d 03 	lds	r25, 0x030D
+    72d2:	90 93 69 03 	sts	0x0369, r25
+    72d6:	80 93 68 03 	sts	0x0368, r24
+    72da:	1a d3       	rcall	.+1588   	; 0x7910 <saveConfig>
+    72dc:	8f ee       	ldi	r24, 0xEF	; 239
+    72de:	91 e0       	ldi	r25, 0x01	; 1
+    72e0:	4a d1       	rcall	.+660    	; 0x7576 <P>
+    72e2:	80 91 64 03 	lds	r24, 0x0364
+    72e6:	90 91 65 03 	lds	r25, 0x0365
+    72ea:	66 d1       	rcall	.+716    	; 0x75b8 <P_X16>
+    72ec:	83 eb       	ldi	r24, 0xB3	; 179
+    72ee:	91 e0       	ldi	r25, 0x01	; 1
+    72f0:	42 d1       	rcall	.+644    	; 0x7576 <P>
+    72f2:	80 91 66 03 	lds	r24, 0x0366
+    72f6:	90 91 67 03 	lds	r25, 0x0367
+    72fa:	5e d1       	rcall	.+700    	; 0x75b8 <P_X16>
+    72fc:	88 eb       	ldi	r24, 0xB8	; 184
+    72fe:	91 e0       	ldi	r25, 0x01	; 1
+    7300:	3a d1       	rcall	.+628    	; 0x7576 <P>
+    7302:	80 91 68 03 	lds	r24, 0x0368
+    7306:	90 91 69 03 	lds	r25, 0x0369
+    730a:	56 d1       	rcall	.+684    	; 0x75b8 <P_X16>
+    730c:	3f d1       	rcall	.+638    	; 0x758c <P_LN>
+    730e:	8e eb       	ldi	r24, 0xBE	; 190
+    7310:	91 e0       	ldi	r25, 0x01	; 1
+    7312:	31 d1       	rcall	.+610    	; 0x7576 <P>
+    7314:	78 d3       	rcall	.+1776   	; 0x7a06 <P_A.clone.1>
+    7316:	8f ef       	ldi	r24, 0xFF	; 255
+    7318:	91 e0       	ldi	r25, 0x01	; 1
+    731a:	2d d1       	rcall	.+602    	; 0x7576 <P>
+    731c:	2a d3       	rcall	.+1620   	; 0x7972 <appIsValid>
+    731e:	00 97       	sbiw	r24, 0x00	; 0
+    7320:	29 f0       	breq	.+10     	; 0x732c <main+0x306>
+    7322:	87 c0       	rjmp	.+270    	; 0x7432 <main+0x40c>
+    7324:	01 50       	subi	r16, 0x01	; 1
+    7326:	09 f0       	breq	.+2      	; 0x732a <main+0x304>
+    7328:	9d cf       	rjmp	.-198    	; 0x7264 <main+0x23e>
+    732a:	33 cf       	rjmp	.-410    	; 0x7192 <main+0x16c>
+    732c:	00 91 66 03 	lds	r16, 0x0366
+    7330:	10 91 67 03 	lds	r17, 0x0367
+    7334:	74 e0       	ldi	r23, 0x04	; 4
+    7336:	00 0f       	add	r16, r16
+    7338:	11 1f       	adc	r17, r17
+    733a:	7a 95       	dec	r23
+    733c:	e1 f7       	brne	.-8      	; 0x7336 <main+0x310>
+    733e:	01 5c       	subi	r16, 0xC1	; 193
+    7340:	1f 4f       	sbci	r17, 0xFF	; 255
+    7342:	66 e0       	ldi	r22, 0x06	; 6
+    7344:	16 95       	lsr	r17
+    7346:	07 95       	ror	r16
+    7348:	6a 95       	dec	r22
+    734a:	e1 f7       	brne	.-8      	; 0x7344 <main+0x31e>
+    734c:	ee 24       	eor	r14, r14
+    734e:	ff 24       	eor	r15, r15
+    7350:	cc 24       	eor	r12, r12
+    7352:	dd 24       	eor	r13, r13
+    7354:	51 c0       	rjmp	.+162    	; 0x73f8 <main+0x3d2>
+    7356:	10 92 2e 02 	sts	0x022E, r1
+    735a:	59 e4       	ldi	r21, 0x49	; 73
+    735c:	b5 2e       	mov	r11, r21
+    735e:	01 c0       	rjmp	.+2      	; 0x7362 <main+0x33c>
+    7360:	8f d2       	rcall	.+1310   	; 0x7880 <exponentialBackOff>
+    7362:	80 91 64 03 	lds	r24, 0x0364
+    7366:	90 91 65 03 	lds	r25, 0x0365
+    736a:	9a 83       	std	Y+2, r25	; 0x02
+    736c:	89 83       	std	Y+1, r24	; 0x01
+    736e:	dc 82       	std	Y+4, r13	; 0x04
+    7370:	cb 82       	std	Y+3, r12	; 0x03
+    7372:	c1 01       	movw	r24, r2
+    7374:	64 e0       	ldi	r22, 0x04	; 4
+    7376:	70 e0       	ldi	r23, 0x00	; 0
+    7378:	40 e0       	ldi	r20, 0x00	; 0
+    737a:	50 e0       	ldi	r21, 0x00	; 0
+    737c:	17 d4       	rcall	.+2094   	; 0x7bac <sendRequest>
+    737e:	18 16       	cp	r1, r24
+    7380:	19 06       	cpc	r1, r25
+    7382:	b4 f5       	brge	.+108    	; 0x73f0 <main+0x3ca>
+    7384:	80 91 05 03 	lds	r24, 0x0305
+    7388:	82 34       	cpi	r24, 0x42	; 66
+    738a:	91 f5       	brne	.+100    	; 0x73f0 <main+0x3ca>
+    738c:	8b 81       	ldd	r24, Y+3	; 0x03
+    738e:	9c 81       	ldd	r25, Y+4	; 0x04
+    7390:	29 81       	ldd	r18, Y+1	; 0x01
+    7392:	3a 81       	ldd	r19, Y+2	; 0x02
+    7394:	82 27       	eor	r24, r18
+    7396:	93 27       	eor	r25, r19
+    7398:	20 91 06 03 	lds	r18, 0x0306
+    739c:	30 91 07 03 	lds	r19, 0x0307
+    73a0:	28 17       	cp	r18, r24
+    73a2:	39 07       	cpc	r19, r25
+    73a4:	29 f5       	brne	.+74     	; 0x73f0 <main+0x3ca>
+    73a6:	20 e0       	ldi	r18, 0x00	; 0
+    73a8:	85 e0       	ldi	r24, 0x05	; 5
+    73aa:	90 e0       	ldi	r25, 0x00	; 0
+    73ac:	fc 01       	movw	r30, r24
+    73ae:	ed 5f       	subi	r30, 0xFD	; 253
+    73b0:	fc 4f       	sbci	r31, 0xFC	; 252
+    73b2:	30 81       	ld	r19, Z
+    73b4:	32 27       	eor	r19, r18
+    73b6:	30 83       	st	Z, r19
+    73b8:	01 96       	adiw	r24, 0x01	; 1
+    73ba:	2d 52       	subi	r18, 0x2D	; 45
+    73bc:	20 3c       	cpi	r18, 0xC0	; 192
+    73be:	b1 f7       	brne	.-20     	; 0x73ac <main+0x386>
+    73c0:	c7 01       	movw	r24, r14
+    73c2:	68 e0       	ldi	r22, 0x08	; 8
+    73c4:	73 e0       	ldi	r23, 0x03	; 3
+    73c6:	40 e4       	ldi	r20, 0x40	; 64
+    73c8:	78 d2       	rcall	.+1264   	; 0x78ba <fillFlash>
+    73ca:	8b e0       	ldi	r24, 0x0B	; 11
+    73cc:	92 e0       	ldi	r25, 0x02	; 2
+    73ce:	d3 d0       	rcall	.+422    	; 0x7576 <P>
+    73d0:	8b 81       	ldd	r24, Y+3	; 0x03
+    73d2:	de d0       	rcall	.+444    	; 0x7590 <P_X8>
+    73d4:	8e e0       	ldi	r24, 0x0E	; 14
+    73d6:	92 e0       	ldi	r25, 0x02	; 2
+    73d8:	ce d0       	rcall	.+412    	; 0x7576 <P>
+    73da:	c7 01       	movw	r24, r14
+    73dc:	ed d0       	rcall	.+474    	; 0x75b8 <P_X16>
+    73de:	d6 d0       	rcall	.+428    	; 0x758c <P_LN>
+    73e0:	08 94       	sec
+    73e2:	c1 1c       	adc	r12, r1
+    73e4:	d1 1c       	adc	r13, r1
+    73e6:	80 e4       	ldi	r24, 0x40	; 64
+    73e8:	90 e0       	ldi	r25, 0x00	; 0
+    73ea:	e8 0e       	add	r14, r24
+    73ec:	f9 1e       	adc	r15, r25
+    73ee:	04 c0       	rjmp	.+8      	; 0x73f8 <main+0x3d2>
+    73f0:	ba 94       	dec	r11
+    73f2:	09 f0       	breq	.+2      	; 0x73f6 <main+0x3d0>
+    73f4:	b5 cf       	rjmp	.-150    	; 0x7360 <main+0x33a>
+    73f6:	cd ce       	rjmp	.-614    	; 0x7192 <main+0x16c>
+    73f8:	c0 16       	cp	r12, r16
+    73fa:	d1 06       	cpc	r13, r17
+    73fc:	0c f4       	brge	.+2      	; 0x7400 <main+0x3da>
+    73fe:	ab cf       	rjmp	.-170    	; 0x7356 <main+0x330>
+    7400:	78 01       	movw	r14, r16
+    7402:	46 e0       	ldi	r20, 0x06	; 6
+    7404:	ee 0c       	add	r14, r14
+    7406:	ff 1c       	adc	r15, r15
+    7408:	4a 95       	dec	r20
+    740a:	e1 f7       	brne	.-8      	; 0x7404 <main+0x3de>
+    740c:	87 01       	movw	r16, r14
+    740e:	0f 77       	andi	r16, 0x7F	; 127
+    7410:	10 70       	andi	r17, 0x00	; 0
+    7412:	e6 fe       	sbrs	r14, 6
+    7414:	0e c0       	rjmp	.+28     	; 0x7432 <main+0x40c>
+    7416:	40 e8       	ldi	r20, 0x80	; 128
+    7418:	50 e0       	ldi	r21, 0x00	; 0
+    741a:	40 1b       	sub	r20, r16
+    741c:	51 0b       	sbc	r21, r17
+    741e:	c8 01       	movw	r24, r16
+    7420:	8d 5c       	subi	r24, 0xCD	; 205
+    7422:	9d 4f       	sbci	r25, 0xFD	; 253
+    7424:	6f ef       	ldi	r22, 0xFF	; 255
+    7426:	70 e0       	ldi	r23, 0x00	; 0
+    7428:	77 d4       	rcall	.+2286   	; 0x7d18 <memset>
+    742a:	c7 01       	movw	r24, r14
+    742c:	80 1b       	sub	r24, r16
+    742e:	91 0b       	sbc	r25, r17
+    7430:	fb d1       	rcall	.+1014   	; 0x7828 <writeFlash>
+    7432:	81 e1       	ldi	r24, 0x11	; 17
+    7434:	92 e0       	ldi	r25, 0x02	; 2
+    7436:	9f d0       	rcall	.+318    	; 0x7576 <P>
+    7438:	9c d2       	rcall	.+1336   	; 0x7972 <appIsValid>
+    743a:	00 97       	sbiw	r24, 0x00	; 0
+    743c:	b1 f4       	brne	.+44     	; 0x746a <main+0x444>
+    743e:	8b e1       	ldi	r24, 0x1B	; 27
+    7440:	92 e0       	ldi	r25, 0x02	; 2
+    7442:	99 d0       	rcall	.+306    	; 0x7576 <P>
+    7444:	94 01       	movw	r18, r8
+    7446:	2f 70       	andi	r18, 0x0F	; 15
+    7448:	30 70       	andi	r19, 0x00	; 0
+    744a:	64 e6       	ldi	r22, 0x64	; 100
+    744c:	70 e0       	ldi	r23, 0x00	; 0
+    744e:	80 e0       	ldi	r24, 0x00	; 0
+    7450:	90 e0       	ldi	r25, 0x00	; 0
+    7452:	04 c0       	rjmp	.+8      	; 0x745c <main+0x436>
+    7454:	66 0f       	add	r22, r22
+    7456:	77 1f       	adc	r23, r23
+    7458:	88 1f       	adc	r24, r24
+    745a:	99 1f       	adc	r25, r25
+    745c:	2a 95       	dec	r18
+    745e:	d2 f7       	brpl	.-12     	; 0x7454 <main+0x42e>
+    7460:	56 d0       	rcall	.+172    	; 0x750e <sleep>
+    7462:	08 94       	sec
+    7464:	81 1c       	adc	r8, r1
+    7466:	91 1c       	adc	r9, r1
+    7468:	21 ce       	rjmp	.-958    	; 0x70ac <main+0x86>
+    746a:	89 e2       	ldi	r24, 0x29	; 41
+    746c:	92 e0       	ldi	r25, 0x02	; 2
+    746e:	83 d0       	rcall	.+262    	; 0x7576 <P>
+    7470:	80 e0       	ldi	r24, 0x00	; 0
+    7472:	90 e0       	ldi	r25, 0x00	; 0
+    7474:	20 e8       	ldi	r18, 0x80	; 128
+    7476:	0f b6       	in	r0, 0x3f	; 63
+    7478:	f8 94       	cli
+    747a:	20 93 61 00 	sts	0x0061, r18
+    747e:	80 93 61 00 	sts	0x0061, r24
+    7482:	0f be       	out	0x3f, r0	; 63
+    7484:	28 e0       	ldi	r18, 0x08	; 8
+    7486:	88 e1       	ldi	r24, 0x18	; 24
+    7488:	90 e0       	ldi	r25, 0x00	; 0
+    748a:	0f b6       	in	r0, 0x3f	; 63
+    748c:	f8 94       	cli
+    748e:	a8 95       	wdr
+    7490:	80 93 60 00 	sts	0x0060, r24
+    7494:	0f be       	out	0x3f, r0	; 63
+    7496:	20 93 60 00 	sts	0x0060, r18
+    749a:	ff cf       	rjmp	.-2      	; 0x749a <main+0x474>
 
-int main () {
-    7026:	11 24       	eor	r1, r1
-  // cli();
-  // SP=RAMEND;  // This is done by hardware reset
-  asm volatile ("clr __zero_reg__");
+0000749c <_crc16_update>:
+		: "=r" (__ret), "=d" (__tmp)
+		: "r" (__data), "0" (__crc)
+		: "r0"
+	);
+	return __ret;
+}
+    749c:	86 27       	eor	r24, r22
+    749e:	68 2f       	mov	r22, r24
+    74a0:	62 95       	swap	r22
+    74a2:	68 27       	eor	r22, r24
+    74a4:	06 2e       	mov	r0, r22
+    74a6:	66 95       	lsr	r22
+    74a8:	66 95       	lsr	r22
+    74aa:	60 25       	eor	r22, r0
+    74ac:	06 2e       	mov	r0, r22
+    74ae:	66 95       	lsr	r22
+    74b0:	60 25       	eor	r22, r0
+    74b2:	67 70       	andi	r22, 0x07	; 7
+    74b4:	08 2e       	mov	r0, r24
+    74b6:	89 2f       	mov	r24, r25
+    74b8:	66 95       	lsr	r22
+    74ba:	07 94       	ror	r0
+    74bc:	67 95       	ror	r22
+    74be:	90 2d       	mov	r25, r0
+    74c0:	86 27       	eor	r24, r22
+    74c2:	06 94       	lsr	r0
+    74c4:	67 95       	ror	r22
+    74c6:	90 25       	eor	r25, r0
+    74c8:	86 27       	eor	r24, r22
+    74ca:	08 95       	ret
 
-  // find out whether we got here through a watchdog reset
-  byte launch = bitRead(MCUSR, EXTRF);
-    7028:	94 b7       	in	r25, 0x34	; 52
-  MCUSR = 0;
-    702a:	14 be       	out	0x34, r1	; 52
-  wdt_disable();
-    702c:	88 e1       	ldi	r24, 0x18	; 24
-    702e:	0f b6       	in	r0, 0x3f	; 63
-    7030:	f8 94       	cli
-    7032:	80 93 60 00 	sts	0x0060, r24
-    7036:	10 92 60 00 	sts	0x0060, r1
-    703a:	0f be       	out	0x3f, r0	; 63
+000074cc <timer_start>:
+/* Timer 1 used for network time-out and for blinking LEDs */
+static void timer_init() {
+  TCCR1B = _BV(CS12) | _BV(CS10);            // div 1024 -- @4Mhz=3906Hz
+}
+static void timer_start(int16_t millis) {
+	TCNT1 = -(4000L * (int32_t)millis / 1024); // 4000=4Mhz/1000, 1024=clk divider
+    74cc:	9c 01       	movw	r18, r24
+    74ce:	b9 01       	movw	r22, r18
+    74d0:	88 27       	eor	r24, r24
+    74d2:	77 fd       	sbrc	r23, 7
+    74d4:	80 95       	com	r24
+    74d6:	98 2f       	mov	r25, r24
+    74d8:	20 ea       	ldi	r18, 0xA0	; 160
+    74da:	3f e0       	ldi	r19, 0x0F	; 15
+    74dc:	40 e0       	ldi	r20, 0x00	; 0
+    74de:	50 e0       	ldi	r21, 0x00	; 0
+    74e0:	b6 d3       	rcall	.+1900   	; 0x7c4e <__mulsi3>
+    74e2:	20 e0       	ldi	r18, 0x00	; 0
+    74e4:	34 e0       	ldi	r19, 0x04	; 4
+    74e6:	40 e0       	ldi	r20, 0x00	; 0
+    74e8:	50 e0       	ldi	r21, 0x00	; 0
+    74ea:	d0 d3       	rcall	.+1952   	; 0x7c8c <__divmodsi4>
+    74ec:	50 95       	com	r21
+    74ee:	40 95       	com	r20
+    74f0:	30 95       	com	r19
+    74f2:	21 95       	neg	r18
+    74f4:	3f 4f       	sbci	r19, 0xFF	; 255
+    74f6:	4f 4f       	sbci	r20, 0xFF	; 255
+    74f8:	5f 4f       	sbci	r21, 0xFF	; 255
+    74fa:	30 93 85 00 	sts	0x0085, r19
+    74fe:	20 93 84 00 	sts	0x0084, r18
+	TIFR1 = _BV(TOV1);                         // clear overflow flag
+    7502:	81 e0       	ldi	r24, 0x01	; 1
+    7504:	86 bb       	out	0x16, r24	; 22
+}
+    7506:	08 95       	ret
 
-  // similar to Adaboot no-wait mod
-  if (!launch) {
-    703c:	91 fd       	sbrc	r25, 1
-    703e:	0b c0       	rjmp	.+22     	; 0x7056 <main+0x30>
-    clock_prescale_set(clock_div_1);
-    7040:	e0 e0       	ldi	r30, 0x00	; 0
-    7042:	f0 e0       	ldi	r31, 0x00	; 0
-    7044:	80 e8       	ldi	r24, 0x80	; 128
-    7046:	0f b6       	in	r0, 0x3f	; 63
-    7048:	f8 94       	cli
-    704a:	80 93 61 00 	sts	0x0061, r24
-    704e:	e0 93 61 00 	sts	0x0061, r30
-    7052:	0f be       	out	0x3f, r0	; 63
-    ((void(*)()) 0)(); // Jump to RST vector
-    7054:	09 95       	icall
-  }
+00007508 <timer_done>:
 
-  // switch to 4 MHz, the minimum rate needed to use the RFM12B
-  clock_prescale_set(clock_div_4);
-    7056:	82 e0       	ldi	r24, 0x02	; 2
-    7058:	90 e0       	ldi	r25, 0x00	; 0
-    705a:	20 e8       	ldi	r18, 0x80	; 128
-    705c:	0f b6       	in	r0, 0x3f	; 63
-    705e:	f8 94       	cli
-    7060:	20 93 61 00 	sts	0x0061, r18
-    7064:	80 93 61 00 	sts	0x0061, r24
-    7068:	0f be       	out	0x3f, r0	; 63
+static uint8_t timer_done() {
+  return TIFR1 & _BV(TOV1);
+    7508:	86 b3       	in	r24, 0x16	; 22
+}
+    750a:	81 70       	andi	r24, 0x01	; 1
+    750c:	08 95       	ret
+
+0000750e <sleep>:
+
+// TODO: LOW POWER!
+static void sleep(uint32_t ms) {
+    750e:	ef 92       	push	r14
+    7510:	ff 92       	push	r15
+    7512:	0f 93       	push	r16
+    7514:	1f 93       	push	r17
+    7516:	7b 01       	movw	r14, r22
+    7518:	8c 01       	movw	r16, r24
+	while(ms > 1000) {
+    751a:	0e c0       	rjmp	.+28     	; 0x7538 <sleep+0x2a>
+		timer_start(1000);
+    751c:	88 ee       	ldi	r24, 0xE8	; 232
+    751e:	93 e0       	ldi	r25, 0x03	; 3
+    7520:	d5 df       	rcall	.-86     	; 0x74cc <timer_start>
+		while (!timer_done())
+    7522:	f2 df       	rcall	.-28     	; 0x7508 <timer_done>
+    7524:	88 23       	and	r24, r24
+    7526:	e9 f3       	breq	.-6      	; 0x7522 <sleep+0x14>
+			;
+		ms -= 1000;
+    7528:	88 e1       	ldi	r24, 0x18	; 24
+    752a:	9c ef       	ldi	r25, 0xFC	; 252
+    752c:	af ef       	ldi	r26, 0xFF	; 255
+    752e:	bf ef       	ldi	r27, 0xFF	; 255
+    7530:	e8 0e       	add	r14, r24
+    7532:	f9 1e       	adc	r15, r25
+    7534:	0a 1f       	adc	r16, r26
+    7536:	1b 1f       	adc	r17, r27
+  return TIFR1 & _BV(TOV1);
 }
 
-static void sendPairingCheck () {
-  uint32_t hwId [4];
-#if ARDUINO
-  memset(hwId, 0, sizeof hwId);
-    706a:	b5 e1       	ldi	r27, 0x15	; 21
-    706c:	ab 2e       	mov	r10, r27
-    706e:	b1 2c       	mov	r11, r1
-    7070:	ac 0e       	add	r10, r28
-    7072:	bd 1e       	adc	r11, r29
-#else
-  iap_read_unique_id(hwId);
-#endif
-  
-  struct PairingRequest request;
-  request.type = REMOTE_TYPE;
-    7074:	c1 2c       	mov	r12, r1
-    7076:	a1 e0       	ldi	r26, 0x01	; 1
-    7078:	da 2e       	mov	r13, r26
-  request.type = REMOTE_TYPE;
-  request.swId = config.swId;
-  request.swSize = config.swSize;
-  request.swCheck = config.swCheck;
-  struct UpgradeReply reply;
-  if (sendRequest(&request, sizeof request, 0) > 0 && rf12_len == sizeof reply) {
-    707a:	f5 e0       	ldi	r31, 0x05	; 5
-    707c:	2f 2e       	mov	r2, r31
-    707e:	31 2c       	mov	r3, r1
-    7080:	2c 0e       	add	r2, r28
-    7082:	3d 1e       	adc	r3, r29
-    memcpy(&reply, (const void*) rf12_data, sizeof reply);
-    7084:	ed e0       	ldi	r30, 0x0D	; 13
-    7086:	4e 2e       	mov	r4, r30
-    7088:	51 2c       	mov	r5, r1
-    708a:	4c 0e       	add	r4, r28
-    708c:	5d 1e       	adc	r5, r29
-static int sendDownloadRequest (int index) {
-  struct DownloadRequest request;
-  request.swId = config.swId;
-  request.swIndex = index;
-  struct DownloadReply reply;
-  if (sendRequest(&request, sizeof request, 0) > 0 && rf12_len == sizeof reply) {
-    708e:	4e 01       	movw	r8, r28
-    7090:	08 94       	sec
-    7092:	81 1c       	adc	r8, r1
-    7094:	91 1c       	adc	r9, r1
-    for (int i = 0; i < BOOT_DATA_MAX; ++i)
-      rf12_data[2+i] ^= 211 * i;
-    // dump("de-whitened", (const void*) rf12_data, rf12_len);
-    union { uint32_t longs[16]; uint8_t bytes[64]; } aligned;
-    memcpy(aligned.bytes, (const void*) (rf12_data + 2), sizeof aligned);
-    7096:	7f e4       	ldi	r23, 0x4F	; 79
-    7098:	67 2e       	mov	r6, r23
-    709a:	71 2c       	mov	r7, r1
-    709c:	6c 0e       	add	r6, r28
-    709e:	7d 1e       	adc	r7, r29
-  uint16_t swCheck;
-  uint16_t check;
-} config;
-
-static void loadConfig () {
-  memcpy(&config, CONFIG_ADDR, sizeof config);
-    70a0:	af e4       	ldi	r26, 0x4F	; 79
-    70a2:	b1 e0       	ldi	r27, 0x01	; 1
-    70a4:	e0 ec       	ldi	r30, 0xC0	; 192
-    70a6:	ff e0       	ldi	r31, 0x0F	; 15
-    70a8:	80 e2       	ldi	r24, 0x20	; 32
-    70aa:	01 90       	ld	r0, Z+
-    70ac:	0d 92       	st	X+, r0
-    70ae:	81 50       	subi	r24, 0x01	; 1
-    70b0:	e1 f7       	brne	.-8      	; 0x70aa <main+0x84>
-  if (calcCRC(&config, sizeof config) != 0) {
-    70b2:	8f e4       	ldi	r24, 0x4F	; 79
-    70b4:	91 e0       	ldi	r25, 0x01	; 1
-    70b6:	60 e2       	ldi	r22, 0x20	; 32
-    70b8:	70 e0       	ldi	r23, 0x00	; 0
-    70ba:	cd d2       	rcall	.+1434   	; 0x7656 <calcCRC>
-    70bc:	89 2b       	or	r24, r25
-    70be:	31 f0       	breq	.+12     	; 0x70cc <main+0xa6>
-    printf("default config\n");
-    memset(&config, 0, sizeof config);
-    70c0:	80 e2       	ldi	r24, 0x20	; 32
-    70c2:	ef e4       	ldi	r30, 0x4F	; 79
-    70c4:	f1 e0       	ldi	r31, 0x01	; 1
-    70c6:	11 92       	st	Z+, r1
-    70c8:	8a 95       	dec	r24
-    70ca:	e9 f7       	brne	.-6      	; 0x70c6 <main+0xa0>
-
-static void bootLoaderLogic () {
-  printf("1\n");
-  loadConfig();
-  
-  rf12_initialize(1, RF12_868MHZ, PAIRING_GROUP);
-    70cc:	81 e0       	ldi	r24, 0x01	; 1
-    70ce:	62 e0       	ldi	r22, 0x02	; 2
-    70d0:	44 ed       	ldi	r20, 0xD4	; 212
-    70d2:	5a d2       	rcall	.+1204   	; 0x7588 <rf12_initialize>
-
-  printf("2\n");
-  backOffCounter = 0;
-    70d4:	10 92 4c 01 	sts	0x014C, r1
-    70d8:	10 92 4b 01 	sts	0x014B, r1
+// TODO: LOW POWER!
+static void sleep(uint32_t ms) {
+	while(ms > 1000) {
+    7538:	99 ee       	ldi	r25, 0xE9	; 233
+    753a:	e9 16       	cp	r14, r25
+    753c:	93 e0       	ldi	r25, 0x03	; 3
+    753e:	f9 06       	cpc	r15, r25
+    7540:	90 e0       	ldi	r25, 0x00	; 0
+    7542:	09 07       	cpc	r16, r25
+    7544:	90 e0       	ldi	r25, 0x00	; 0
+    7546:	19 07       	cpc	r17, r25
+    7548:	48 f7       	brcc	.-46     	; 0x751c <sleep+0xe>
+		timer_start(1000);
+		while (!timer_done())
+			;
+		ms -= 1000;
+	}
+	if (ms > 0) {
+    754a:	e1 14       	cp	r14, r1
+    754c:	f1 04       	cpc	r15, r1
+    754e:	01 05       	cpc	r16, r1
+    7550:	11 05       	cpc	r17, r1
+    7552:	29 f0       	breq	.+10     	; 0x755e <sleep+0x50>
+		timer_start(ms);
+    7554:	c7 01       	movw	r24, r14
+    7556:	ba df       	rcall	.-140    	; 0x74cc <timer_start>
+		while (!timer_done())
+    7558:	d7 df       	rcall	.-82     	; 0x7508 <timer_done>
+    755a:	88 23       	and	r24, r24
+    755c:	e9 f3       	breq	.-6      	; 0x7558 <sleep+0x4a>
+			;
+	}
 }
+    755e:	1f 91       	pop	r17
+    7560:	0f 91       	pop	r16
+    7562:	ff 90       	pop	r15
+    7564:	ef 90       	pop	r14
+    7566:	08 95       	ret
 
-static void sendPairingCheck () {
-  uint32_t hwId [4];
-#if ARDUINO
-  memset(hwId, 0, sizeof hwId);
-    70dc:	f5 01       	movw	r30, r10
-    70de:	80 e1       	ldi	r24, 0x10	; 16
-    70e0:	11 92       	st	Z+, r1
-    70e2:	8a 95       	dec	r24
-    70e4:	e9 f7       	brne	.-6      	; 0x70e0 <main+0xba>
-#else
-  iap_read_unique_id(hwId);
-#endif
-  
-  struct PairingRequest request;
-  request.type = REMOTE_TYPE;
-    70e6:	da ae       	std	Y+58, r13	; 0x3a
-    70e8:	c9 ae       	std	Y+57, r12	; 0x39
-  request.group = config.group;
-    70ea:	80 91 53 01 	lds	r24, 0x0153
-    70ee:	8b af       	std	Y+59, r24	; 0x3b
-  request.nodeId = config.nodeId;
-    70f0:	80 91 54 01 	lds	r24, 0x0154
-    70f4:	8c af       	std	Y+60, r24	; 0x3c
-  request.check = calcCRC(&config.shKey, sizeof config.shKey);
-    70f6:	87 e5       	ldi	r24, 0x57	; 87
-    70f8:	91 e0       	ldi	r25, 0x01	; 1
-    70fa:	60 e1       	ldi	r22, 0x10	; 16
-    70fc:	70 e0       	ldi	r23, 0x00	; 0
-    70fe:	ab d2       	rcall	.+1366   	; 0x7656 <calcCRC>
-    7100:	9e af       	std	Y+62, r25	; 0x3e
-    7102:	8d af       	std	Y+61, r24	; 0x3d
-  memcpy(request.hwId, hwId, sizeof request.hwId);
-    7104:	de 01       	movw	r26, r28
-    7106:	df 96       	adiw	r26, 0x3f	; 63
-    7108:	f5 01       	movw	r30, r10
-    710a:	80 e1       	ldi	r24, 0x10	; 16
-    710c:	01 90       	ld	r0, Z+
-    710e:	0d 92       	st	X+, r0
-    7110:	81 50       	subi	r24, 0x01	; 1
-    7112:	e1 f7       	brne	.-8      	; 0x710c <main+0xe6>
-  
-  struct PairingReply reply;
-  if (sendRequest(&request, sizeof request, RF12_HDR_DST) > 0 && rf12_len == sizeof reply) {
-    7114:	ce 01       	movw	r24, r28
-    7116:	c9 96       	adiw	r24, 0x39	; 57
-    7118:	66 e1       	ldi	r22, 0x16	; 22
-    711a:	70 e0       	ldi	r23, 0x00	; 0
-    711c:	40 e4       	ldi	r20, 0x40	; 64
-    711e:	50 e0       	ldi	r21, 0x00	; 0
-    7120:	68 d3       	rcall	.+1744   	; 0x77f2 <sendRequest>
-    7122:	18 16       	cp	r1, r24
-    7124:	19 06       	cpc	r1, r25
-    7126:	e4 f4       	brge	.+56     	; 0x7160 <main+0x13a>
-    7128:	80 91 06 01 	lds	r24, 0x0106
-    712c:	84 31       	cpi	r24, 0x14	; 20
-    712e:	c1 f4       	brne	.+48     	; 0x7160 <main+0x13a>
-    memcpy(&reply, (const void*) rf12_data, sizeof reply);
-    7130:	de 01       	movw	r26, r28
-    7132:	95 96       	adiw	r26, 0x25	; 37
-    7134:	e7 e0       	ldi	r30, 0x07	; 7
-    7136:	f1 e0       	ldi	r31, 0x01	; 1
-    7138:	01 90       	ld	r0, Z+
-    713a:	0d 92       	st	X+, r0
-    713c:	81 50       	subi	r24, 0x01	; 1
-    713e:	e1 f7       	brne	.-8      	; 0x7138 <main+0x112>
-    config.group = reply.group;
-    7140:	8f a1       	ldd	r24, Y+39	; 0x27
-    7142:	80 93 53 01 	sts	0x0153, r24
-    config.nodeId = reply.nodeId;
-    7146:	88 a5       	ldd	r24, Y+40	; 0x28
-    7148:	80 93 54 01 	sts	0x0154, r24
-    memcpy(config.shKey, reply.shKey, sizeof config.shKey);
-    714c:	a7 e5       	ldi	r26, 0x57	; 87
-    714e:	b1 e0       	ldi	r27, 0x01	; 1
-    7150:	fe 01       	movw	r30, r28
-    7152:	b9 96       	adiw	r30, 0x29	; 41
-    7154:	80 e1       	ldi	r24, 0x10	; 16
-    7156:	01 90       	ld	r0, Z+
-    7158:	0d 92       	st	X+, r0
-    715a:	81 50       	subi	r24, 0x01	; 1
-    715c:	e1 f7       	brne	.-8      	; 0x7156 <main+0x130>
-    saveConfig();
-    715e:	a4 d2       	rcall	.+1352   	; 0x76a8 <saveConfig>
+00007568 <putch>:
+# define UART_SRL UBRR0L
+# define UART_UDR UDR0
 
-  printf("2\n");
-  backOffCounter = 0;
-  while (1) {
-    sendPairingCheck();
-    if (config.group != 0 && config.nodeId != 0) // paired
-    7160:	40 91 53 01 	lds	r20, 0x0153
-    7164:	44 23       	and	r20, r20
-    7166:	21 f0       	breq	.+8      	; 0x7170 <main+0x14a>
-    7168:	80 91 54 01 	lds	r24, 0x0154
-    716c:	88 23       	and	r24, r24
-    716e:	11 f4       	brne	.+4      	; 0x7174 <main+0x14e>
-      break;
-    exponentialBackOff();
-    7170:	b8 d2       	rcall	.+1392   	; 0x76e2 <exponentialBackOff>
-    7172:	b4 cf       	rjmp	.-152    	; 0x70dc <main+0xb6>
-  }
-  
-  rf12_initialize(config.nodeId, RF12_868MHZ, config.group);
-    7174:	62 e0       	ldi	r22, 0x02	; 2
-    7176:	08 d2       	rcall	.+1040   	; 0x7588 <rf12_initialize>
-
-  printf("3\n");
-  backOffCounter = 0;
-    7178:	10 92 4c 01 	sts	0x014C, r1
-    717c:	10 92 4b 01 	sts	0x014B, r1
-  return calcCRC(BASE_ADDR, config.swSize << 4) == config.swCheck;
+// print character
+static void putch(char ch) {
+  while (!(UART_SRA & _BV(UDRE0)));
+    7568:	90 91 c0 00 	lds	r25, 0x00C0
+    756c:	95 ff       	sbrs	r25, 5
+    756e:	fc cf       	rjmp	.-8      	; 0x7568 <putch>
+  UART_UDR = ch;
+    7570:	80 93 c6 00 	sts	0x00C6, r24
 }
+    7574:	08 95       	ret
 
-static int sendUpgradeCheck () {
-  struct UpgradeRequest request;
-  request.type = REMOTE_TYPE;
-    7180:	de 82       	std	Y+6, r13	; 0x06
-    7182:	cd 82       	std	Y+5, r12	; 0x05
-  request.swId = config.swId;
-    7184:	80 91 67 01 	lds	r24, 0x0167
-    7188:	90 91 68 01 	lds	r25, 0x0168
-    718c:	98 87       	std	Y+8, r25	; 0x08
-    718e:	8f 83       	std	Y+7, r24	; 0x07
-  request.swSize = config.swSize;
-    7190:	80 91 69 01 	lds	r24, 0x0169
-    7194:	90 91 6a 01 	lds	r25, 0x016A
-    7198:	9a 87       	std	Y+10, r25	; 0x0a
-    719a:	89 87       	std	Y+9, r24	; 0x09
-  request.swCheck = config.swCheck;
-    719c:	80 91 6b 01 	lds	r24, 0x016B
-    71a0:	90 91 6c 01 	lds	r25, 0x016C
-    71a4:	9c 87       	std	Y+12, r25	; 0x0c
-    71a6:	8b 87       	std	Y+11, r24	; 0x0b
-  struct UpgradeReply reply;
-  if (sendRequest(&request, sizeof request, 0) > 0 && rf12_len == sizeof reply) {
-    71a8:	c1 01       	movw	r24, r2
-    71aa:	68 e0       	ldi	r22, 0x08	; 8
-    71ac:	70 e0       	ldi	r23, 0x00	; 0
-    71ae:	40 e0       	ldi	r20, 0x00	; 0
-    71b0:	50 e0       	ldi	r21, 0x00	; 0
-    71b2:	1f d3       	rcall	.+1598   	; 0x77f2 <sendRequest>
-    71b4:	18 16       	cp	r1, r24
-    71b6:	19 06       	cpc	r1, r25
-    71b8:	fc f4       	brge	.+62     	; 0x71f8 <main+0x1d2>
-    71ba:	80 91 06 01 	lds	r24, 0x0106
-    71be:	88 30       	cpi	r24, 0x08	; 8
-    71c0:	d9 f4       	brne	.+54     	; 0x71f8 <main+0x1d2>
-    memcpy(&reply, (const void*) rf12_data, sizeof reply);
-    71c2:	d2 01       	movw	r26, r4
-    71c4:	e7 e0       	ldi	r30, 0x07	; 7
-    71c6:	f1 e0       	ldi	r31, 0x01	; 1
-    71c8:	01 90       	ld	r0, Z+
-    71ca:	0d 92       	st	X+, r0
-    71cc:	81 50       	subi	r24, 0x01	; 1
-    71ce:	e1 f7       	brne	.-8      	; 0x71c8 <main+0x1a2>
-    // ...
-    config.swId = reply.swId;
-    71d0:	8f 85       	ldd	r24, Y+15	; 0x0f
-    71d2:	98 89       	ldd	r25, Y+16	; 0x10
-    71d4:	90 93 68 01 	sts	0x0168, r25
-    71d8:	80 93 67 01 	sts	0x0167, r24
-    config.swSize = reply.swSize;
-    71dc:	89 89       	ldd	r24, Y+17	; 0x11
-    71de:	9a 89       	ldd	r25, Y+18	; 0x12
-    71e0:	90 93 6a 01 	sts	0x016A, r25
-    71e4:	80 93 69 01 	sts	0x0169, r24
-    config.swCheck = reply.swCheck;
-    71e8:	8b 89       	ldd	r24, Y+19	; 0x13
-    71ea:	9c 89       	ldd	r25, Y+20	; 0x14
-    71ec:	90 93 6c 01 	sts	0x016C, r25
-    71f0:	80 93 6b 01 	sts	0x016B, r24
-    saveConfig();
-    71f4:	59 d2       	rcall	.+1202   	; 0x76a8 <saveConfig>
-    71f6:	05 c0       	rjmp	.+10     	; 0x7202 <main+0x1dc>
-  printf("3\n");
-  backOffCounter = 0;
-  do {
-    if (sendUpgradeCheck())
-      break;
-    exponentialBackOff();
-    71f8:	74 d2       	rcall	.+1256   	; 0x76e2 <exponentialBackOff>
-  } while (! appIsValid());
-    71fa:	80 d2       	rcall	.+1280   	; 0x76fc <appIsValid>
-    71fc:	89 2b       	or	r24, r25
-    71fe:	09 f4       	brne	.+2      	; 0x7202 <main+0x1dc>
-    7200:	bf cf       	rjmp	.-130    	; 0x7180 <main+0x15a>
-  
-  printf("4\n");
-  if (! appIsValid()) {
-    7202:	7c d2       	rcall	.+1272   	; 0x76fc <appIsValid>
-    7204:	89 2b       	or	r24, r25
-    7206:	09 f0       	breq	.+2      	; 0x720a <main+0x1e4>
-    7208:	4b c0       	rjmp	.+150    	; 0x72a0 <main+0x27a>
-    int limit = ((config.swSize << 4) + PAGE_SIZE - 1) / PAGE_SIZE;
-    720a:	00 91 69 01 	lds	r16, 0x0169
-    720e:	10 91 6a 01 	lds	r17, 0x016A
-    7212:	64 e0       	ldi	r22, 0x04	; 4
-    7214:	00 0f       	add	r16, r16
-    7216:	11 1f       	adc	r17, r17
-    7218:	6a 95       	dec	r22
-    721a:	e1 f7       	brne	.-8      	; 0x7214 <main+0x1ee>
-    721c:	01 5c       	subi	r16, 0xC1	; 193
-    721e:	1f 4f       	sbci	r17, 0xFF	; 255
-    7220:	56 e0       	ldi	r21, 0x06	; 6
-    7222:	16 95       	lsr	r17
-    7224:	07 95       	ror	r16
-    7226:	5a 95       	dec	r21
-    7228:	e1 f7       	brne	.-8      	; 0x7222 <main+0x1fc>
-    722a:	ee 24       	eor	r14, r14
-    722c:	ff 24       	eor	r15, r15
-    722e:	35 c0       	rjmp	.+106    	; 0x729a <main+0x274>
-    for (int i = 0; i < limit; ++i) {
-      backOffCounter = 0;
-    7230:	10 92 4c 01 	sts	0x014C, r1
-    7234:	10 92 4b 01 	sts	0x014B, r1
-  return 0;
+00007576 <P>:
+// print string
+static void P(char *str) {
+    7576:	cf 93       	push	r28
+    7578:	df 93       	push	r29
+    757a:	ec 01       	movw	r28, r24
+	while (*str) putch(*str++);
+    757c:	01 c0       	rjmp	.+2      	; 0x7580 <P+0xa>
+    757e:	f4 df       	rcall	.-24     	; 0x7568 <putch>
+    7580:	89 91       	ld	r24, Y+
+    7582:	88 23       	and	r24, r24
+    7584:	e1 f7       	brne	.-8      	; 0x757e <P+0x8>
 }
+    7586:	df 91       	pop	r29
+    7588:	cf 91       	pop	r28
+    758a:	08 95       	ret
 
-static int sendDownloadRequest (int index) {
-  struct DownloadRequest request;
-  request.swId = config.swId;
-    7238:	80 91 67 01 	lds	r24, 0x0167
-    723c:	90 91 68 01 	lds	r25, 0x0168
-    7240:	9a 83       	std	Y+2, r25	; 0x02
-    7242:	89 83       	std	Y+1, r24	; 0x01
-  request.swIndex = index;
-    7244:	fc 82       	std	Y+4, r15	; 0x04
-    7246:	eb 82       	std	Y+3, r14	; 0x03
-  struct DownloadReply reply;
-  if (sendRequest(&request, sizeof request, 0) > 0 && rf12_len == sizeof reply) {
-    7248:	c4 01       	movw	r24, r8
-    724a:	64 e0       	ldi	r22, 0x04	; 4
-    724c:	70 e0       	ldi	r23, 0x00	; 0
-    724e:	40 e0       	ldi	r20, 0x00	; 0
-    7250:	50 e0       	ldi	r21, 0x00	; 0
-    7252:	cf d2       	rcall	.+1438   	; 0x77f2 <sendRequest>
-    7254:	18 16       	cp	r1, r24
-    7256:	19 06       	cpc	r1, r25
-    7258:	f4 f4       	brge	.+60     	; 0x7296 <main+0x270>
-    725a:	80 91 06 01 	lds	r24, 0x0106
-    725e:	82 34       	cpi	r24, 0x42	; 66
-    7260:	d1 f4       	brne	.+52     	; 0x7296 <main+0x270>
-    7262:	20 e0       	ldi	r18, 0x00	; 0
-    7264:	30 e0       	ldi	r19, 0x00	; 0
-    7266:	90 e0       	ldi	r25, 0x00	; 0
-/* The main function is in init9, which removes the interrupt vector table */
-/* we don't need. It is also 'naked', which means the compiler does not    */
-/* generate any entry or exit code itself. */
-int main(void) __attribute__ ((naked)) __attribute__ ((section (".init9")));
+0000758c <P_LN>:
+// print newline
+static inline void P_LN(void) { putch('\n'); }
+    758c:	8a e0       	ldi	r24, 0x0A	; 10
+    758e:	ec cf       	rjmp	.-40     	; 0x7568 <putch>
 
-int main () {
-    7268:	f9 01       	movw	r30, r18
-    726a:	e7 5f       	subi	r30, 0xF7	; 247
-    726c:	fe 4f       	sbci	r31, 0xFE	; 254
-    for (int i = 0; i < BOOT_DATA_MAX; ++i)
-      rf12_data[2+i] ^= 211 * i;
-    726e:	80 81       	ld	r24, Z
-    7270:	89 27       	eor	r24, r25
-    7272:	80 83       	st	Z, r24
-  struct DownloadRequest request;
-  request.swId = config.swId;
-  request.swIndex = index;
-  struct DownloadReply reply;
-  if (sendRequest(&request, sizeof request, 0) > 0 && rf12_len == sizeof reply) {
-    for (int i = 0; i < BOOT_DATA_MAX; ++i)
-    7274:	2f 5f       	subi	r18, 0xFF	; 255
-    7276:	3f 4f       	sbci	r19, 0xFF	; 255
-    7278:	9d 52       	subi	r25, 0x2D	; 45
-    727a:	90 3c       	cpi	r25, 0xC0	; 192
-    727c:	a9 f7       	brne	.-22     	; 0x7268 <main+0x242>
-      rf12_data[2+i] ^= 211 * i;
-    // dump("de-whitened", (const void*) rf12_data, rf12_len);
-    union { uint32_t longs[16]; uint8_t bytes[64]; } aligned;
-    memcpy(aligned.bytes, (const void*) (rf12_data + 2), sizeof aligned);
-    727e:	d3 01       	movw	r26, r6
-    7280:	e9 e0       	ldi	r30, 0x09	; 9
-    7282:	f1 e0       	ldi	r31, 0x01	; 1
-    7284:	80 e4       	ldi	r24, 0x40	; 64
-    7286:	01 90       	ld	r0, Z+
-    7288:	0d 92       	st	X+, r0
-    728a:	81 50       	subi	r24, 0x01	; 1
-    728c:	e1 f7       	brne	.-8      	; 0x7286 <main+0x260>
-  } while (! appIsValid());
-  
-  printf("4\n");
-  if (! appIsValid()) {
-    int limit = ((config.swSize << 4) + PAGE_SIZE - 1) / PAGE_SIZE;
-    for (int i = 0; i < limit; ++i) {
-    728e:	08 94       	sec
-    7290:	e1 1c       	adc	r14, r1
-    7292:	f1 1c       	adc	r15, r1
-    7294:	02 c0       	rjmp	.+4      	; 0x729a <main+0x274>
-      backOffCounter = 0;
-      while (sendDownloadRequest(i) == 0)
-        exponentialBackOff();
-    7296:	25 d2       	rcall	.+1098   	; 0x76e2 <exponentialBackOff>
-    7298:	cf cf       	rjmp	.-98     	; 0x7238 <main+0x212>
-  } while (! appIsValid());
-  
-  printf("4\n");
-  if (! appIsValid()) {
-    int limit = ((config.swSize << 4) + PAGE_SIZE - 1) / PAGE_SIZE;
-    for (int i = 0; i < limit; ++i) {
-    729a:	e0 16       	cp	r14, r16
-    729c:	f1 06       	cpc	r15, r17
-    729e:	44 f2       	brlt	.-112    	; 0x7230 <main+0x20a>
-  // but the application that ends up in memory does not match the crc given
-  // in this case, we'll constantly keep retrying... and drain the battery :(
-  // to avoid this, an extra level of exponential back-off has been added here
-  for (int backOff = 0; /*forever*/; ++backOff) {
-    bootLoaderLogic();
-    if (appIsValid())
-    72a0:	2d d2       	rcall	.+1114   	; 0x76fc <appIsValid>
-    72a2:	89 2b       	or	r24, r25
-    72a4:	09 f4       	brne	.+2      	; 0x72a8 <main+0x282>
-    72a6:	fc ce       	rjmp	.-520    	; 0x70a0 <main+0x7a>
-  clock_prescale_set(clock_div_4);
-
-  bootLoader();
-
-  // force a clean reset to launch the actual code
-  clock_prescale_set(clock_div_1);
-    72a8:	80 e0       	ldi	r24, 0x00	; 0
-    72aa:	90 e0       	ldi	r25, 0x00	; 0
-    72ac:	20 e8       	ldi	r18, 0x80	; 128
-    72ae:	0f b6       	in	r0, 0x3f	; 63
-    72b0:	f8 94       	cli
-    72b2:	20 93 61 00 	sts	0x0061, r18
-    72b6:	80 93 61 00 	sts	0x0061, r24
-    72ba:	0f be       	out	0x3f, r0	; 63
-  wdt_enable(WDTO_15MS);
-    72bc:	28 e0       	ldi	r18, 0x08	; 8
-    72be:	88 e1       	ldi	r24, 0x18	; 24
-    72c0:	90 e0       	ldi	r25, 0x00	; 0
-    72c2:	0f b6       	in	r0, 0x3f	; 63
-    72c4:	f8 94       	cli
-    72c6:	a8 95       	wdr
-    72c8:	80 93 60 00 	sts	0x0060, r24
-    72cc:	0f be       	out	0x3f, r0	; 63
-    72ce:	20 93 60 00 	sts	0x0060, r18
-    72d2:	ff cf       	rjmp	.-2      	; 0x72d2 <main+0x2ac>
-
-000072d4 <millis>:
-#define REMOTE_TYPE 0x100
-#define PAIRING_GROUP 212
-
-static uint32_t millis () {
-  return 0; // FIXME not correct
+00007590 <P_X8>:
+// print byte in hex
+static void P_X8(uint8_t v) {
+    7590:	1f 93       	push	r17
+    7592:	18 2f       	mov	r17, r24
+	uint8_t vh = v>>4;
+    7594:	82 95       	swap	r24
+    7596:	8f 70       	andi	r24, 0x0F	; 15
+	putch(vh>9 ? vh+'a'-10 : vh+'0');
+    7598:	8a 30       	cpi	r24, 0x0A	; 10
+    759a:	10 f0       	brcs	.+4      	; 0x75a0 <P_X8+0x10>
+    759c:	89 5a       	subi	r24, 0xA9	; 169
+    759e:	01 c0       	rjmp	.+2      	; 0x75a2 <P_X8+0x12>
+    75a0:	80 5d       	subi	r24, 0xD0	; 208
+    75a2:	e2 df       	rcall	.-60     	; 0x7568 <putch>
+	uint8_t vl = v & 0xf;
+    75a4:	1f 70       	andi	r17, 0x0F	; 15
+	putch(vl>9 ? vl+'a'-10 : vl+'0');
+    75a6:	1a 30       	cpi	r17, 0x0A	; 10
+    75a8:	10 f0       	brcs	.+4      	; 0x75ae <P_X8+0x1e>
+    75aa:	19 5a       	subi	r17, 0xA9	; 169
+    75ac:	01 c0       	rjmp	.+2      	; 0x75b0 <P_X8+0x20>
+    75ae:	10 5d       	subi	r17, 0xD0	; 208
+    75b0:	81 2f       	mov	r24, r17
+    75b2:	da df       	rcall	.-76     	; 0x7568 <putch>
 }
-    72d4:	60 e0       	ldi	r22, 0x00	; 0
-    72d6:	70 e0       	ldi	r23, 0x00	; 0
-    72d8:	80 e0       	ldi	r24, 0x00	; 0
-    72da:	90 e0       	ldi	r25, 0x00	; 0
-    72dc:	08 95       	ret
+    75b4:	1f 91       	pop	r17
+    75b6:	08 95       	ret
 
-000072de <sleep>:
-
-static void sleep (word ms) {
-  // ...
+000075b8 <P_X16>:
+// print word in hex
+static void P_X16(uint16_t v) {
+    75b8:	ef 92       	push	r14
+    75ba:	ff 92       	push	r15
+    75bc:	cf 93       	push	r28
+    75be:	df 93       	push	r29
+    75c0:	ec 01       	movw	r28, r24
+	P_X8(v>>8);
+    75c2:	7c 01       	movw	r14, r24
+    75c4:	8f 2d       	mov	r24, r15
+    75c6:	e4 df       	rcall	.-56     	; 0x7590 <P_X8>
+	P_X8(v&0xFF);
+    75c8:	8c 2f       	mov	r24, r28
+    75ca:	e2 df       	rcall	.-60     	; 0x7590 <P_X8>
 }
-    72de:	08 95       	ret
+    75cc:	df 91       	pop	r29
+    75ce:	cf 91       	pop	r28
+    75d0:	ff 90       	pop	r15
+    75d2:	ef 90       	pop	r14
+    75d4:	08 95       	ret
 
-000072e0 <rf12_byte>:
+000075d6 <rf12_byte>:
 #endif
 }
 
 static uint8_t rf12_byte (uint8_t out) {
 #ifdef SPDR
     SPDR = out;
-    72e0:	8e bd       	out	0x2e, r24	; 46
+    75d6:	8e bd       	out	0x2e, r24	; 46
     // this loop spins 4 usec with a 2 MHz SPI clock
     while (!(SPSR & _BV(SPIF)))
-    72e2:	0d b4       	in	r0, 0x2d	; 45
-    72e4:	07 fe       	sbrs	r0, 7
-    72e6:	fd cf       	rjmp	.-6      	; 0x72e2 <rf12_byte+0x2>
+    75d8:	0d b4       	in	r0, 0x2d	; 45
+    75da:	07 fe       	sbrs	r0, 7
+    75dc:	fd cf       	rjmp	.-6      	; 0x75d8 <rf12_byte+0x2>
         ;
     return SPDR;
-    72e8:	8e b5       	in	r24, 0x2e	; 46
+    75de:	8e b5       	in	r24, 0x2e	; 46
         USICR = v2;
     }
 #endif
     return USIDR;
 #endif
 }
-    72ea:	08 95       	ret
+    75e0:	08 95       	ret
 
-000072ec <rf12_xfer>:
+000075e2 <rf12_xfer>:
 
 static uint16_t rf12_xfer (uint16_t cmd) {
-    72ec:	ef 92       	push	r14
-    72ee:	ff 92       	push	r15
-    72f0:	0f 93       	push	r16
-    72f2:	1f 93       	push	r17
-    72f4:	7c 01       	movw	r14, r24
+    75e2:	ef 92       	push	r14
+    75e4:	ff 92       	push	r15
+    75e6:	0f 93       	push	r16
+    75e8:	1f 93       	push	r17
+    75ea:	cf 93       	push	r28
+    75ec:	df 93       	push	r29
+    75ee:	ec 01       	movw	r28, r24
     bitClear(SS_PORT, SS_BIT);
-    72f6:	2a 98       	cbi	0x05, 2	; 5
+    75f0:	2a 98       	cbi	0x05, 2	; 5
     uint16_t reply = rf12_byte(cmd >> 8) << 8;
-    72f8:	8f 2d       	mov	r24, r15
-    72fa:	99 27       	eor	r25, r25
-    72fc:	f1 df       	rcall	.-30     	; 0x72e0 <rf12_byte>
-    72fe:	08 2f       	mov	r16, r24
-    7300:	10 e0       	ldi	r17, 0x00	; 0
-    7302:	10 2f       	mov	r17, r16
-    7304:	00 27       	eor	r16, r16
+    75f2:	7c 01       	movw	r14, r24
+    75f4:	8f 2d       	mov	r24, r15
+    75f6:	ef df       	rcall	.-34     	; 0x75d6 <rf12_byte>
+    75f8:	90 e0       	ldi	r25, 0x00	; 0
+    75fa:	18 2f       	mov	r17, r24
+    75fc:	00 27       	eor	r16, r16
     reply |= rf12_byte(cmd);
-    7306:	8e 2d       	mov	r24, r14
-    7308:	eb df       	rcall	.-42     	; 0x72e0 <rf12_byte>
+    75fe:	8c 2f       	mov	r24, r28
+    7600:	ea df       	rcall	.-44     	; 0x75d6 <rf12_byte>
     bitSet(SS_PORT, SS_BIT);
-    730a:	2a 9a       	sbi	0x05, 2	; 5
-    730c:	90 e0       	ldi	r25, 0x00	; 0
+    7602:	2a 9a       	sbi	0x05, 2	; 5
+}
+
+static uint16_t rf12_xfer (uint16_t cmd) {
+    bitClear(SS_PORT, SS_BIT);
+    uint16_t reply = rf12_byte(cmd >> 8) << 8;
+    reply |= rf12_byte(cmd);
+    7604:	90 e0       	ldi	r25, 0x00	; 0
+    bitSet(SS_PORT, SS_BIT);
     return reply;
 }
-    730e:	80 2b       	or	r24, r16
-    7310:	91 2b       	or	r25, r17
-    7312:	1f 91       	pop	r17
-    7314:	0f 91       	pop	r16
-    7316:	ff 90       	pop	r15
-    7318:	ef 90       	pop	r14
-    731a:	08 95       	ret
+    7606:	80 2b       	or	r24, r16
+    7608:	91 2b       	or	r25, r17
+    760a:	df 91       	pop	r29
+    760c:	cf 91       	pop	r28
+    760e:	1f 91       	pop	r17
+    7610:	0f 91       	pop	r16
+    7612:	ff 90       	pop	r15
+    7614:	ef 90       	pop	r14
+    7616:	08 95       	ret
 
-0000731c <rf12_recvDone>:
+00007618 <rf12_recvDone>:
+#endif
+    rxstate = TXRECV;    
     rf12_xfer(RF_RECEIVER_ON);
 }
 
 static uint8_t rf12_recvDone () {
+    7618:	1f 93       	push	r17
     // if (digitalRead(RFM_IRQ) == 0)
     if (bitRead(RFM_IRQ_PIN, RFM_IRQ_BIT) == 0)
-    731c:	89 b1       	in	r24, 0x09	; 9
-    731e:	86 95       	lsr	r24
-    7320:	86 95       	lsr	r24
-    7322:	80 fd       	sbrc	r24, 0
-    7324:	c0 c0       	rjmp	.+384    	; 0x74a6 <rf12_recvDone+0x18a>
+    761a:	89 b1       	in	r24, 0x09	; 9
+    761c:	86 95       	lsr	r24
+    761e:	86 95       	lsr	r24
+    7620:	80 fd       	sbrc	r24, 0
+    7622:	93 c0       	rjmp	.+294    	; 0x774a <rf12_recvDone+0x132>
     return reply;
 }
 
 static void rf12_interrupt() {
     // a transfer of 2x 16 bits @ 2 MHz over SPI takes 2x 8 us inside this ISR
     rf12_xfer(0x0000);
-    7326:	80 e0       	ldi	r24, 0x00	; 0
-    7328:	90 e0       	ldi	r25, 0x00	; 0
-    732a:	e0 df       	rcall	.-64     	; 0x72ec <rf12_xfer>
+    7624:	80 e0       	ldi	r24, 0x00	; 0
+    7626:	90 e0       	ldi	r25, 0x00	; 0
+    7628:	dc df       	rcall	.-72     	; 0x75e2 <rf12_xfer>
     
     if (rxstate == TXRECV) {
-    732c:	80 91 03 01 	lds	r24, 0x0103
-    7330:	85 30       	cpi	r24, 0x05	; 5
-    7332:	09 f0       	breq	.+2      	; 0x7336 <rf12_recvDone+0x1a>
-    7334:	51 c0       	rjmp	.+162    	; 0x73d8 <rf12_recvDone+0xbc>
+    762a:	80 91 2f 02 	lds	r24, 0x022F
+    762e:	85 30       	cpi	r24, 0x05	; 5
+    7630:	d9 f5       	brne	.+118    	; 0x76a8 <rf12_recvDone+0x90>
         uint8_t in = rf12_xfer(RF_RX_FIFO_READ);
-    7336:	80 e0       	ldi	r24, 0x00	; 0
-    7338:	90 eb       	ldi	r25, 0xB0	; 176
-    733a:	d8 df       	rcall	.-80     	; 0x72ec <rf12_xfer>
-    733c:	28 2f       	mov	r18, r24
+    7632:	80 e0       	ldi	r24, 0x00	; 0
+    7634:	90 eb       	ldi	r25, 0xB0	; 176
+    7636:	d5 df       	rcall	.-86     	; 0x75e2 <rf12_xfer>
+    7638:	68 2f       	mov	r22, r24
 
         if (rxfill == 0 && group != 0)
-    733e:	80 91 02 01 	lds	r24, 0x0102
-    7342:	88 23       	and	r24, r24
-    7344:	71 f4       	brne	.+28     	; 0x7362 <rf12_recvDone+0x46>
-    7346:	90 91 01 01 	lds	r25, 0x0101
-    734a:	99 23       	and	r25, r25
-    734c:	51 f0       	breq	.+20     	; 0x7362 <rf12_recvDone+0x46>
+    763a:	80 91 30 02 	lds	r24, 0x0230
+    763e:	88 23       	and	r24, r24
+    7640:	71 f4       	brne	.+28     	; 0x765e <rf12_recvDone+0x46>
+    7642:	90 91 32 02 	lds	r25, 0x0232
+    7646:	99 23       	and	r25, r25
+    7648:	51 f0       	breq	.+20     	; 0x765e <rf12_recvDone+0x46>
             rf12_buf[rxfill++] = group;
-    734e:	80 91 02 01 	lds	r24, 0x0102
-    7352:	e8 2f       	mov	r30, r24
-    7354:	f0 e0       	ldi	r31, 0x00	; 0
-    7356:	ec 5f       	subi	r30, 0xFC	; 252
-    7358:	fe 4f       	sbci	r31, 0xFE	; 254
-    735a:	90 83       	st	Z, r25
-    735c:	8f 5f       	subi	r24, 0xFF	; 255
-    735e:	80 93 02 01 	sts	0x0102, r24
+    764a:	80 91 30 02 	lds	r24, 0x0230
+    764e:	e8 2f       	mov	r30, r24
+    7650:	f0 e0       	ldi	r31, 0x00	; 0
+    7652:	ed 5f       	subi	r30, 0xFD	; 253
+    7654:	fc 4f       	sbci	r31, 0xFC	; 252
+    7656:	90 83       	st	Z, r25
+    7658:	8f 5f       	subi	r24, 0xFF	; 255
+    765a:	80 93 30 02 	sts	0x0230, r24
             
         rf12_buf[rxfill++] = in;
-    7362:	80 91 02 01 	lds	r24, 0x0102
-    7366:	e8 2f       	mov	r30, r24
-    7368:	f0 e0       	ldi	r31, 0x00	; 0
-    736a:	ec 5f       	subi	r30, 0xFC	; 252
-    736c:	fe 4f       	sbci	r31, 0xFE	; 254
-    736e:	20 83       	st	Z, r18
-    7370:	8f 5f       	subi	r24, 0xFF	; 255
-    7372:	80 93 02 01 	sts	0x0102, r24
+    765e:	80 91 30 02 	lds	r24, 0x0230
+    7662:	e8 2f       	mov	r30, r24
+    7664:	f0 e0       	ldi	r31, 0x00	; 0
+    7666:	ed 5f       	subi	r30, 0xFD	; 253
+    7668:	fc 4f       	sbci	r31, 0xFC	; 252
+    766a:	60 83       	st	Z, r22
+    766c:	8f 5f       	subi	r24, 0xFF	; 255
+    766e:	80 93 30 02 	sts	0x0230, r24
         rf12_crc = _crc16_update(rf12_crc, in);
-    7376:	80 91 4d 01 	lds	r24, 0x014D
-    737a:	90 91 4e 01 	lds	r25, 0x014E
-_crc16_update(uint16_t __crc, uint8_t __data)
-{
-	uint8_t __tmp;
-	uint16_t __ret;
-
-	__asm__ __volatile__ (
-    737e:	82 27       	eor	r24, r18
-    7380:	28 2f       	mov	r18, r24
-    7382:	22 95       	swap	r18
-    7384:	28 27       	eor	r18, r24
-    7386:	02 2e       	mov	r0, r18
-    7388:	26 95       	lsr	r18
-    738a:	26 95       	lsr	r18
-    738c:	20 25       	eor	r18, r0
-    738e:	02 2e       	mov	r0, r18
-    7390:	26 95       	lsr	r18
-    7392:	20 25       	eor	r18, r0
-    7394:	27 70       	andi	r18, 0x07	; 7
-    7396:	08 2e       	mov	r0, r24
-    7398:	89 2f       	mov	r24, r25
-    739a:	26 95       	lsr	r18
-    739c:	07 94       	ror	r0
-    739e:	27 95       	ror	r18
-    73a0:	90 2d       	mov	r25, r0
-    73a2:	82 27       	eor	r24, r18
-    73a4:	06 94       	lsr	r0
-    73a6:	27 95       	ror	r18
-    73a8:	90 25       	eor	r25, r0
-    73aa:	82 27       	eor	r24, r18
-    73ac:	90 93 4e 01 	sts	0x014E, r25
-    73b0:	80 93 4d 01 	sts	0x014D, r24
+    7672:	80 91 4a 03 	lds	r24, 0x034A
+    7676:	90 91 4b 03 	lds	r25, 0x034B
+    767a:	10 df       	rcall	.-480    	; 0x749c <_crc16_update>
+    767c:	90 93 4b 03 	sts	0x034B, r25
+    7680:	80 93 4a 03 	sts	0x034A, r24
 
         if (rxfill >= rf12_len + 5 || rxfill >= RF_MAX)
-    73b4:	80 91 06 01 	lds	r24, 0x0106
-    73b8:	20 91 02 01 	lds	r18, 0x0102
-    73bc:	90 e0       	ldi	r25, 0x00	; 0
-    73be:	04 96       	adiw	r24, 0x04	; 4
-    73c0:	30 e0       	ldi	r19, 0x00	; 0
-    73c2:	82 17       	cp	r24, r18
-    73c4:	93 07       	cpc	r25, r19
-    73c6:	2c f0       	brlt	.+10     	; 0x73d2 <rf12_recvDone+0xb6>
-    73c8:	80 91 02 01 	lds	r24, 0x0102
-    73cc:	87 34       	cpi	r24, 0x47	; 71
-    73ce:	08 f4       	brcc	.+2      	; 0x73d2 <rf12_recvDone+0xb6>
-    73d0:	6a c0       	rjmp	.+212    	; 0x74a6 <rf12_recvDone+0x18a>
+    7684:	80 91 05 03 	lds	r24, 0x0305
+    7688:	20 91 30 02 	lds	r18, 0x0230
+    768c:	90 e0       	ldi	r25, 0x00	; 0
+    768e:	04 96       	adiw	r24, 0x04	; 4
+    7690:	30 e0       	ldi	r19, 0x00	; 0
+    7692:	82 17       	cp	r24, r18
+    7694:	93 07       	cpc	r25, r19
+    7696:	2c f0       	brlt	.+10     	; 0x76a2 <rf12_recvDone+0x8a>
+    7698:	80 91 30 02 	lds	r24, 0x0230
+    769c:	87 34       	cpi	r24, 0x47	; 71
+    769e:	08 f4       	brcc	.+2      	; 0x76a2 <rf12_recvDone+0x8a>
+    76a0:	54 c0       	rjmp	.+168    	; 0x774a <rf12_recvDone+0x132>
             rf12_xfer(RF_IDLE_MODE);
-    73d2:	8d e0       	ldi	r24, 0x0D	; 13
-    73d4:	92 e8       	ldi	r25, 0x82	; 130
-    73d6:	66 c0       	rjmp	.+204    	; 0x74a4 <rf12_recvDone+0x188>
+    76a2:	8d e0       	ldi	r24, 0x0D	; 13
+    76a4:	92 e8       	ldi	r25, 0x82	; 130
+    76a6:	50 c0       	rjmp	.+160    	; 0x7748 <rf12_recvDone+0x130>
     } else {
         uint8_t out;
 
         if (rxstate < 0) {
-    73d8:	80 91 03 01 	lds	r24, 0x0103
-    73dc:	87 ff       	sbrs	r24, 7
-    73de:	2e c0       	rjmp	.+92     	; 0x743c <rf12_recvDone+0x120>
+    76a8:	80 91 2f 02 	lds	r24, 0x022F
+    76ac:	87 ff       	sbrs	r24, 7
+    76ae:	19 c0       	rjmp	.+50     	; 0x76e2 <rf12_recvDone+0xca>
             uint8_t pos = 3 + rf12_len + rxstate++;
-    73e0:	e0 91 06 01 	lds	r30, 0x0106
-    73e4:	80 91 03 01 	lds	r24, 0x0103
-    73e8:	8f 5f       	subi	r24, 0xFF	; 255
-    73ea:	80 93 03 01 	sts	0x0103, r24
-    73ee:	81 50       	subi	r24, 0x01	; 1
+    76b0:	e0 91 05 03 	lds	r30, 0x0305
+    76b4:	80 91 2f 02 	lds	r24, 0x022F
+    76b8:	98 2f       	mov	r25, r24
+    76ba:	9f 5f       	subi	r25, 0xFF	; 255
+    76bc:	90 93 2f 02 	sts	0x022F, r25
+    76c0:	ed 5f       	subi	r30, 0xFD	; 253
+    76c2:	e8 0f       	add	r30, r24
             out = rf12_buf[pos];
-    73f0:	ed 5f       	subi	r30, 0xFD	; 253
-    73f2:	e8 0f       	add	r30, r24
-    73f4:	f0 e0       	ldi	r31, 0x00	; 0
-    73f6:	ec 5f       	subi	r30, 0xFC	; 252
-    73f8:	fe 4f       	sbci	r31, 0xFE	; 254
-    73fa:	e0 81       	ld	r30, Z
+    76c4:	f0 e0       	ldi	r31, 0x00	; 0
+    76c6:	ed 5f       	subi	r30, 0xFD	; 253
+    76c8:	fc 4f       	sbci	r31, 0xFC	; 252
+    76ca:	10 81       	ld	r17, Z
             rf12_crc = _crc16_update(rf12_crc, out);
-    73fc:	80 91 4d 01 	lds	r24, 0x014D
-    7400:	90 91 4e 01 	lds	r25, 0x014E
-    7404:	8e 27       	eor	r24, r30
-    7406:	28 2f       	mov	r18, r24
-    7408:	22 95       	swap	r18
-    740a:	28 27       	eor	r18, r24
-    740c:	02 2e       	mov	r0, r18
-    740e:	26 95       	lsr	r18
-    7410:	26 95       	lsr	r18
-    7412:	20 25       	eor	r18, r0
-    7414:	02 2e       	mov	r0, r18
-    7416:	26 95       	lsr	r18
-    7418:	20 25       	eor	r18, r0
-    741a:	27 70       	andi	r18, 0x07	; 7
-    741c:	08 2e       	mov	r0, r24
-    741e:	89 2f       	mov	r24, r25
-    7420:	26 95       	lsr	r18
-    7422:	07 94       	ror	r0
-    7424:	27 95       	ror	r18
-    7426:	90 2d       	mov	r25, r0
-    7428:	82 27       	eor	r24, r18
-    742a:	06 94       	lsr	r0
-    742c:	27 95       	ror	r18
-    742e:	90 25       	eor	r25, r0
-    7430:	82 27       	eor	r24, r18
-    7432:	90 93 4e 01 	sts	0x014E, r25
-    7436:	80 93 4d 01 	sts	0x014D, r24
-    743a:	30 c0       	rjmp	.+96     	; 0x749c <rf12_recvDone+0x180>
+    76cc:	80 91 4a 03 	lds	r24, 0x034A
+    76d0:	90 91 4b 03 	lds	r25, 0x034B
+    76d4:	61 2f       	mov	r22, r17
+    76d6:	e2 de       	rcall	.-572    	; 0x749c <_crc16_update>
+    76d8:	90 93 4b 03 	sts	0x034B, r25
+    76dc:	80 93 4a 03 	sts	0x034A, r24
+    76e0:	2f c0       	rjmp	.+94     	; 0x7740 <rf12_recvDone+0x128>
         } else
             switch (rxstate++) {
-    743c:	80 91 03 01 	lds	r24, 0x0103
-    7440:	8f 5f       	subi	r24, 0xFF	; 255
-    7442:	80 93 03 01 	sts	0x0103, r24
-    7446:	81 50       	subi	r24, 0x01	; 1
-    7448:	83 30       	cpi	r24, 0x03	; 3
-    744a:	21 f1       	breq	.+72     	; 0x7494 <rf12_recvDone+0x178>
-    744c:	84 30       	cpi	r24, 0x04	; 4
-    744e:	2c f4       	brge	.+10     	; 0x745a <rf12_recvDone+0x13e>
-    7450:	88 23       	and	r24, r24
-    7452:	99 f0       	breq	.+38     	; 0x747a <rf12_recvDone+0x15e>
-    7454:	81 30       	cpi	r24, 0x01	; 1
-    7456:	09 f5       	brne	.+66     	; 0x749a <rf12_recvDone+0x17e>
-    7458:	15 c0       	rjmp	.+42     	; 0x7484 <rf12_recvDone+0x168>
-    745a:	89 30       	cpi	r24, 0x09	; 9
-    745c:	19 f0       	breq	.+6      	; 0x7464 <rf12_recvDone+0x148>
-    745e:	8a 30       	cpi	r24, 0x0A	; 10
-    7460:	e1 f4       	brne	.+56     	; 0x749a <rf12_recvDone+0x17e>
-    7462:	02 c0       	rjmp	.+4      	; 0x7468 <rf12_recvDone+0x14c>
-    7464:	ed e2       	ldi	r30, 0x2D	; 45
-    7466:	1a c0       	rjmp	.+52     	; 0x749c <rf12_recvDone+0x180>
+    76e2:	80 91 2f 02 	lds	r24, 0x022F
+    76e6:	98 2f       	mov	r25, r24
+    76e8:	9f 5f       	subi	r25, 0xFF	; 255
+    76ea:	90 93 2f 02 	sts	0x022F, r25
+    76ee:	83 30       	cpi	r24, 0x03	; 3
+    76f0:	19 f1       	breq	.+70     	; 0x7738 <rf12_recvDone+0x120>
+    76f2:	84 30       	cpi	r24, 0x04	; 4
+    76f4:	2c f4       	brge	.+10     	; 0x7700 <rf12_recvDone+0xe8>
+    76f6:	88 23       	and	r24, r24
+    76f8:	99 f0       	breq	.+38     	; 0x7720 <rf12_recvDone+0x108>
+    76fa:	81 30       	cpi	r24, 0x01	; 1
+    76fc:	01 f5       	brne	.+64     	; 0x773e <rf12_recvDone+0x126>
+    76fe:	16 c0       	rjmp	.+44     	; 0x772c <rf12_recvDone+0x114>
+    7700:	89 30       	cpi	r24, 0x09	; 9
+    7702:	19 f0       	breq	.+6      	; 0x770a <rf12_recvDone+0xf2>
+    7704:	8a 30       	cpi	r24, 0x0A	; 10
+    7706:	d9 f4       	brne	.+54     	; 0x773e <rf12_recvDone+0x126>
+    7708:	02 c0       	rjmp	.+4      	; 0x770e <rf12_recvDone+0xf6>
                 case TXSYN1: out = 0x2D; break;
+    770a:	1d e2       	ldi	r17, 0x2D	; 45
+    770c:	19 c0       	rjmp	.+50     	; 0x7740 <rf12_recvDone+0x128>
                 case TXSYN2: out = rf12_grp; rxstate = - (2 + rf12_len); break;
-    7468:	e0 91 04 01 	lds	r30, 0x0104
-    746c:	90 91 06 01 	lds	r25, 0x0106
-    7470:	8e ef       	ldi	r24, 0xFE	; 254
-    7472:	89 1b       	sub	r24, r25
-    7474:	80 93 03 01 	sts	0x0103, r24
-    7478:	11 c0       	rjmp	.+34     	; 0x749c <rf12_recvDone+0x180>
+    770e:	10 91 03 03 	lds	r17, 0x0303
+    7712:	90 91 05 03 	lds	r25, 0x0305
+    7716:	8e ef       	ldi	r24, 0xFE	; 254
+    7718:	89 1b       	sub	r24, r25
+    771a:	80 93 2f 02 	sts	0x022F, r24
+    771e:	10 c0       	rjmp	.+32     	; 0x7740 <rf12_recvDone+0x128>
                 case TXCRC1: out = rf12_crc; break;
-    747a:	80 91 4d 01 	lds	r24, 0x014D
-    747e:	90 91 4e 01 	lds	r25, 0x014E
-    7482:	06 c0       	rjmp	.+12     	; 0x7490 <rf12_recvDone+0x174>
+    7720:	80 91 4a 03 	lds	r24, 0x034A
+    7724:	90 91 4b 03 	lds	r25, 0x034B
+    7728:	18 2f       	mov	r17, r24
+    772a:	0a c0       	rjmp	.+20     	; 0x7740 <rf12_recvDone+0x128>
                 case TXCRC2: out = rf12_crc >> 8; break;
-    7484:	80 91 4d 01 	lds	r24, 0x014D
-    7488:	90 91 4e 01 	lds	r25, 0x014E
-    748c:	89 2f       	mov	r24, r25
-    748e:	99 27       	eor	r25, r25
-    7490:	e8 2f       	mov	r30, r24
-    7492:	04 c0       	rjmp	.+8      	; 0x749c <rf12_recvDone+0x180>
+    772c:	80 91 4a 03 	lds	r24, 0x034A
+    7730:	90 91 4b 03 	lds	r25, 0x034B
+    7734:	19 2f       	mov	r17, r25
+    7736:	04 c0       	rjmp	.+8      	; 0x7740 <rf12_recvDone+0x128>
                 case TXDONE: rf12_xfer(RF_IDLE_MODE); // fall through
-    7494:	8d e0       	ldi	r24, 0x0D	; 13
-    7496:	92 e8       	ldi	r25, 0x82	; 130
-    7498:	29 df       	rcall	.-430    	; 0x72ec <rf12_xfer>
-    749a:	ea ea       	ldi	r30, 0xAA	; 170
+    7738:	8d e0       	ldi	r24, 0x0D	; 13
+    773a:	92 e8       	ldi	r25, 0x82	; 130
+    773c:	52 df       	rcall	.-348    	; 0x75e2 <rf12_xfer>
                 default:     out = 0xAA;
+    773e:	1a ea       	ldi	r17, 0xAA	; 170
             }
             
         rf12_xfer(RF_TXREG_WRITE + out);
-    749c:	8e 2f       	mov	r24, r30
-    749e:	90 e0       	ldi	r25, 0x00	; 0
-    74a0:	80 50       	subi	r24, 0x00	; 0
-    74a2:	98 44       	sbci	r25, 0x48	; 72
-    74a4:	23 df       	rcall	.-442    	; 0x72ec <rf12_xfer>
+    7740:	81 2f       	mov	r24, r17
+    7742:	90 e0       	ldi	r25, 0x00	; 0
+    7744:	80 50       	subi	r24, 0x00	; 0
+    7746:	98 44       	sbci	r25, 0x48	; 72
+    7748:	4c df       	rcall	.-360    	; 0x75e2 <rf12_xfer>
 static uint8_t rf12_recvDone () {
     // if (digitalRead(RFM_IRQ) == 0)
     if (bitRead(RFM_IRQ_PIN, RFM_IRQ_BIT) == 0)
         rf12_interrupt();
         
     if (rxstate == TXRECV && (rxfill >= rf12_len + 5 || rxfill >= RF_MAX)) {
-    74a6:	80 91 03 01 	lds	r24, 0x0103
-    74aa:	85 30       	cpi	r24, 0x05	; 5
-    74ac:	99 f5       	brne	.+102    	; 0x7514 <rf12_recvDone+0x1f8>
-    74ae:	80 91 06 01 	lds	r24, 0x0106
-    74b2:	20 91 02 01 	lds	r18, 0x0102
-    74b6:	90 e0       	ldi	r25, 0x00	; 0
-    74b8:	04 96       	adiw	r24, 0x04	; 4
-    74ba:	30 e0       	ldi	r19, 0x00	; 0
-    74bc:	82 17       	cp	r24, r18
-    74be:	93 07       	cpc	r25, r19
-    74c0:	24 f0       	brlt	.+8      	; 0x74ca <rf12_recvDone+0x1ae>
-    74c2:	80 91 02 01 	lds	r24, 0x0102
-    74c6:	87 34       	cpi	r24, 0x47	; 71
-    74c8:	28 f1       	brcs	.+74     	; 0x7514 <rf12_recvDone+0x1f8>
+    774a:	80 91 2f 02 	lds	r24, 0x022F
+    774e:	85 30       	cpi	r24, 0x05	; 5
+    7750:	89 f5       	brne	.+98     	; 0x77b4 <rf12_recvDone+0x19c>
+    7752:	80 91 05 03 	lds	r24, 0x0305
+    7756:	20 91 30 02 	lds	r18, 0x0230
+    775a:	90 e0       	ldi	r25, 0x00	; 0
+    775c:	04 96       	adiw	r24, 0x04	; 4
+    775e:	30 e0       	ldi	r19, 0x00	; 0
+    7760:	82 17       	cp	r24, r18
+    7762:	93 07       	cpc	r25, r19
+    7764:	24 f0       	brlt	.+8      	; 0x776e <rf12_recvDone+0x156>
+    7766:	80 91 30 02 	lds	r24, 0x0230
+    776a:	87 34       	cpi	r24, 0x47	; 71
+    776c:	18 f1       	brcs	.+70     	; 0x77b4 <rf12_recvDone+0x19c>
         rxstate = TXIDLE;
-    74ca:	84 e0       	ldi	r24, 0x04	; 4
-    74cc:	80 93 03 01 	sts	0x0103, r24
+    776e:	84 e0       	ldi	r24, 0x04	; 4
+    7770:	80 93 2f 02 	sts	0x022F, r24
         if (rf12_len > RF12_MAXDATA)
-    74d0:	80 91 06 01 	lds	r24, 0x0106
-    74d4:	83 34       	cpi	r24, 0x43	; 67
-    74d6:	30 f0       	brcs	.+12     	; 0x74e4 <rf12_recvDone+0x1c8>
+    7774:	80 91 05 03 	lds	r24, 0x0305
+    7778:	83 34       	cpi	r24, 0x43	; 67
+    777a:	30 f0       	brcs	.+12     	; 0x7788 <rf12_recvDone+0x170>
             rf12_crc = 1; // force bad crc if packet length is invalid
-    74d8:	81 e0       	ldi	r24, 0x01	; 1
-    74da:	90 e0       	ldi	r25, 0x00	; 0
-    74dc:	90 93 4e 01 	sts	0x014E, r25
-    74e0:	80 93 4d 01 	sts	0x014D, r24
+    777c:	81 e0       	ldi	r24, 0x01	; 1
+    777e:	90 e0       	ldi	r25, 0x00	; 0
+    7780:	90 93 4b 03 	sts	0x034B, r25
+    7784:	80 93 4a 03 	sts	0x034A, r24
         if (!(rf12_hdr & RF12_HDR_DST) || (nodeid & NODE_ID) == 31 ||
-    74e4:	80 91 05 01 	lds	r24, 0x0105
-    74e8:	86 ff       	sbrs	r24, 6
-    74ea:	4c c0       	rjmp	.+152    	; 0x7584 <rf12_recvDone+0x268>
-    74ec:	80 91 00 01 	lds	r24, 0x0100
-    74f0:	28 2f       	mov	r18, r24
-    74f2:	30 e0       	ldi	r19, 0x00	; 0
-    74f4:	c9 01       	movw	r24, r18
-    74f6:	8f 71       	andi	r24, 0x1F	; 31
-    74f8:	90 70       	andi	r25, 0x00	; 0
-    74fa:	4f 97       	sbiw	r24, 0x1f	; 31
-    74fc:	09 f4       	brne	.+2      	; 0x7500 <rf12_recvDone+0x1e4>
-    74fe:	42 c0       	rjmp	.+132    	; 0x7584 <rf12_recvDone+0x268>
-    7500:	80 91 05 01 	lds	r24, 0x0105
-    7504:	90 e0       	ldi	r25, 0x00	; 0
-    7506:	82 27       	eor	r24, r18
-    7508:	93 27       	eor	r25, r19
-    750a:	8f 71       	andi	r24, 0x1F	; 31
-    750c:	90 70       	andi	r25, 0x00	; 0
-    750e:	89 2b       	or	r24, r25
-    7510:	09 f4       	brne	.+2      	; 0x7514 <rf12_recvDone+0x1f8>
-    7512:	38 c0       	rjmp	.+112    	; 0x7584 <rf12_recvDone+0x268>
+    7788:	80 91 04 03 	lds	r24, 0x0304
+    778c:	86 ff       	sbrs	r24, 6
+    778e:	32 c0       	rjmp	.+100    	; 0x77f4 <rf12_recvDone+0x1dc>
+    7790:	20 91 31 02 	lds	r18, 0x0231
+    7794:	30 e0       	ldi	r19, 0x00	; 0
+    7796:	c9 01       	movw	r24, r18
+    7798:	8f 71       	andi	r24, 0x1F	; 31
+    779a:	90 70       	andi	r25, 0x00	; 0
+    779c:	8f 31       	cpi	r24, 0x1F	; 31
+    779e:	91 05       	cpc	r25, r1
+    77a0:	49 f1       	breq	.+82     	; 0x77f4 <rf12_recvDone+0x1dc>
+                (rf12_hdr & RF12_HDR_MASK) == (nodeid & NODE_ID)) {
+    77a2:	80 91 04 03 	lds	r24, 0x0304
+    77a6:	90 e0       	ldi	r25, 0x00	; 0
+    77a8:	82 27       	eor	r24, r18
+    77aa:	93 27       	eor	r25, r19
+    77ac:	8f 71       	andi	r24, 0x1F	; 31
+    77ae:	90 70       	andi	r25, 0x00	; 0
+        
+    if (rxstate == TXRECV && (rxfill >= rf12_len + 5 || rxfill >= RF_MAX)) {
+        rxstate = TXIDLE;
+        if (rf12_len > RF12_MAXDATA)
+            rf12_crc = 1; // force bad crc if packet length is invalid
+        if (!(rf12_hdr & RF12_HDR_DST) || (nodeid & NODE_ID) == 31 ||
+    77b0:	00 97       	sbiw	r24, 0x00	; 0
+    77b2:	01 f1       	breq	.+64     	; 0x77f4 <rf12_recvDone+0x1dc>
                 (rf12_hdr & RF12_HDR_MASK) == (nodeid & NODE_ID)) {
             return 1; // it's a broadcast packet or it's addressed to this node
         }
     }
     if (rxstate == TXIDLE)
-    7514:	80 91 03 01 	lds	r24, 0x0103
-    7518:	84 30       	cpi	r24, 0x04	; 4
-    751a:	09 f0       	breq	.+2      	; 0x751e <rf12_recvDone+0x202>
-    751c:	31 c0       	rjmp	.+98     	; 0x7580 <rf12_recvDone+0x264>
+    77b4:	80 91 2f 02 	lds	r24, 0x022F
+    77b8:	84 30       	cpi	r24, 0x04	; 4
+    77ba:	f1 f4       	brne	.+60     	; 0x77f8 <rf12_recvDone+0x1e0>
         rf12_xfer(RF_TXREG_WRITE + out);
     }
 }
 
 static void rf12_recvStart () {
     rxfill = rf12_len = 0;
-    751e:	10 92 06 01 	sts	0x0106, r1
-    7522:	80 91 06 01 	lds	r24, 0x0106
-    7526:	80 93 02 01 	sts	0x0102, r24
+    77bc:	10 92 05 03 	sts	0x0305, r1
+    77c0:	80 91 05 03 	lds	r24, 0x0305
+    77c4:	80 93 30 02 	sts	0x0230, r24
     rf12_crc = ~0;
-    752a:	8f ef       	ldi	r24, 0xFF	; 255
-    752c:	9f ef       	ldi	r25, 0xFF	; 255
-    752e:	90 93 4e 01 	sts	0x014E, r25
-    7532:	80 93 4d 01 	sts	0x014D, r24
+    77c8:	8f ef       	ldi	r24, 0xFF	; 255
+    77ca:	9f ef       	ldi	r25, 0xFF	; 255
+    77cc:	90 93 4b 03 	sts	0x034B, r25
+    77d0:	80 93 4a 03 	sts	0x034A, r24
 #if RF12_VERSION >= 2
     if (group != 0)
-    7536:	20 91 01 01 	lds	r18, 0x0101
-    753a:	22 23       	and	r18, r18
-    753c:	d9 f0       	breq	.+54     	; 0x7574 <rf12_recvDone+0x258>
-    753e:	82 27       	eor	r24, r18
-    7540:	28 2f       	mov	r18, r24
-    7542:	22 95       	swap	r18
-    7544:	28 27       	eor	r18, r24
-    7546:	02 2e       	mov	r0, r18
-    7548:	26 95       	lsr	r18
-    754a:	26 95       	lsr	r18
-    754c:	20 25       	eor	r18, r0
-    754e:	02 2e       	mov	r0, r18
-    7550:	26 95       	lsr	r18
-    7552:	20 25       	eor	r18, r0
-    7554:	27 70       	andi	r18, 0x07	; 7
-    7556:	08 2e       	mov	r0, r24
-    7558:	89 2f       	mov	r24, r25
-    755a:	26 95       	lsr	r18
-    755c:	07 94       	ror	r0
-    755e:	27 95       	ror	r18
-    7560:	90 2d       	mov	r25, r0
-    7562:	82 27       	eor	r24, r18
-    7564:	06 94       	lsr	r0
-    7566:	27 95       	ror	r18
-    7568:	90 25       	eor	r25, r0
-    756a:	82 27       	eor	r24, r18
+    77d4:	60 91 32 02 	lds	r22, 0x0232
+    77d8:	66 23       	and	r22, r22
+    77da:	29 f0       	breq	.+10     	; 0x77e6 <rf12_recvDone+0x1ce>
         rf12_crc = _crc16_update(~0, group);
-    756c:	90 93 4e 01 	sts	0x014E, r25
-    7570:	80 93 4d 01 	sts	0x014D, r24
+    77dc:	5f de       	rcall	.-834    	; 0x749c <_crc16_update>
+    77de:	90 93 4b 03 	sts	0x034B, r25
+    77e2:	80 93 4a 03 	sts	0x034A, r24
 #endif
     rxstate = TXRECV;    
-    7574:	85 e0       	ldi	r24, 0x05	; 5
-    7576:	80 93 03 01 	sts	0x0103, r24
+    77e6:	85 e0       	ldi	r24, 0x05	; 5
+    77e8:	80 93 2f 02 	sts	0x022F, r24
     rf12_xfer(RF_RECEIVER_ON);
-    757a:	8d ed       	ldi	r24, 0xDD	; 221
-    757c:	92 e8       	ldi	r25, 0x82	; 130
-    757e:	b6 de       	rcall	.-660    	; 0x72ec <rf12_xfer>
-    7580:	80 e0       	ldi	r24, 0x00	; 0
-    7582:	08 95       	ret
-    7584:	81 e0       	ldi	r24, 0x01	; 1
+    77ec:	8d ed       	ldi	r24, 0xDD	; 221
+    77ee:	92 e8       	ldi	r25, 0x82	; 130
+    77f0:	f8 de       	rcall	.-528    	; 0x75e2 <rf12_xfer>
+    77f2:	02 c0       	rjmp	.+4      	; 0x77f8 <rf12_recvDone+0x1e0>
+        rxstate = TXIDLE;
+        if (rf12_len > RF12_MAXDATA)
+            rf12_crc = 1; // force bad crc if packet length is invalid
+        if (!(rf12_hdr & RF12_HDR_DST) || (nodeid & NODE_ID) == 31 ||
+                (rf12_hdr & RF12_HDR_MASK) == (nodeid & NODE_ID)) {
+            return 1; // it's a broadcast packet or it's addressed to this node
+    77f4:	81 e0       	ldi	r24, 0x01	; 1
+    77f6:	01 c0       	rjmp	.+2      	; 0x77fa <rf12_recvDone+0x1e2>
         }
     }
     if (rxstate == TXIDLE)
         rf12_recvStart();
     return 0;
+    77f8:	80 e0       	ldi	r24, 0x00	; 0
 }
-    7586:	08 95       	ret
+    77fa:	1f 91       	pop	r17
+    77fc:	08 95       	ret
 
-00007588 <rf12_initialize>:
+000077fe <calcCRC>:
+#define BASE_ADDR ((uint8_t*) 0x0)			  // base address of user program
+#define CONFIG_ADDR (BASE_ADDR - sizeof(config)) // where config goes
+
+#define MAX_BACKOFF 4                     // std:12 -- 61*(2**MAX_BACKOFF) milliseconds
+
+static uint16_t calcCRC (const void *start, int len) {
+    77fe:	0f 93       	push	r16
+    7800:	1f 93       	push	r17
+    7802:	cf 93       	push	r28
+    7804:	df 93       	push	r29
+	const uint8_t *ptr = start;
+    7806:	8c 01       	movw	r16, r24
+    7808:	eb 01       	movw	r28, r22
+  int crc = ~0;
+    780a:	8f ef       	ldi	r24, 0xFF	; 255
+    780c:	9f ef       	ldi	r25, 0xFF	; 255
+	while (len--)
+    780e:	05 c0       	rjmp	.+10     	; 0x781a <calcCRC+0x1c>
+    crc = _crc16_update(crc, *ptr++);
+    7810:	f8 01       	movw	r30, r16
+    7812:	61 91       	ld	r22, Z+
+    7814:	8f 01       	movw	r16, r30
+    7816:	42 de       	rcall	.-892    	; 0x749c <_crc16_update>
+    7818:	21 97       	sbiw	r28, 0x01	; 1
+#define MAX_BACKOFF 4                     // std:12 -- 61*(2**MAX_BACKOFF) milliseconds
+
+static uint16_t calcCRC (const void *start, int len) {
+	const uint8_t *ptr = start;
+  int crc = ~0;
+	while (len--)
+    781a:	20 97       	sbiw	r28, 0x00	; 0
+    781c:	c9 f7       	brne	.-14     	; 0x7810 <calcCRC+0x12>
+    crc = _crc16_update(crc, *ptr++);
+  //P("  crc "); P_X16(crc); P_LN();
+  return crc;
+}
+    781e:	df 91       	pop	r29
+    7820:	cf 91       	pop	r28
+    7822:	1f 91       	pop	r17
+    7824:	0f 91       	pop	r16
+    7826:	08 95       	ret
+
+00007828 <writeFlash>:
+// to allow for odd radio packet sizes since we've got enough RAM...
+static uint16_t flashBuffer[(PAGE_SIZE+BOOT_DATA_MAX+1)/2];   // buffer for a full page of flash
+
+// Write a complete buffer to flash
+// TODO: optimize for RWW section to erase while requesting data
+static void writeFlash(void *flash) {
+    7828:	cf 93       	push	r28
+    782a:	df 93       	push	r29
+    782c:	ec 01       	movw	r28, r24
+	P("Flash "); P_X16((uint16_t)flash); P_LN();
+    782e:	80 e0       	ldi	r24, 0x00	; 0
+    7830:	91 e0       	ldi	r25, 0x01	; 1
+    7832:	a1 de       	rcall	.-702    	; 0x7576 <P>
+    7834:	ce 01       	movw	r24, r28
+    7836:	c0 de       	rcall	.-640    	; 0x75b8 <P_X16>
+    7838:	a9 de       	rcall	.-686    	; 0x758c <P_LN>
+	//P_A(flashBuffer, PAGE_SIZE); P_LN();
+  // first erase the page
+	boot_page_erase(flash);
+    783a:	83 e0       	ldi	r24, 0x03	; 3
+    783c:	fe 01       	movw	r30, r28
+    783e:	87 bf       	out	0x37, r24	; 55
+    7840:	e8 95       	spm
+	boot_spm_busy_wait();
+    7842:	07 b6       	in	r0, 0x37	; 55
+    7844:	00 fc       	sbrc	r0, 0
+    7846:	fd cf       	rjmp	.-6      	; 0x7842 <writeFlash+0x1a>
+    7848:	a3 e3       	ldi	r26, 0x33	; 51
+    784a:	b2 e0       	ldi	r27, 0x02	; 2
+// to allow for odd radio packet sizes since we've got enough RAM...
+static uint16_t flashBuffer[(PAGE_SIZE+BOOT_DATA_MAX+1)/2];   // buffer for a full page of flash
+
+// Write a complete buffer to flash
+// TODO: optimize for RWW section to erase while requesting data
+static void writeFlash(void *flash) {
+    784c:	fe 01       	movw	r30, r28
+  // first erase the page
+	boot_page_erase(flash);
+	boot_spm_busy_wait();
+	// copy the in-memory buffer into the write-buffer
+	for (uint8_t i=0; i<PAGE_SIZE/2; i++) {
+		boot_page_fill(flash+2*i, flashBuffer[i]);
+    784e:	21 e0       	ldi	r18, 0x01	; 1
+    7850:	8d 91       	ld	r24, X+
+    7852:	9d 91       	ld	r25, X+
+    7854:	0c 01       	movw	r0, r24
+    7856:	27 bf       	out	0x37, r18	; 55
+    7858:	e8 95       	spm
+    785a:	11 24       	eor	r1, r1
+    785c:	32 96       	adiw	r30, 0x02	; 2
+	//P_A(flashBuffer, PAGE_SIZE); P_LN();
+  // first erase the page
+	boot_page_erase(flash);
+	boot_spm_busy_wait();
+	// copy the in-memory buffer into the write-buffer
+	for (uint8_t i=0; i<PAGE_SIZE/2; i++) {
+    785e:	82 e0       	ldi	r24, 0x02	; 2
+    7860:	a3 3b       	cpi	r26, 0xB3	; 179
+    7862:	b8 07       	cpc	r27, r24
+    7864:	a9 f7       	brne	.-22     	; 0x7850 <writeFlash+0x28>
+		boot_page_fill(flash+2*i, flashBuffer[i]);
+	}
+	boot_page_write(flash);
+    7866:	85 e0       	ldi	r24, 0x05	; 5
+    7868:	fe 01       	movw	r30, r28
+    786a:	87 bf       	out	0x37, r24	; 55
+    786c:	e8 95       	spm
+	boot_spm_busy_wait();
+    786e:	07 b6       	in	r0, 0x37	; 55
+    7870:	00 fc       	sbrc	r0, 0
+    7872:	fd cf       	rjmp	.-6      	; 0x786e <writeFlash+0x46>
+	boot_rww_enable();
+    7874:	81 e1       	ldi	r24, 0x11	; 17
+    7876:	87 bf       	out	0x37, r24	; 55
+    7878:	e8 95       	spm
+}
+    787a:	df 91       	pop	r29
+    787c:	cf 91       	pop	r28
+    787e:	08 95       	ret
+
+00007880 <exponentialBackOff>:
+// 0.1% = 1/1000 = 250ms/250s --> poll every 4.1 minutes
+// starting with a 61ms back-off that's 61 << 12
+
+static byte backOffCounter;
+
+static void exponentialBackOff () {
+    7880:	1f 93       	push	r17
+  P("Backoff "); P_X8(backOffCounter); P_LN();
+    7882:	87 e0       	ldi	r24, 0x07	; 7
+    7884:	91 e0       	ldi	r25, 0x01	; 1
+    7886:	77 de       	rcall	.-786    	; 0x7576 <P>
+    7888:	10 91 2e 02 	lds	r17, 0x022E
+    788c:	81 2f       	mov	r24, r17
+    788e:	80 de       	rcall	.-768    	; 0x7590 <P_X8>
+    7890:	7d de       	rcall	.-774    	; 0x758c <P_LN>
+  sleep(61L << backOffCounter);
+    7892:	6d e3       	ldi	r22, 0x3D	; 61
+    7894:	70 e0       	ldi	r23, 0x00	; 0
+    7896:	80 e0       	ldi	r24, 0x00	; 0
+    7898:	90 e0       	ldi	r25, 0x00	; 0
+    789a:	01 2e       	mov	r0, r17
+    789c:	04 c0       	rjmp	.+8      	; 0x78a6 <exponentialBackOff+0x26>
+    789e:	66 0f       	add	r22, r22
+    78a0:	77 1f       	adc	r23, r23
+    78a2:	88 1f       	adc	r24, r24
+    78a4:	99 1f       	adc	r25, r25
+    78a6:	0a 94       	dec	r0
+    78a8:	d2 f7       	brpl	.-12     	; 0x789e <exponentialBackOff+0x1e>
+    78aa:	31 de       	rcall	.-926    	; 0x750e <sleep>
+  if (backOffCounter < MAX_BACKOFF)
+    78ac:	14 30       	cpi	r17, 0x04	; 4
+    78ae:	18 f4       	brcc	.+6      	; 0x78b6 <exponentialBackOff+0x36>
+    ++backOffCounter;
+    78b0:	1f 5f       	subi	r17, 0xFF	; 255
+    78b2:	10 93 2e 02 	sts	0x022E, r17
+}
+    78b6:	1f 91       	pop	r17
+    78b8:	08 95       	ret
+
+000078ba <fillFlash>:
+	boot_spm_busy_wait();
+	boot_rww_enable();
+}
+
+// copy a chunk from memory into the flash buffer and write flash if we've got a page full
+static void fillFlash (void *flash, const void *ram, uint8_t sz) {
+    78ba:	ef 92       	push	r14
+    78bc:	ff 92       	push	r15
+    78be:	0f 93       	push	r16
+    78c0:	1f 93       	push	r17
+    78c2:	cf 93       	push	r28
+    78c4:	df 93       	push	r29
+    78c6:	7c 01       	movw	r14, r24
+	//P("FF "); P_X16((uint16_t)flash); P_LN();
+	// copy ram to buffer
+	uint16_t offset = (uint16_t)flash & (PAGE_SIZE-1);
+    78c8:	ec 01       	movw	r28, r24
+    78ca:	cf 77       	andi	r28, 0x7F	; 127
+    78cc:	d0 70       	andi	r29, 0x00	; 0
+	memcpy(flashBuffer+offset/2, ram, sz);
+    78ce:	04 2f       	mov	r16, r20
+    78d0:	10 e0       	ldi	r17, 0x00	; 0
+    78d2:	ce 01       	movw	r24, r28
+    78d4:	8e 77       	andi	r24, 0x7E	; 126
+    78d6:	90 70       	andi	r25, 0x00	; 0
+    78d8:	8d 5c       	subi	r24, 0xCD	; 205
+    78da:	9d 4f       	sbci	r25, 0xFD	; 253
+    78dc:	a8 01       	movw	r20, r16
+    78de:	13 d2       	rcall	.+1062   	; 0x7d06 <memcpy>
+	// time to to flash?
+	if (offset+sz >= PAGE_SIZE) {
+    78e0:	0c 0f       	add	r16, r28
+    78e2:	1d 1f       	adc	r17, r29
+    78e4:	00 38       	cpi	r16, 0x80	; 128
+    78e6:	11 05       	cpc	r17, r1
+    78e8:	60 f0       	brcs	.+24     	; 0x7902 <fillFlash+0x48>
+		writeFlash(flash-offset);
+    78ea:	c7 01       	movw	r24, r14
+    78ec:	8c 1b       	sub	r24, r28
+    78ee:	9d 0b       	sbc	r25, r29
+    78f0:	9b df       	rcall	.-202    	; 0x7828 <writeFlash>
+		// shift excess data down
+		memcpy(flashBuffer, flashBuffer+PAGE_SIZE/2, offset+sz-PAGE_SIZE);
+    78f2:	a8 01       	movw	r20, r16
+    78f4:	40 58       	subi	r20, 0x80	; 128
+    78f6:	50 40       	sbci	r21, 0x00	; 0
+    78f8:	83 e3       	ldi	r24, 0x33	; 51
+    78fa:	92 e0       	ldi	r25, 0x02	; 2
+    78fc:	63 eb       	ldi	r22, 0xB3	; 179
+    78fe:	72 e0       	ldi	r23, 0x02	; 2
+    7900:	02 d2       	rcall	.+1028   	; 0x7d06 <memcpy>
+	}
+}
+    7902:	df 91       	pop	r29
+    7904:	cf 91       	pop	r28
+    7906:	1f 91       	pop	r17
+    7908:	0f 91       	pop	r16
+    790a:	ff 90       	pop	r15
+    790c:	ef 90       	pop	r14
+    790e:	08 95       	ret
+
+00007910 <saveConfig>:
+  }
+}
+
+// Saves config by inserting it into the end of the last page program memory (flash)
+static void saveConfig () {
+  config.version = 1;
+    7910:	81 e0       	ldi	r24, 0x01	; 1
+    7912:	90 e0       	ldi	r25, 0x00	; 0
+    7914:	a0 e0       	ldi	r26, 0x00	; 0
+    7916:	b0 e0       	ldi	r27, 0x00	; 0
+    7918:	80 93 4c 03 	sts	0x034C, r24
+    791c:	90 93 4d 03 	sts	0x034D, r25
+    7920:	a0 93 4e 03 	sts	0x034E, r26
+    7924:	b0 93 4f 03 	sts	0x034F, r27
+  if (calcCRC(&config, sizeof config) != 0) {
+    7928:	8c e4       	ldi	r24, 0x4C	; 76
+    792a:	93 e0       	ldi	r25, 0x03	; 3
+    792c:	60 e2       	ldi	r22, 0x20	; 32
+    792e:	70 e0       	ldi	r23, 0x00	; 0
+    7930:	66 df       	rcall	.-308    	; 0x77fe <calcCRC>
+    7932:	00 97       	sbiw	r24, 0x00	; 0
+    7934:	e9 f0       	breq	.+58     	; 0x7970 <saveConfig+0x60>
+    config.check = calcCRC(&config, sizeof config - 2);
+    7936:	8c e4       	ldi	r24, 0x4C	; 76
+    7938:	93 e0       	ldi	r25, 0x03	; 3
+    793a:	6e e1       	ldi	r22, 0x1E	; 30
+    793c:	70 e0       	ldi	r23, 0x00	; 0
+    793e:	5f df       	rcall	.-322    	; 0x77fe <calcCRC>
+    7940:	90 93 6b 03 	sts	0x036B, r25
+    7944:	80 93 6a 03 	sts	0x036A, r24
+    //P("save config 0x"); P_X16(config.check); P_LN();
+		//P("config @0x"); P_A(&config, sizeof(config));
+		// Load last page of program memory
+		uint8_t *tgt = (uint8_t *)flashBuffer;
+		for (uint8_t i=0; i<PAGE_SIZE; i++)
+    7948:	20 e0       	ldi	r18, 0x00	; 0
+				tgt[i] = pgm_read_byte_near(BASE_ADDR-PAGE_SIZE+i);
+    794a:	82 2f       	mov	r24, r18
+    794c:	90 e0       	ldi	r25, 0x00	; 0
+    794e:	fc 01       	movw	r30, r24
+    7950:	e0 58       	subi	r30, 0x80	; 128
+    7952:	f0 40       	sbci	r31, 0x00	; 0
+    7954:	e4 91       	lpm	r30, Z+
+    7956:	8d 5c       	subi	r24, 0xCD	; 205
+    7958:	9d 4f       	sbci	r25, 0xFD	; 253
+    795a:	dc 01       	movw	r26, r24
+    795c:	ec 93       	st	X, r30
+    config.check = calcCRC(&config, sizeof config - 2);
+    //P("save config 0x"); P_X16(config.check); P_LN();
+		//P("config @0x"); P_A(&config, sizeof(config));
+		// Load last page of program memory
+		uint8_t *tgt = (uint8_t *)flashBuffer;
+		for (uint8_t i=0; i<PAGE_SIZE; i++)
+    795e:	2f 5f       	subi	r18, 0xFF	; 255
+    7960:	20 38       	cpi	r18, 0x80	; 128
+    7962:	99 f7       	brne	.-26     	; 0x794a <saveConfig+0x3a>
+				tgt[i] = pgm_read_byte_near(BASE_ADDR-PAGE_SIZE+i);
+		// Slap config on top and flash it!
+		fillFlash(CONFIG_ADDR, &config, sizeof(config));
+    7964:	80 ee       	ldi	r24, 0xE0	; 224
+    7966:	9f ef       	ldi	r25, 0xFF	; 255
+    7968:	6c e4       	ldi	r22, 0x4C	; 76
+    796a:	73 e0       	ldi	r23, 0x03	; 3
+    796c:	40 e2       	ldi	r20, 0x20	; 32
+    796e:	a5 cf       	rjmp	.-182    	; 0x78ba <fillFlash>
+    7970:	08 95       	ret
+
+00007972 <appIsValid>:
+  }
+}
+
+//===== Upgrade =====
+
+static int appIsValid () {
+    7972:	ef 92       	push	r14
+    7974:	ff 92       	push	r15
+    7976:	0f 93       	push	r16
+    7978:	1f 93       	push	r17
+    797a:	cf 93       	push	r28
+    797c:	df 93       	push	r29
+  //return calcCRC(BASE_ADDR, config.swSize << 4) == config.swCheck;
+  uint16_t curr = calcFlashCRC(BASE_ADDR, config.swSize << 4);
+    797e:	00 91 66 03 	lds	r16, 0x0366
+    7982:	10 91 67 03 	lds	r17, 0x0367
+    7986:	34 e0       	ldi	r19, 0x04	; 4
+    7988:	00 0f       	add	r16, r16
+    798a:	11 1f       	adc	r17, r17
+    798c:	3a 95       	dec	r19
+    798e:	e1 f7       	brne	.-8      	; 0x7988 <appIsValid+0x16>
+}
+
+// calculate the CRC of a block in flash, len must be a multiple of 2!
+static uint16_t calcFlashCRC (const void *start, int len) {
+	const uint8_t *ptr = start;
+  uint16_t crc = ~0;
+    7990:	ee 24       	eor	r14, r14
+    7992:	ea 94       	dec	r14
+    7994:	fe 2c       	mov	r15, r14
+  return crc;
+}
+
+// calculate the CRC of a block in flash, len must be a multiple of 2!
+static uint16_t calcFlashCRC (const void *start, int len) {
+	const uint8_t *ptr = start;
+    7996:	c0 e0       	ldi	r28, 0x00	; 0
+    7998:	d0 e0       	ldi	r29, 0x00	; 0
+    799a:	05 c0       	rjmp	.+10     	; 0x79a6 <appIsValid+0x34>
+  uint16_t crc = ~0;
+	while (len--) {
+		uint8_t b = pgm_read_byte_near(ptr++);
+    799c:	21 96       	adiw	r28, 0x01	; 1
+    799e:	64 91       	lpm	r22, Z+
+    crc = _crc16_update(crc, b);
+    79a0:	c7 01       	movw	r24, r14
+    79a2:	7c dd       	rcall	.-1288   	; 0x749c <_crc16_update>
+    79a4:	7c 01       	movw	r14, r24
+  }
+}
+
+//===== Upgrade =====
+
+static int appIsValid () {
+    79a6:	fe 01       	movw	r30, r28
+
+// calculate the CRC of a block in flash, len must be a multiple of 2!
+static uint16_t calcFlashCRC (const void *start, int len) {
+	const uint8_t *ptr = start;
+  uint16_t crc = ~0;
+	while (len--) {
+    79a8:	0c 17       	cp	r16, r28
+    79aa:	1d 07       	cpc	r17, r29
+    79ac:	b9 f7       	brne	.-18     	; 0x799c <appIsValid+0x2a>
+//===== Upgrade =====
+
+static int appIsValid () {
+  //return calcCRC(BASE_ADDR, config.swSize << 4) == config.swCheck;
+  uint16_t curr = calcFlashCRC(BASE_ADDR, config.swSize << 4);
+	P("SW="); P_X16(curr);
+    79ae:	8a e1       	ldi	r24, 0x1A	; 26
+    79b0:	91 e0       	ldi	r25, 0x01	; 1
+    79b2:	e1 dd       	rcall	.-1086   	; 0x7576 <P>
+    79b4:	c7 01       	movw	r24, r14
+    79b6:	00 de       	rcall	.-1024   	; 0x75b8 <P_X16>
+	P(" want="); P_X16(config.swCheck);
+    79b8:	8e e1       	ldi	r24, 0x1E	; 30
+    79ba:	91 e0       	ldi	r25, 0x01	; 1
+    79bc:	dc dd       	rcall	.-1096   	; 0x7576 <P>
+    79be:	80 91 68 03 	lds	r24, 0x0368
+    79c2:	90 91 69 03 	lds	r25, 0x0369
+    79c6:	f8 dd       	rcall	.-1040   	; 0x75b8 <P_X16>
+	P(curr == config.swCheck ? " OK\n" : " NO\n");
+    79c8:	80 91 68 03 	lds	r24, 0x0368
+    79cc:	90 91 69 03 	lds	r25, 0x0369
+    79d0:	e8 16       	cp	r14, r24
+    79d2:	f9 06       	cpc	r15, r25
+    79d4:	19 f4       	brne	.+6      	; 0x79dc <appIsValid+0x6a>
+    79d6:	80 e1       	ldi	r24, 0x10	; 16
+    79d8:	91 e0       	ldi	r25, 0x01	; 1
+    79da:	02 c0       	rjmp	.+4      	; 0x79e0 <appIsValid+0x6e>
+    79dc:	85 e1       	ldi	r24, 0x15	; 21
+    79de:	91 e0       	ldi	r25, 0x01	; 1
+    79e0:	ca dd       	rcall	.-1132   	; 0x7576 <P>
+	return curr == config.swCheck;
+    79e2:	81 e0       	ldi	r24, 0x01	; 1
+    79e4:	90 e0       	ldi	r25, 0x00	; 0
+    79e6:	20 91 68 03 	lds	r18, 0x0368
+    79ea:	30 91 69 03 	lds	r19, 0x0369
+    79ee:	e2 16       	cp	r14, r18
+    79f0:	f3 06       	cpc	r15, r19
+    79f2:	11 f0       	breq	.+4      	; 0x79f8 <appIsValid+0x86>
+    79f4:	80 e0       	ldi	r24, 0x00	; 0
+    79f6:	90 e0       	ldi	r25, 0x00	; 0
+}
+    79f8:	df 91       	pop	r29
+    79fa:	cf 91       	pop	r28
+    79fc:	1f 91       	pop	r17
+    79fe:	0f 91       	pop	r16
+    7a00:	ff 90       	pop	r15
+    7a02:	ef 90       	pop	r14
+    7a04:	08 95       	ret
+
+00007a06 <P_A.clone.1>:
+// print array of bytes
+static void P_A(void *arr, uint8_t n) {
+    7a06:	cf 93       	push	r28
+    7a08:	df 93       	push	r29
+	uint8_t *v = arr;
+    7a0a:	cc e4       	ldi	r28, 0x4C	; 76
+    7a0c:	d3 e0       	ldi	r29, 0x03	; 3
+	P_X16((uint16_t)v);
+    7a0e:	ce 01       	movw	r24, r28
+    7a10:	d3 dd       	rcall	.-1114   	; 0x75b8 <P_X16>
+	P(": ");
+    7a12:	85 e2       	ldi	r24, 0x25	; 37
+    7a14:	91 e0       	ldi	r25, 0x01	; 1
+    7a16:	af dd       	rcall	.-1186   	; 0x7576 <P>
+    7a18:	04 c0       	rjmp	.+8      	; 0x7a22 <P_A.clone.1+0x1c>
+	while (n--) {
+		P_X8(*v++); putch(' ');
+    7a1a:	89 91       	ld	r24, Y+
+    7a1c:	b9 dd       	rcall	.-1166   	; 0x7590 <P_X8>
+    7a1e:	80 e2       	ldi	r24, 0x20	; 32
+    7a20:	a3 dd       	rcall	.-1210   	; 0x7568 <putch>
+// print array of bytes
+static void P_A(void *arr, uint8_t n) {
+	uint8_t *v = arr;
+	P_X16((uint16_t)v);
+	P(": ");
+	while (n--) {
+    7a22:	83 e0       	ldi	r24, 0x03	; 3
+    7a24:	cc 36       	cpi	r28, 0x6C	; 108
+    7a26:	d8 07       	cpc	r29, r24
+    7a28:	c1 f7       	brne	.-16     	; 0x7a1a <P_A.clone.1+0x14>
+		P_X8(*v++); putch(' ');
+	}
+	P_LN();
+    7a2a:	b0 dd       	rcall	.-1184   	; 0x758c <P_LN>
+}
+    7a2c:	df 91       	pop	r29
+    7a2e:	cf 91       	pop	r28
+    7a30:	08 95       	ret
+
+00007a32 <rf12_initialize.clone.2>:
 
 /*
   Call this once with the node ID (0-31), frequency band (0-3), and
   optional group (0-255 for RF12B, only 212 allowed for RF12).
 */
 static void rf12_initialize (uint8_t id, uint8_t band, uint8_t g) {
-    7588:	0f 93       	push	r16
-    758a:	1f 93       	push	r17
-    758c:	06 2f       	mov	r16, r22
-    758e:	14 2f       	mov	r17, r20
+    7a32:	0f 93       	push	r16
+    7a34:	1f 93       	push	r17
+    7a36:	18 2f       	mov	r17, r24
+    7a38:	06 2f       	mov	r16, r22
     nodeid = id;
-    7590:	80 93 00 01 	sts	0x0100, r24
+    7a3a:	80 93 31 02 	sts	0x0231, r24
     group = g;
-    7594:	40 93 01 01 	sts	0x0101, r20
+    7a3e:	60 93 32 02 	sts	0x0232, r22
+		P("RF12 id="); P_X8(id); P(" b="); P_X8(band); P(" g="); P_X8(g); P_LN();
+    7a42:	88 e2       	ldi	r24, 0x28	; 40
+    7a44:	91 e0       	ldi	r25, 0x01	; 1
+    7a46:	97 dd       	rcall	.-1234   	; 0x7576 <P>
+    7a48:	81 2f       	mov	r24, r17
+    7a4a:	a2 dd       	rcall	.-1212   	; 0x7590 <P_X8>
+    7a4c:	81 e3       	ldi	r24, 0x31	; 49
+    7a4e:	91 e0       	ldi	r25, 0x01	; 1
+    7a50:	92 dd       	rcall	.-1244   	; 0x7576 <P>
+    7a52:	82 e0       	ldi	r24, 0x02	; 2
+    7a54:	9d dd       	rcall	.-1222   	; 0x7590 <P_X8>
+    7a56:	85 e3       	ldi	r24, 0x35	; 53
+    7a58:	91 e0       	ldi	r25, 0x01	; 1
+    7a5a:	8d dd       	rcall	.-1254   	; 0x7576 <P>
+    7a5c:	80 2f       	mov	r24, r16
+    7a5e:	98 dd       	rcall	.-1232   	; 0x7590 <P_X8>
+    7a60:	95 dd       	rcall	.-1238   	; 0x758c <P_LN>
 
 volatile uint16_t rf12_crc;         // running crc value
 volatile uint8_t rf12_buf[RF_MAX];  // recv/xmit buf, including hdr & crc bytes
 
 static void spi_initialize () {
     bitSet(SS_PORT, SS_BIT);
-    7598:	2a 9a       	sbi	0x05, 2	; 5
+    7a62:	2a 9a       	sbi	0x05, 2	; 5
     bitSet(SS_DDR, SS_BIT);
-    759a:	22 9a       	sbi	0x04, 2	; 4
+    7a64:	22 9a       	sbi	0x04, 2	; 4
     // digitalWrite(SPI_SS, 1);
     bitSet(DDRB, 2);
-    759c:	22 9a       	sbi	0x04, 2	; 4
+    7a66:	22 9a       	sbi	0x04, 2	; 4
     // pinMode(SPI_SS, OUTPUT);
     // pinMode(SPI_MOSI, OUTPUT);
     // pinMode(SPI_MISO, INPUT);
     // pinMode(SPI_SCK, OUTPUT);
     DDRB |= bit(2) | bit(3) | bit(4) | bit(5);
-    759e:	84 b1       	in	r24, 0x04	; 4
-    75a0:	8c 63       	ori	r24, 0x3C	; 60
-    75a2:	84 b9       	out	0x04, r24	; 4
+    7a68:	84 b1       	in	r24, 0x04	; 4
+    7a6a:	8c 63       	ori	r24, 0x3C	; 60
+    7a6c:	84 b9       	out	0x04, r24	; 4
 #if F_CPU <= 10000000
     // clk/4 is ok for the RF12's SPI
     SPCR = _BV(SPE) | _BV(MSTR);
 #else
     // use clk/8 (2x 1/16th) to avoid exceeding RF12's SPI specs of 2.5 MHz
     SPCR = _BV(SPE) | _BV(MSTR) | _BV(SPR0);
-    75a4:	81 e5       	ldi	r24, 0x51	; 81
-    75a6:	8c bd       	out	0x2c, r24	; 44
+    7a6e:	81 e5       	ldi	r24, 0x51	; 81
+    7a70:	8c bd       	out	0x2c, r24	; 44
     SPSR |= _BV(SPI2X);
-    75a8:	8d b5       	in	r24, 0x2d	; 45
-    75aa:	81 60       	ori	r24, 0x01	; 1
-    75ac:	8d bd       	out	0x2d, r24	; 45
+    7a72:	8d b5       	in	r24, 0x2d	; 45
+    7a74:	81 60       	ori	r24, 0x01	; 1
+    7a76:	8d bd       	out	0x2d, r24	; 45
     
     spi_initialize();
-    
+
     // pinMode(RFM_IRQ, INPUT);
     // digitalWrite(RFM_IRQ, 1); // pull-up
     bitClear(RFM_IRQ_DDR, RFM_IRQ_BIT);
-    75ae:	52 98       	cbi	0x0a, 2	; 10
+    7a78:	52 98       	cbi	0x0a, 2	; 10
     bitSet(RFM_IRQ_PORT, RFM_IRQ_BIT);
-    75b0:	5a 9a       	sbi	0x0b, 2	; 11
+    7a7a:	5a 9a       	sbi	0x0b, 2	; 11
 
     rf12_xfer(0x0000); // intitial SPI transfer added to avoid power-up problem
-    75b2:	80 e0       	ldi	r24, 0x00	; 0
-    75b4:	90 e0       	ldi	r25, 0x00	; 0
-    75b6:	9a de       	rcall	.-716    	; 0x72ec <rf12_xfer>
+    7a7c:	80 e0       	ldi	r24, 0x00	; 0
+    7a7e:	90 e0       	ldi	r25, 0x00	; 0
+    7a80:	b0 dd       	rcall	.-1184   	; 0x75e2 <rf12_xfer>
 
     rf12_xfer(RF_SLEEP_MODE); // DC (disable clk pin), enable lbd
-    75b8:	85 e0       	ldi	r24, 0x05	; 5
-    75ba:	92 e8       	ldi	r25, 0x82	; 130
-    75bc:	97 de       	rcall	.-722    	; 0x72ec <rf12_xfer>
+    7a82:	85 e0       	ldi	r24, 0x05	; 5
+    7a84:	92 e8       	ldi	r25, 0x82	; 130
+    7a86:	ad dd       	rcall	.-1190   	; 0x75e2 <rf12_xfer>
     
     // wait until RFM12B is out of power-up reset, this takes several *seconds*
     rf12_xfer(RF_TXREG_WRITE); // in case we're still in OOK mode
-    75be:	80 e0       	ldi	r24, 0x00	; 0
-    75c0:	98 eb       	ldi	r25, 0xB8	; 184
-    75c2:	02 c0       	rjmp	.+4      	; 0x75c8 <rf12_initialize+0x40>
+    7a88:	80 e0       	ldi	r24, 0x00	; 0
+    7a8a:	98 eb       	ldi	r25, 0xB8	; 184
+    7a8c:	02 c0       	rjmp	.+4      	; 0x7a92 <rf12_initialize.clone.2+0x60>
     // while (digitalRead(RFM_IRQ) == 0)
     while (bitRead(RFM_IRQ_PIN, RFM_IRQ_BIT) == 0)
         rf12_xfer(0x0000);
-    75c4:	80 e0       	ldi	r24, 0x00	; 0
-    75c6:	90 e0       	ldi	r25, 0x00	; 0
-    75c8:	91 de       	rcall	.-734    	; 0x72ec <rf12_xfer>
+    7a8e:	80 e0       	ldi	r24, 0x00	; 0
+    7a90:	90 e0       	ldi	r25, 0x00	; 0
+    7a92:	a7 dd       	rcall	.-1202   	; 0x75e2 <rf12_xfer>
     rf12_xfer(RF_SLEEP_MODE); // DC (disable clk pin), enable lbd
     
     // wait until RFM12B is out of power-up reset, this takes several *seconds*
     rf12_xfer(RF_TXREG_WRITE); // in case we're still in OOK mode
     // while (digitalRead(RFM_IRQ) == 0)
     while (bitRead(RFM_IRQ_PIN, RFM_IRQ_BIT) == 0)
-    75ca:	4a 9b       	sbis	0x09, 2	; 9
-    75cc:	fb cf       	rjmp	.-10     	; 0x75c4 <rf12_initialize+0x3c>
+    7a94:	89 b1       	in	r24, 0x09	; 9
+    7a96:	82 ff       	sbrs	r24, 2
+    7a98:	fa cf       	rjmp	.-12     	; 0x7a8e <rf12_initialize.clone.2+0x5c>
         rf12_xfer(0x0000);
         
     rf12_xfer(0x80C7 | (band << 4)); // EL (ena TX), EF (ena RX FIFO), 12.0pF 
-    75ce:	80 2f       	mov	r24, r16
-    75d0:	90 e0       	ldi	r25, 0x00	; 0
-    75d2:	34 e0       	ldi	r19, 0x04	; 4
-    75d4:	88 0f       	add	r24, r24
-    75d6:	99 1f       	adc	r25, r25
-    75d8:	3a 95       	dec	r19
-    75da:	e1 f7       	brne	.-8      	; 0x75d4 <rf12_initialize+0x4c>
-    75dc:	87 6c       	ori	r24, 0xC7	; 199
-    75de:	90 68       	ori	r25, 0x80	; 128
-    75e0:	85 de       	rcall	.-758    	; 0x72ec <rf12_xfer>
+    7a9a:	87 ee       	ldi	r24, 0xE7	; 231
+    7a9c:	90 e8       	ldi	r25, 0x80	; 128
+    7a9e:	a1 dd       	rcall	.-1214   	; 0x75e2 <rf12_xfer>
     rf12_xfer(0xA640); // 868MHz 
-    75e2:	80 e4       	ldi	r24, 0x40	; 64
-    75e4:	96 ea       	ldi	r25, 0xA6	; 166
-    75e6:	82 de       	rcall	.-764    	; 0x72ec <rf12_xfer>
+    7aa0:	80 e4       	ldi	r24, 0x40	; 64
+    7aa2:	96 ea       	ldi	r25, 0xA6	; 166
+    7aa4:	9e dd       	rcall	.-1220   	; 0x75e2 <rf12_xfer>
     rf12_xfer(0xC606); // approx 49.2 Kbps, i.e. 10000/29/(1+6) Kbps
-    75e8:	86 e0       	ldi	r24, 0x06	; 6
-    75ea:	96 ec       	ldi	r25, 0xC6	; 198
-    75ec:	7f de       	rcall	.-770    	; 0x72ec <rf12_xfer>
+    7aa6:	86 e0       	ldi	r24, 0x06	; 6
+    7aa8:	96 ec       	ldi	r25, 0xC6	; 198
+    7aaa:	9b dd       	rcall	.-1226   	; 0x75e2 <rf12_xfer>
+#ifndef RF12_LOWPOWER
     rf12_xfer(0x94A2); // VDI,FAST,134kHz,0dBm,-91dBm 
-    75ee:	82 ea       	ldi	r24, 0xA2	; 162
-    75f0:	94 e9       	ldi	r25, 0x94	; 148
-    75f2:	7c de       	rcall	.-776    	; 0x72ec <rf12_xfer>
+    7aac:	82 ea       	ldi	r24, 0xA2	; 162
+    7aae:	94 e9       	ldi	r25, 0x94	; 148
+    7ab0:	98 dd       	rcall	.-1232   	; 0x75e2 <rf12_xfer>
+#else
+    rf12_xfer(0x94B2); // VDI,FAST,134kHz,-?dBm,-91dBm 
+#endif
     rf12_xfer(0xC2AC); // AL,!ml,DIG,DQD4 
-    75f4:	8c ea       	ldi	r24, 0xAC	; 172
-    75f6:	92 ec       	ldi	r25, 0xC2	; 194
-    75f8:	79 de       	rcall	.-782    	; 0x72ec <rf12_xfer>
+    7ab2:	8c ea       	ldi	r24, 0xAC	; 172
+    7ab4:	92 ec       	ldi	r25, 0xC2	; 194
+    7ab6:	95 dd       	rcall	.-1238   	; 0x75e2 <rf12_xfer>
     if (group != 0) {
-    75fa:	11 23       	and	r17, r17
-    75fc:	39 f0       	breq	.+14     	; 0x760c <rf12_initialize+0x84>
+    7ab8:	00 23       	and	r16, r16
+    7aba:	39 f0       	breq	.+14     	; 0x7aca <rf12_initialize.clone.2+0x98>
         rf12_xfer(0xCA83); // FIFO8,2-SYNC,!ff,DR 
-    75fe:	83 e8       	ldi	r24, 0x83	; 131
-    7600:	9a ec       	ldi	r25, 0xCA	; 202
-    7602:	74 de       	rcall	.-792    	; 0x72ec <rf12_xfer>
+    7abc:	83 e8       	ldi	r24, 0x83	; 131
+    7abe:	9a ec       	ldi	r25, 0xCA	; 202
+    7ac0:	90 dd       	rcall	.-1248   	; 0x75e2 <rf12_xfer>
         rf12_xfer(0xCE00 | group); // SYNC=2DXX； 
-    7604:	81 2f       	mov	r24, r17
-    7606:	90 e0       	ldi	r25, 0x00	; 0
-    7608:	9e 6c       	ori	r25, 0xCE	; 206
-    760a:	05 c0       	rjmp	.+10     	; 0x7616 <rf12_initialize+0x8e>
+    7ac2:	80 2f       	mov	r24, r16
+    7ac4:	90 e0       	ldi	r25, 0x00	; 0
+    7ac6:	9e 6c       	ori	r25, 0xCE	; 206
+    7ac8:	05 c0       	rjmp	.+10     	; 0x7ad4 <rf12_initialize.clone.2+0xa2>
     } else {
         rf12_xfer(0xCA8B); // FIFO8,1-SYNC,!ff,DR 
-    760c:	8b e8       	ldi	r24, 0x8B	; 139
-    760e:	9a ec       	ldi	r25, 0xCA	; 202
-    7610:	6d de       	rcall	.-806    	; 0x72ec <rf12_xfer>
+    7aca:	8b e8       	ldi	r24, 0x8B	; 139
+    7acc:	9a ec       	ldi	r25, 0xCA	; 202
+    7ace:	89 dd       	rcall	.-1262   	; 0x75e2 <rf12_xfer>
         rf12_xfer(0xCE2D); // SYNC=2D； 
-    7612:	8d e2       	ldi	r24, 0x2D	; 45
-    7614:	9e ec       	ldi	r25, 0xCE	; 206
-    7616:	6a de       	rcall	.-812    	; 0x72ec <rf12_xfer>
+    7ad0:	8d e2       	ldi	r24, 0x2D	; 45
+    7ad2:	9e ec       	ldi	r25, 0xCE	; 206
+    7ad4:	86 dd       	rcall	.-1268   	; 0x75e2 <rf12_xfer>
     }
     rf12_xfer(0xC483); // @PWR,NO RSTRIC,!st,!fi,OE,EN 
-    7618:	83 e8       	ldi	r24, 0x83	; 131
-    761a:	94 ec       	ldi	r25, 0xC4	; 196
-    761c:	67 de       	rcall	.-818    	; 0x72ec <rf12_xfer>
+    7ad6:	83 e8       	ldi	r24, 0x83	; 131
+    7ad8:	94 ec       	ldi	r25, 0xC4	; 196
+    7ada:	83 dd       	rcall	.-1274   	; 0x75e2 <rf12_xfer>
+#ifndef RF12_LOWPOWER
     rf12_xfer(0x9850); // !mp,90kHz,MAX OUT 
-    761e:	80 e5       	ldi	r24, 0x50	; 80
-    7620:	98 e9       	ldi	r25, 0x98	; 152
-    7622:	64 de       	rcall	.-824    	; 0x72ec <rf12_xfer>
+    7adc:	80 e5       	ldi	r24, 0x50	; 80
+    7ade:	98 e9       	ldi	r25, 0x98	; 152
+    7ae0:	80 dd       	rcall	.-1280   	; 0x75e2 <rf12_xfer>
+#else
+    rf12_xfer(0x9857); // !mp,90kHz,MIN OUT 
+#endif
     rf12_xfer(0xCC77); // OB1，OB0, LPX,！ddy，DDIT，BW0 
-    7624:	87 e7       	ldi	r24, 0x77	; 119
-    7626:	9c ec       	ldi	r25, 0xCC	; 204
-    7628:	61 de       	rcall	.-830    	; 0x72ec <rf12_xfer>
+    7ae2:	87 e7       	ldi	r24, 0x77	; 119
+    7ae4:	9c ec       	ldi	r25, 0xCC	; 204
+    7ae6:	7d dd       	rcall	.-1286   	; 0x75e2 <rf12_xfer>
     rf12_xfer(0xE000); // NOT USE 
-    762a:	80 e0       	ldi	r24, 0x00	; 0
-    762c:	90 ee       	ldi	r25, 0xE0	; 224
-    762e:	5e de       	rcall	.-836    	; 0x72ec <rf12_xfer>
+    7ae8:	80 e0       	ldi	r24, 0x00	; 0
+    7aea:	90 ee       	ldi	r25, 0xE0	; 224
+    7aec:	7a dd       	rcall	.-1292   	; 0x75e2 <rf12_xfer>
     rf12_xfer(0xC800); // NOT USE 
-    7630:	80 e0       	ldi	r24, 0x00	; 0
-    7632:	98 ec       	ldi	r25, 0xC8	; 200
-    7634:	5b de       	rcall	.-842    	; 0x72ec <rf12_xfer>
+    7aee:	80 e0       	ldi	r24, 0x00	; 0
+    7af0:	98 ec       	ldi	r25, 0xC8	; 200
+    7af2:	77 dd       	rcall	.-1298   	; 0x75e2 <rf12_xfer>
     rf12_xfer(0xC049); // 1.66MHz,3.1V 
-    7636:	89 e4       	ldi	r24, 0x49	; 73
-    7638:	90 ec       	ldi	r25, 0xC0	; 192
-    763a:	58 de       	rcall	.-848    	; 0x72ec <rf12_xfer>
+    7af4:	89 e4       	ldi	r24, 0x49	; 73
+    7af6:	90 ec       	ldi	r25, 0xC0	; 192
+    7af8:	74 dd       	rcall	.-1304   	; 0x75e2 <rf12_xfer>
 
     rxstate = TXIDLE;
-    763c:	84 e0       	ldi	r24, 0x04	; 4
-    763e:	80 93 03 01 	sts	0x0103, r24
+    7afa:	84 e0       	ldi	r24, 0x04	; 4
+    7afc:	80 93 2f 02 	sts	0x022F, r24
     // if ((nodeid & NODE_ID) != 0)
     //     attachInterrupt(0, rf12_interrupt, LOW);
     // else
     //     detachInterrupt(0);
 }
-    7642:	1f 91       	pop	r17
-    7644:	0f 91       	pop	r16
-    7646:	08 95       	ret
+    7b00:	1f 91       	pop	r17
+    7b02:	0f 91       	pop	r16
+    7b04:	08 95       	ret
 
-00007648 <rf12_sendWait>:
-  while (!rf12_canSend())
-    rf12_recvDone(); // keep the driver state machine going, ignore incoming
-  rf12_sendStart(hdr, ptr, len);
-}
-
-void rf12_sendWait(uint8_t mode) {
-    7648:	01 c0       	rjmp	.+2      	; 0x764c <rf12_sendWait+0x4>
-  while (rxstate < TXIDLE)
-    rf12_recvDone();
-    764a:	68 de       	rcall	.-816    	; 0x731c <rf12_recvDone>
-    rf12_recvDone(); // keep the driver state machine going, ignore incoming
-  rf12_sendStart(hdr, ptr, len);
-}
-
-void rf12_sendWait(uint8_t mode) {
-  while (rxstate < TXIDLE)
-    764c:	80 91 03 01 	lds	r24, 0x0103
-    7650:	84 30       	cpi	r24, 0x04	; 4
-    7652:	dc f3       	brlt	.-10     	; 0x764a <rf12_sendWait+0x2>
-    rf12_recvDone();
-}
-    7654:	08 95       	ret
-
-00007656 <calcCRC>:
-    *to++ = *from++;
-  return dst;
-}
-#endif
-
-static uint16_t calcCRC (const void* ptr, int len) {
-    7656:	dc 01       	movw	r26, r24
-    7658:	4f ef       	ldi	r20, 0xFF	; 255
-    765a:	5f ef       	ldi	r21, 0xFF	; 255
-    765c:	20 e0       	ldi	r18, 0x00	; 0
-    765e:	30 e0       	ldi	r19, 0x00	; 0
-    7660:	1d c0       	rjmp	.+58     	; 0x769c <calcCRC+0x46>
-    7662:	fd 01       	movw	r30, r26
-    7664:	e2 0f       	add	r30, r18
-    7666:	f3 1f       	adc	r31, r19
-    7668:	80 81       	ld	r24, Z
-  int crc = ~0;
-  for (uint16_t i = 0; i < len; ++i)
-    crc = _crc16_update(crc, ((const char*) ptr)[i]);
-    766a:	48 27       	eor	r20, r24
-    766c:	84 2f       	mov	r24, r20
-    766e:	82 95       	swap	r24
-    7670:	84 27       	eor	r24, r20
-    7672:	08 2e       	mov	r0, r24
-    7674:	86 95       	lsr	r24
-    7676:	86 95       	lsr	r24
-    7678:	80 25       	eor	r24, r0
-    767a:	08 2e       	mov	r0, r24
-    767c:	86 95       	lsr	r24
-    767e:	80 25       	eor	r24, r0
-    7680:	87 70       	andi	r24, 0x07	; 7
-    7682:	04 2e       	mov	r0, r20
-    7684:	45 2f       	mov	r20, r21
-    7686:	86 95       	lsr	r24
-    7688:	07 94       	ror	r0
-    768a:	87 95       	ror	r24
-    768c:	50 2d       	mov	r21, r0
-    768e:	48 27       	eor	r20, r24
-    7690:	06 94       	lsr	r0
-    7692:	87 95       	ror	r24
-    7694:	50 25       	eor	r21, r0
-    7696:	48 27       	eor	r20, r24
-}
-#endif
-
-static uint16_t calcCRC (const void* ptr, int len) {
-  int crc = ~0;
-  for (uint16_t i = 0; i < len; ++i)
-    7698:	2f 5f       	subi	r18, 0xFF	; 255
-    769a:	3f 4f       	sbci	r19, 0xFF	; 255
-    769c:	26 17       	cp	r18, r22
-    769e:	37 07       	cpc	r19, r23
-    76a0:	00 f3       	brcs	.-64     	; 0x7662 <calcCRC+0xc>
-    crc = _crc16_update(crc, ((const char*) ptr)[i]);
-  printf("crc %04X\n", crc);
-  return crc;
-}
-    76a2:	ca 01       	movw	r24, r20
-    76a4:	08 95       	ret
-
-000076a6 <copyPageToFlash>:
-  printf("iap erase %d,", e1); (void) e1;
-  iap_prepare_sector(sect, sect);
-  int e2 = iap_copy_ram_to_flash(ram, flash, PAGE_SIZE);
-  printf(" flash %d\n", e2); (void) e2;
-#endif
-}
-    76a6:	08 95       	ret
-
-000076a8 <saveConfig>:
-    memset(&config, 0, sizeof config);
-  }
-}
-
-static void saveConfig () {
-  config.version = 1;
-    76a8:	81 e0       	ldi	r24, 0x01	; 1
-    76aa:	90 e0       	ldi	r25, 0x00	; 0
-    76ac:	a0 e0       	ldi	r26, 0x00	; 0
-    76ae:	b0 e0       	ldi	r27, 0x00	; 0
-    76b0:	80 93 4f 01 	sts	0x014F, r24
-    76b4:	90 93 50 01 	sts	0x0150, r25
-    76b8:	a0 93 51 01 	sts	0x0151, r26
-    76bc:	b0 93 52 01 	sts	0x0152, r27
-  if (calcCRC(&config, sizeof config) != 0) {
-    76c0:	8f e4       	ldi	r24, 0x4F	; 79
-    76c2:	91 e0       	ldi	r25, 0x01	; 1
-    76c4:	60 e2       	ldi	r22, 0x20	; 32
-    76c6:	70 e0       	ldi	r23, 0x00	; 0
-    76c8:	c6 df       	rcall	.-116    	; 0x7656 <calcCRC>
-    76ca:	89 2b       	or	r24, r25
-    76cc:	49 f0       	breq	.+18     	; 0x76e0 <saveConfig+0x38>
-    config.check = calcCRC(&config, sizeof config - 2);
-    76ce:	8f e4       	ldi	r24, 0x4F	; 79
-    76d0:	91 e0       	ldi	r25, 0x01	; 1
-    76d2:	6e e1       	ldi	r22, 0x1E	; 30
-    76d4:	70 e0       	ldi	r23, 0x00	; 0
-    76d6:	bf df       	rcall	.-130    	; 0x7656 <calcCRC>
-    76d8:	90 93 6e 01 	sts	0x016E, r25
-    76dc:	80 93 6d 01 	sts	0x016D, r24
-    76e0:	08 95       	ret
-
-000076e2 <exponentialBackOff>:
-// it'll stick to the maximum 4.5 hour cycle once the limit has been reached
-// without server, this'll listen for 250 ms up to 85x/day = 21 s = 0.25% duty
-
-static void exponentialBackOff () {
-  printf("wait %d\n", 250 << beenackOffCounter);
-  sleep(250L << backOffCounter);
-    76e2:	80 91 4b 01 	lds	r24, 0x014B
-    76e6:	90 91 4c 01 	lds	r25, 0x014C
-  if (backOffCounter < 16)
-    76ea:	80 31       	cpi	r24, 0x10	; 16
-    76ec:	91 05       	cpc	r25, r1
-    76ee:	2c f4       	brge	.+10     	; 0x76fa <exponentialBackOff+0x18>
-    ++backOffCounter;
-    76f0:	01 96       	adiw	r24, 0x01	; 1
-    76f2:	90 93 4c 01 	sts	0x014C, r25
-    76f6:	80 93 4b 01 	sts	0x014B, r24
-    76fa:	08 95       	ret
-
-000076fc <appIsValid>:
-}
-
-static int appIsValid () {
-  return calcCRC(BASE_ADDR, config.swSize << 4) == config.swCheck;
-    76fc:	60 91 69 01 	lds	r22, 0x0169
-    7700:	70 91 6a 01 	lds	r23, 0x016A
-    7704:	44 e0       	ldi	r20, 0x04	; 4
-    7706:	66 0f       	add	r22, r22
-    7708:	77 1f       	adc	r23, r23
-    770a:	4a 95       	dec	r20
-    770c:	e1 f7       	brne	.-8      	; 0x7706 <appIsValid+0xa>
-    770e:	80 e0       	ldi	r24, 0x00	; 0
-    7710:	90 e1       	ldi	r25, 0x10	; 16
-    7712:	a1 df       	rcall	.-190    	; 0x7656 <calcCRC>
-    7714:	40 e0       	ldi	r20, 0x00	; 0
-    7716:	50 e0       	ldi	r21, 0x00	; 0
-    7718:	20 91 6b 01 	lds	r18, 0x016B
-    771c:	30 91 6c 01 	lds	r19, 0x016C
-    7720:	82 17       	cp	r24, r18
-    7722:	93 07       	cpc	r25, r19
-    7724:	11 f4       	brne	.+4      	; 0x772a <appIsValid+0x2e>
-    7726:	41 e0       	ldi	r20, 0x01	; 1
-    7728:	50 e0       	ldi	r21, 0x00	; 0
-}
-    772a:	ca 01       	movw	r24, r20
-    772c:	08 95       	ret
-
-0000772e <rf12_sendNow>:
-    //     attachInterrupt(0, rf12_interrupt, LOW);
-    // else
-    //     detachInterrupt(0);
-}
+00007b06 <rf12_sendNow>:
 
 void rf12_sendNow(uint8_t hdr, const void* ptr, uint8_t len) {
-    772e:	0f 93       	push	r16
-    7730:	1f 93       	push	r17
-    7732:	cf 93       	push	r28
-    7734:	df 93       	push	r29
-    7736:	18 2f       	mov	r17, r24
-    7738:	eb 01       	movw	r28, r22
-    773a:	04 2f       	mov	r16, r20
+    7b06:	0f 93       	push	r16
+    7b08:	1f 93       	push	r17
+    7b0a:	cf 93       	push	r28
+    7b0c:	df 93       	push	r29
+    7b0e:	18 2f       	mov	r17, r24
+    7b10:	eb 01       	movw	r28, r22
+    7b12:	04 2f       	mov	r16, r20
 }
 
 static uint8_t rf12_canSend () {
     // no need to test with interrupts disabled: state TXRECV is only reached
     // outside of ISR and we don't care if rxfill jumps from 0 to 1 here
     if (rxstate == TXRECV && rxfill == 0 &&
-    773c:	80 91 03 01 	lds	r24, 0x0103
-    7740:	85 30       	cpi	r24, 0x05	; 5
-    7742:	e1 f4       	brne	.+56     	; 0x777c <rf12_sendNow+0x4e>
-    7744:	80 91 02 01 	lds	r24, 0x0102
-    7748:	88 23       	and	r24, r24
-    774a:	c1 f4       	brne	.+48     	; 0x777c <rf12_sendNow+0x4e>
-    774c:	c9 dd       	rcall	.-1134   	; 0x72e0 <rf12_byte>
-    774e:	80 fd       	sbrc	r24, 0
-    7750:	15 c0       	rjmp	.+42     	; 0x777c <rf12_sendNow+0x4e>
+    7b14:	80 91 2f 02 	lds	r24, 0x022F
+    7b18:	85 30       	cpi	r24, 0x05	; 5
+    7b1a:	e1 f4       	brne	.+56     	; 0x7b54 <rf12_sendNow+0x4e>
+    7b1c:	80 91 30 02 	lds	r24, 0x0230
+    7b20:	88 23       	and	r24, r24
+    7b22:	c1 f4       	brne	.+48     	; 0x7b54 <rf12_sendNow+0x4e>
+            (rf12_byte(0x00) & (RF_RSSI_BIT >> 8)) == 0) {
+    7b24:	58 dd       	rcall	.-1360   	; 0x75d6 <rf12_byte>
+}
+
+static uint8_t rf12_canSend () {
+    // no need to test with interrupts disabled: state TXRECV is only reached
+    // outside of ISR and we don't care if rxfill jumps from 0 to 1 here
+    if (rxstate == TXRECV && rxfill == 0 &&
+    7b26:	80 fd       	sbrc	r24, 0
+    7b28:	15 c0       	rjmp	.+42     	; 0x7b54 <rf12_sendNow+0x4e>
             (rf12_byte(0x00) & (RF_RSSI_BIT >> 8)) == 0) {
         rf12_xfer(RF_IDLE_MODE); // stop receiver
-    7752:	8d e0       	ldi	r24, 0x0D	; 13
-    7754:	92 e8       	ldi	r25, 0x82	; 130
-    7756:	ca dd       	rcall	.-1132   	; 0x72ec <rf12_xfer>
+    7b2a:	8d e0       	ldi	r24, 0x0D	; 13
+    7b2c:	92 e8       	ldi	r25, 0x82	; 130
+    7b2e:	59 dd       	rcall	.-1358   	; 0x75e2 <rf12_xfer>
         //XXX just in case, don't know whether these RF12 reads are needed!
         // rf12_xfer(0x0000); // status register
         // rf12_xfer(RF_RX_FIFO_READ); // fifo read
         rxstate = TXIDLE;
-    7758:	84 e0       	ldi	r24, 0x04	; 4
-    775a:	80 93 03 01 	sts	0x0103, r24
+    7b30:	84 e0       	ldi	r24, 0x04	; 4
+    7b32:	80 93 2f 02 	sts	0x022F, r24
         rf12_grp = group;
-    775e:	80 91 01 01 	lds	r24, 0x0101
-    7762:	80 93 04 01 	sts	0x0104, r24
+    7b36:	80 91 32 02 	lds	r24, 0x0232
+    7b3a:	80 93 03 03 	sts	0x0303, r24
     }
     return 0;
 }
 
 static void rf12_sendStart (uint8_t hdr, const void* ptr, uint8_t len) {
     rf12_len = len;
-    7766:	00 93 06 01 	sts	0x0106, r16
+    7b3e:	00 93 05 03 	sts	0x0305, r16
     memcpy((void*) rf12_data, ptr, len);
-    776a:	40 2f       	mov	r20, r16
-    776c:	50 e0       	ldi	r21, 0x00	; 0
-    776e:	87 e0       	ldi	r24, 0x07	; 7
-    7770:	91 e0       	ldi	r25, 0x01	; 1
-    7772:	be 01       	movw	r22, r28
-    7774:	5a d0       	rcall	.+180    	; 0x782a <memcpy>
+    7b42:	40 2f       	mov	r20, r16
+    7b44:	50 e0       	ldi	r21, 0x00	; 0
+    7b46:	86 e0       	ldi	r24, 0x06	; 6
+    7b48:	93 e0       	ldi	r25, 0x03	; 3
+    7b4a:	be 01       	movw	r22, r28
+    7b4c:	dc d0       	rcall	.+440    	; 0x7d06 <memcpy>
     rf12_hdr = hdr & RF12_HDR_DST ? hdr :
-    7776:	16 ff       	sbrs	r17, 6
-    7778:	03 c0       	rjmp	.+6      	; 0x7780 <rf12_sendNow+0x52>
-    777a:	07 c0       	rjmp	.+14     	; 0x778a <rf12_sendNow+0x5c>
+    7b4e:	16 ff       	sbrs	r17, 6
+    7b50:	03 c0       	rjmp	.+6      	; 0x7b58 <rf12_sendNow+0x52>
+    7b52:	07 c0       	rjmp	.+14     	; 0x7b62 <rf12_sendNow+0x5c>
     //     detachInterrupt(0);
 }
 
 void rf12_sendNow(uint8_t hdr, const void* ptr, uint8_t len) {
   while (!rf12_canSend())
     rf12_recvDone(); // keep the driver state machine going, ignore incoming
-    777c:	cf dd       	rcall	.-1122   	; 0x731c <rf12_recvDone>
-    777e:	de cf       	rjmp	.-68     	; 0x773c <rf12_sendNow+0xe>
+    7b54:	61 dd       	rcall	.-1342   	; 0x7618 <rf12_recvDone>
+    7b56:	de cf       	rjmp	.-68     	; 0x7b14 <rf12_sendNow+0xe>
 }
 
 static void rf12_sendStart (uint8_t hdr, const void* ptr, uint8_t len) {
     rf12_len = len;
     memcpy((void*) rf12_data, ptr, len);
     rf12_hdr = hdr & RF12_HDR_DST ? hdr :
-    7780:	10 7e       	andi	r17, 0xE0	; 224
-    7782:	80 91 00 01 	lds	r24, 0x0100
-    7786:	8f 71       	andi	r24, 0x1F	; 31
-    7788:	18 0f       	add	r17, r24
-    778a:	10 93 05 01 	sts	0x0105, r17
+    7b58:	10 7e       	andi	r17, 0xE0	; 224
+    7b5a:	80 91 31 02 	lds	r24, 0x0231
+    7b5e:	8f 71       	andi	r24, 0x1F	; 31
+    7b60:	18 0f       	add	r17, r24
+    7b62:	10 93 04 03 	sts	0x0304, r17
                 (hdr & ~RF12_HDR_MASK) + (nodeid & NODE_ID);
     
     rf12_crc = ~0;
-    778e:	8f ef       	ldi	r24, 0xFF	; 255
-    7790:	9f ef       	ldi	r25, 0xFF	; 255
-    7792:	90 93 4e 01 	sts	0x014E, r25
-    7796:	80 93 4d 01 	sts	0x014D, r24
+    7b66:	8f ef       	ldi	r24, 0xFF	; 255
+    7b68:	9f ef       	ldi	r25, 0xFF	; 255
+    7b6a:	90 93 4b 03 	sts	0x034B, r25
+    7b6e:	80 93 4a 03 	sts	0x034A, r24
 #if RF12_VERSION >= 2
     rf12_crc = _crc16_update(rf12_crc, rf12_grp);
-    779a:	80 91 4d 01 	lds	r24, 0x014D
-    779e:	90 91 4e 01 	lds	r25, 0x014E
-    77a2:	20 91 04 01 	lds	r18, 0x0104
-    77a6:	82 27       	eor	r24, r18
-    77a8:	28 2f       	mov	r18, r24
-    77aa:	22 95       	swap	r18
-    77ac:	28 27       	eor	r18, r24
-    77ae:	02 2e       	mov	r0, r18
-    77b0:	26 95       	lsr	r18
-    77b2:	26 95       	lsr	r18
-    77b4:	20 25       	eor	r18, r0
-    77b6:	02 2e       	mov	r0, r18
-    77b8:	26 95       	lsr	r18
-    77ba:	20 25       	eor	r18, r0
-    77bc:	27 70       	andi	r18, 0x07	; 7
-    77be:	08 2e       	mov	r0, r24
-    77c0:	89 2f       	mov	r24, r25
-    77c2:	26 95       	lsr	r18
-    77c4:	07 94       	ror	r0
-    77c6:	27 95       	ror	r18
-    77c8:	90 2d       	mov	r25, r0
-    77ca:	82 27       	eor	r24, r18
-    77cc:	06 94       	lsr	r0
-    77ce:	27 95       	ror	r18
-    77d0:	90 25       	eor	r25, r0
-    77d2:	82 27       	eor	r24, r18
-    77d4:	90 93 4e 01 	sts	0x014E, r25
-    77d8:	80 93 4d 01 	sts	0x014D, r24
+    7b72:	80 91 4a 03 	lds	r24, 0x034A
+    7b76:	90 91 4b 03 	lds	r25, 0x034B
+    7b7a:	60 91 03 03 	lds	r22, 0x0303
+    7b7e:	8e dc       	rcall	.-1764   	; 0x749c <_crc16_update>
+    7b80:	90 93 4b 03 	sts	0x034B, r25
+    7b84:	80 93 4a 03 	sts	0x034A, r24
 #endif
     rxstate = TXPRE1;
-    77dc:	86 e0       	ldi	r24, 0x06	; 6
-    77de:	80 93 03 01 	sts	0x0103, r24
+    7b88:	86 e0       	ldi	r24, 0x06	; 6
+    7b8a:	80 93 2f 02 	sts	0x022F, r24
     rf12_xfer(RF_XMITTER_ON); // bytes will be fed via interrupts
-    77e2:	8d e3       	ldi	r24, 0x3D	; 61
-    77e4:	92 e8       	ldi	r25, 0x82	; 130
-    77e6:	82 dd       	rcall	.-1276   	; 0x72ec <rf12_xfer>
+    7b8e:	8d e3       	ldi	r24, 0x3D	; 61
+    7b90:	92 e8       	ldi	r25, 0x82	; 130
+    7b92:	27 dd       	rcall	.-1458   	; 0x75e2 <rf12_xfer>
 
 void rf12_sendNow(uint8_t hdr, const void* ptr, uint8_t len) {
   while (!rf12_canSend())
     rf12_recvDone(); // keep the driver state machine going, ignore incoming
   rf12_sendStart(hdr, ptr, len);
 }
-    77e8:	df 91       	pop	r29
-    77ea:	cf 91       	pop	r28
-    77ec:	1f 91       	pop	r17
-    77ee:	0f 91       	pop	r16
-    77f0:	08 95       	ret
+    7b94:	df 91       	pop	r29
+    7b96:	cf 91       	pop	r28
+    7b98:	1f 91       	pop	r17
+    7b9a:	0f 91       	pop	r16
+    7b9c:	08 95       	ret
 
-000077f2 <sendRequest>:
-  printf("\n");
+00007b9e <rf12_sendWait>:
+
+void rf12_sendWait(uint8_t mode) {
+  while (rxstate < TXIDLE)
+    7b9e:	01 c0       	rjmp	.+2      	; 0x7ba2 <rf12_sendWait+0x4>
+    rf12_recvDone();
+    7ba0:	3b dd       	rcall	.-1418   	; 0x7618 <rf12_recvDone>
+    rf12_recvDone(); // keep the driver state machine going, ignore incoming
+  rf12_sendStart(hdr, ptr, len);
 }
-#endif
+
+void rf12_sendWait(uint8_t mode) {
+  while (rxstate < TXIDLE)
+    7ba2:	80 91 2f 02 	lds	r24, 0x022F
+    7ba6:	84 30       	cpi	r24, 0x04	; 4
+    7ba8:	dc f3       	brlt	.-10     	; 0x7ba0 <rf12_sendWait+0x2>
+    rf12_recvDone();
+}
+    7baa:	08 95       	ret
+
+00007bac <sendRequest>:
+}
+
+//===== Communication =====
 
 // return 1 if good reply, 0 if crc error, -1 if timeout
 static int sendRequest (const void* buf, int len, int hdrOr) {
-    77f2:	9c 01       	movw	r18, r24
-    77f4:	fb 01       	movw	r30, r22
-    77f6:	ca 01       	movw	r24, r20
-  dump("send", buf, len);
-  // printf("sending %d b\n", len);
+    7bac:	ef 92       	push	r14
+    7bae:	ff 92       	push	r15
+    7bb0:	0f 93       	push	r16
+    7bb2:	1f 93       	push	r17
+    7bb4:	cf 93       	push	r28
+    7bb6:	df 93       	push	r29
+    7bb8:	ec 01       	movw	r28, r24
+    7bba:	8b 01       	movw	r16, r22
+    7bbc:	7a 01       	movw	r14, r20
+  P("SND "); P_X8(len); P("->");
+    7bbe:	89 e3       	ldi	r24, 0x39	; 57
+    7bc0:	91 e0       	ldi	r25, 0x01	; 1
+    7bc2:	d9 dc       	rcall	.-1614   	; 0x7576 <P>
+    7bc4:	80 2f       	mov	r24, r16
+    7bc6:	e4 dc       	rcall	.-1592   	; 0x7590 <P_X8>
+    7bc8:	8e e3       	ldi	r24, 0x3E	; 62
+    7bca:	91 e0       	ldi	r25, 0x01	; 1
+    7bcc:	d4 dc       	rcall	.-1624   	; 0x7576 <P>
   rf12_sendNow(RF12_HDR_CTL | RF12_HDR_ACK | hdrOr, buf, len);
-    77f8:	80 6a       	ori	r24, 0xA0	; 160
-    77fa:	b9 01       	movw	r22, r18
-    77fc:	4e 2f       	mov	r20, r30
-    77fe:	97 df       	rcall	.-210    	; 0x772e <rf12_sendNow>
+    7bce:	8e 2d       	mov	r24, r14
+    7bd0:	80 6a       	ori	r24, 0xA0	; 160
+    7bd2:	be 01       	movw	r22, r28
+    7bd4:	40 2f       	mov	r20, r16
+    7bd6:	97 df       	rcall	.-210    	; 0x7b06 <rf12_sendNow>
   rf12_sendWait(0);
-    7800:	80 e0       	ldi	r24, 0x00	; 0
-    7802:	22 df       	rcall	.-444    	; 0x7648 <rf12_sendWait>
-  uint32_t now = millis();
+    7bd8:	80 e0       	ldi	r24, 0x00	; 0
+    7bda:	e1 df       	rcall	.-62     	; 0x7b9e <rf12_sendWait>
+	timer_start(250); // arm timer for 250ms
+    7bdc:	8a ef       	ldi	r24, 0xFA	; 250
+    7bde:	90 e0       	ldi	r25, 0x00	; 0
+    7be0:	75 dc       	rcall	.-1814   	; 0x74cc <timer_start>
   while (!rf12_recvDone() || rf12_len == 0) // TODO: 0-check to avoid std acks?
-    7804:	8b dd       	rcall	.-1258   	; 0x731c <rf12_recvDone>
-    7806:	88 23       	and	r24, r24
-    7808:	e9 f3       	breq	.-6      	; 0x7804 <sendRequest+0x12>
-    780a:	80 91 06 01 	lds	r24, 0x0106
-    780e:	88 23       	and	r24, r24
-    7810:	c9 f3       	breq	.-14     	; 0x7804 <sendRequest+0x12>
-    if ((millis() - now) >= 250) {
-      printf("timed out\n");
+    7be2:	09 c0       	rjmp	.+18     	; 0x7bf6 <sendRequest+0x4a>
+    if (timer_done()) {
+    7be4:	91 dc       	rcall	.-1758   	; 0x7508 <timer_done>
+    7be6:	88 23       	and	r24, r24
+    7be8:	31 f0       	breq	.+12     	; 0x7bf6 <sendRequest+0x4a>
+      P("timeout\n");
+    7bea:	81 e4       	ldi	r24, 0x41	; 65
+    7bec:	91 e0       	ldi	r25, 0x01	; 1
+    7bee:	c3 dc       	rcall	.-1658   	; 0x7576 <P>
+      return -1;
+    7bf0:	8f ef       	ldi	r24, 0xFF	; 255
+    7bf2:	9f ef       	ldi	r25, 0xFF	; 255
+    7bf4:	25 c0       	rjmp	.+74     	; 0x7c40 <sendRequest+0x94>
+static int sendRequest (const void* buf, int len, int hdrOr) {
+  P("SND "); P_X8(len); P("->");
+  rf12_sendNow(RF12_HDR_CTL | RF12_HDR_ACK | hdrOr, buf, len);
+  rf12_sendWait(0);
+	timer_start(250); // arm timer for 250ms
+  while (!rf12_recvDone() || rf12_len == 0) // TODO: 0-check to avoid std acks?
+    7bf6:	10 dd       	rcall	.-1504   	; 0x7618 <rf12_recvDone>
+    7bf8:	88 23       	and	r24, r24
+    7bfa:	a1 f3       	breq	.-24     	; 0x7be4 <sendRequest+0x38>
+    7bfc:	80 91 05 03 	lds	r24, 0x0305
+    7c00:	88 23       	and	r24, r24
+    7c02:	81 f3       	breq	.-32     	; 0x7be4 <sendRequest+0x38>
+    if (timer_done()) {
+      P("timeout\n");
       return -1;
     }
   if (rf12_crc) {
-    7812:	80 91 4d 01 	lds	r24, 0x014D
-    7816:	90 91 4e 01 	lds	r25, 0x014E
-    781a:	20 e0       	ldi	r18, 0x00	; 0
-    781c:	30 e0       	ldi	r19, 0x00	; 0
-    781e:	89 2b       	or	r24, r25
-    7820:	11 f4       	brne	.+4      	; 0x7826 <sendRequest+0x34>
-    7822:	21 e0       	ldi	r18, 0x01	; 1
-    7824:	30 e0       	ldi	r19, 0x00	; 0
+    7c04:	80 91 4a 03 	lds	r24, 0x034A
+    7c08:	90 91 4b 03 	lds	r25, 0x034B
+    7c0c:	00 97       	sbiw	r24, 0x00	; 0
+    7c0e:	61 f0       	breq	.+24     	; 0x7c28 <sendRequest+0x7c>
+    P("bad crc "); P_X16(rf12_crc); P_LN();
+    7c10:	8a e4       	ldi	r24, 0x4A	; 74
+    7c12:	91 e0       	ldi	r25, 0x01	; 1
+    7c14:	b0 dc       	rcall	.-1696   	; 0x7576 <P>
+    7c16:	80 91 4a 03 	lds	r24, 0x034A
+    7c1a:	90 91 4b 03 	lds	r25, 0x034B
+    7c1e:	cc dc       	rcall	.-1640   	; 0x75b8 <P_X16>
+    7c20:	b5 dc       	rcall	.-1686   	; 0x758c <P_LN>
     return 0;
+    7c22:	80 e0       	ldi	r24, 0x00	; 0
+    7c24:	90 e0       	ldi	r25, 0x00	; 0
+    7c26:	0c c0       	rjmp	.+24     	; 0x7c40 <sendRequest+0x94>
   }
-  printf("got %d b hdr 0x%X crc %X\n", rf12_len, rf12_hdr, rf12_crc);
-  dump("recv", (const uint8_t*) rf12_data, rf12_len);
+  P_X8(rf12_len); P(" hdr="); P_X8(rf12_hdr); P_LN();
+    7c28:	80 91 05 03 	lds	r24, 0x0305
+    7c2c:	b1 dc       	rcall	.-1694   	; 0x7590 <P_X8>
+    7c2e:	83 e5       	ldi	r24, 0x53	; 83
+    7c30:	91 e0       	ldi	r25, 0x01	; 1
+    7c32:	a1 dc       	rcall	.-1726   	; 0x7576 <P>
+    7c34:	80 91 04 03 	lds	r24, 0x0304
+    7c38:	ab dc       	rcall	.-1706   	; 0x7590 <P_X8>
+    7c3a:	a8 dc       	rcall	.-1712   	; 0x758c <P_LN>
   return 1;
+    7c3c:	81 e0       	ldi	r24, 0x01	; 1
+    7c3e:	90 e0       	ldi	r25, 0x00	; 0
 }
-    7826:	c9 01       	movw	r24, r18
-    7828:	08 95       	ret
+    7c40:	df 91       	pop	r29
+    7c42:	cf 91       	pop	r28
+    7c44:	1f 91       	pop	r17
+    7c46:	0f 91       	pop	r16
+    7c48:	ff 90       	pop	r15
+    7c4a:	ef 90       	pop	r14
+    7c4c:	08 95       	ret
 
-0000782a <memcpy>:
-    782a:	fb 01       	movw	r30, r22
-    782c:	dc 01       	movw	r26, r24
-    782e:	02 c0       	rjmp	.+4      	; 0x7834 <memcpy+0xa>
-    7830:	01 90       	ld	r0, Z+
-    7832:	0d 92       	st	X+, r0
-    7834:	41 50       	subi	r20, 0x01	; 1
-    7836:	50 40       	sbci	r21, 0x00	; 0
-    7838:	d8 f7       	brcc	.-10     	; 0x7830 <memcpy+0x6>
-    783a:	08 95       	ret
+00007c4e <__mulsi3>:
+    7c4e:	62 9f       	mul	r22, r18
+    7c50:	d0 01       	movw	r26, r0
+    7c52:	73 9f       	mul	r23, r19
+    7c54:	f0 01       	movw	r30, r0
+    7c56:	82 9f       	mul	r24, r18
+    7c58:	e0 0d       	add	r30, r0
+    7c5a:	f1 1d       	adc	r31, r1
+    7c5c:	64 9f       	mul	r22, r20
+    7c5e:	e0 0d       	add	r30, r0
+    7c60:	f1 1d       	adc	r31, r1
+    7c62:	92 9f       	mul	r25, r18
+    7c64:	f0 0d       	add	r31, r0
+    7c66:	83 9f       	mul	r24, r19
+    7c68:	f0 0d       	add	r31, r0
+    7c6a:	74 9f       	mul	r23, r20
+    7c6c:	f0 0d       	add	r31, r0
+    7c6e:	65 9f       	mul	r22, r21
+    7c70:	f0 0d       	add	r31, r0
+    7c72:	99 27       	eor	r25, r25
+    7c74:	72 9f       	mul	r23, r18
+    7c76:	b0 0d       	add	r27, r0
+    7c78:	e1 1d       	adc	r30, r1
+    7c7a:	f9 1f       	adc	r31, r25
+    7c7c:	63 9f       	mul	r22, r19
+    7c7e:	b0 0d       	add	r27, r0
+    7c80:	e1 1d       	adc	r30, r1
+    7c82:	f9 1f       	adc	r31, r25
+    7c84:	bd 01       	movw	r22, r26
+    7c86:	cf 01       	movw	r24, r30
+    7c88:	11 24       	eor	r1, r1
+    7c8a:	08 95       	ret
+
+00007c8c <__divmodsi4>:
+    7c8c:	97 fb       	bst	r25, 7
+    7c8e:	09 2e       	mov	r0, r25
+    7c90:	05 26       	eor	r0, r21
+    7c92:	0e d0       	rcall	.+28     	; 0x7cb0 <__divmodsi4_neg1>
+    7c94:	57 fd       	sbrc	r21, 7
+    7c96:	04 d0       	rcall	.+8      	; 0x7ca0 <__divmodsi4_neg2>
+    7c98:	14 d0       	rcall	.+40     	; 0x7cc2 <__udivmodsi4>
+    7c9a:	0a d0       	rcall	.+20     	; 0x7cb0 <__divmodsi4_neg1>
+    7c9c:	00 1c       	adc	r0, r0
+    7c9e:	38 f4       	brcc	.+14     	; 0x7cae <__divmodsi4_exit>
+
+00007ca0 <__divmodsi4_neg2>:
+    7ca0:	50 95       	com	r21
+    7ca2:	40 95       	com	r20
+    7ca4:	30 95       	com	r19
+    7ca6:	21 95       	neg	r18
+    7ca8:	3f 4f       	sbci	r19, 0xFF	; 255
+    7caa:	4f 4f       	sbci	r20, 0xFF	; 255
+    7cac:	5f 4f       	sbci	r21, 0xFF	; 255
+
+00007cae <__divmodsi4_exit>:
+    7cae:	08 95       	ret
+
+00007cb0 <__divmodsi4_neg1>:
+    7cb0:	f6 f7       	brtc	.-4      	; 0x7cae <__divmodsi4_exit>
+    7cb2:	90 95       	com	r25
+    7cb4:	80 95       	com	r24
+    7cb6:	70 95       	com	r23
+    7cb8:	61 95       	neg	r22
+    7cba:	7f 4f       	sbci	r23, 0xFF	; 255
+    7cbc:	8f 4f       	sbci	r24, 0xFF	; 255
+    7cbe:	9f 4f       	sbci	r25, 0xFF	; 255
+    7cc0:	08 95       	ret
+
+00007cc2 <__udivmodsi4>:
+    7cc2:	a1 e2       	ldi	r26, 0x21	; 33
+    7cc4:	1a 2e       	mov	r1, r26
+    7cc6:	aa 1b       	sub	r26, r26
+    7cc8:	bb 1b       	sub	r27, r27
+    7cca:	fd 01       	movw	r30, r26
+    7ccc:	0d c0       	rjmp	.+26     	; 0x7ce8 <__udivmodsi4_ep>
+
+00007cce <__udivmodsi4_loop>:
+    7cce:	aa 1f       	adc	r26, r26
+    7cd0:	bb 1f       	adc	r27, r27
+    7cd2:	ee 1f       	adc	r30, r30
+    7cd4:	ff 1f       	adc	r31, r31
+    7cd6:	a2 17       	cp	r26, r18
+    7cd8:	b3 07       	cpc	r27, r19
+    7cda:	e4 07       	cpc	r30, r20
+    7cdc:	f5 07       	cpc	r31, r21
+    7cde:	20 f0       	brcs	.+8      	; 0x7ce8 <__udivmodsi4_ep>
+    7ce0:	a2 1b       	sub	r26, r18
+    7ce2:	b3 0b       	sbc	r27, r19
+    7ce4:	e4 0b       	sbc	r30, r20
+    7ce6:	f5 0b       	sbc	r31, r21
+
+00007ce8 <__udivmodsi4_ep>:
+    7ce8:	66 1f       	adc	r22, r22
+    7cea:	77 1f       	adc	r23, r23
+    7cec:	88 1f       	adc	r24, r24
+    7cee:	99 1f       	adc	r25, r25
+    7cf0:	1a 94       	dec	r1
+    7cf2:	69 f7       	brne	.-38     	; 0x7cce <__udivmodsi4_loop>
+    7cf4:	60 95       	com	r22
+    7cf6:	70 95       	com	r23
+    7cf8:	80 95       	com	r24
+    7cfa:	90 95       	com	r25
+    7cfc:	9b 01       	movw	r18, r22
+    7cfe:	ac 01       	movw	r20, r24
+    7d00:	bd 01       	movw	r22, r26
+    7d02:	cf 01       	movw	r24, r30
+    7d04:	08 95       	ret
+
+00007d06 <memcpy>:
+    7d06:	fb 01       	movw	r30, r22
+    7d08:	dc 01       	movw	r26, r24
+    7d0a:	02 c0       	rjmp	.+4      	; 0x7d10 <memcpy+0xa>
+    7d0c:	01 90       	ld	r0, Z+
+    7d0e:	0d 92       	st	X+, r0
+    7d10:	41 50       	subi	r20, 0x01	; 1
+    7d12:	50 40       	sbci	r21, 0x00	; 0
+    7d14:	d8 f7       	brcc	.-10     	; 0x7d0c <memcpy+0x6>
+    7d16:	08 95       	ret
+
+00007d18 <memset>:
+    7d18:	dc 01       	movw	r26, r24
+    7d1a:	01 c0       	rjmp	.+2      	; 0x7d1e <memset+0x6>
+    7d1c:	6d 93       	st	X+, r22
+    7d1e:	41 50       	subi	r20, 0x01	; 1
+    7d20:	50 40       	sbci	r21, 0x00	; 0
+    7d22:	e0 f7       	brcc	.-8      	; 0x7d1c <memset+0x4>
+    7d24:	08 95       	ret

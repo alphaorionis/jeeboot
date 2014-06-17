@@ -10,12 +10,14 @@
 
 // struct { const char* title; unsigned start, off, count; } sections[];
 // const unsigned char progdata[] PROGMEM = ...
-#include "data_blinks.h"
+#include "blink.h"
 
 #define BOOT_DATA_MAX 64
 #include "packet.h"
 
 #define DEBUG 1
+
+byte newId = 0;
 
 static word calcCRC (const void* ptr, word len) {
   word crc = ~0;
@@ -55,18 +57,24 @@ void setup () {
 #define THROTTLE 5
 
 void loop () {
-	// boot loader request packets haev a special header with CTL *and* ACK set
-  if (rf12_recvDone() && rf12_crc == 0 &&
-      (rf12_hdr & RF12_HDR_CTL) && (rf12_hdr & RF12_HDR_ACK)) {
-    switch (rf12_len) {
-      default:
-        Serial.print(F("bad length: "));
+    // boot loader request packets haev a special header with CTL *and* ACK set
+  if (rf12_recvDone()) {    
+    Serial.println("received packet");
+    
+    if (rf12_crc == 0) {      
+      Serial.println("crc ok");
+      
+      if ((rf12_hdr & RF12_HDR_CTL) && (rf12_hdr & RF12_HDR_ACK)) {
+        Serial.println("headers ok");
         Serial.println(rf12_len);
-        break;
+        
+    switch (rf12_len) {
         
       case 22: { // packets of length 22 are pairing requests
+        Serial.print(F("pairing request received, nodeId: "));
         struct PairingRequest *reqp = (struct PairingRequest*) rf12_data;
-        Serial.print(F("announce type 0x"));
+        Serial.print(reqp->nodeId);
+        Serial.print(F(" announce type 0x"));
         Serial.print(reqp->type, HEX);
         Serial.print(F(" hwId "));
         for (byte i = 0; i < 16; ++i)
@@ -86,11 +94,18 @@ void loop () {
       }
       
       case 8: { // packets of length 8 are upgrade requests
+        Serial.print(F("upgrade request received "));
         struct UpgradeRequest *reqp = (struct UpgradeRequest*) rf12_data;
         Serial.print(F("boot swId 0x"));
         Serial.println(reqp->swId, HEX);
-        // const byte maxSections = sizeof sections / sizeof *sections;
-        byte newId = ((reqp->type >> 8) - 1) * 3 + (reqp->swId + 1) % 3;
+        switch (newId) {
+          case 0:
+        newId = 1;
+        break;
+          case 1:
+        newId = 0;
+        break;
+        }
         Serial.print(F(" -> newId "));
         Serial.println(newId);
         static struct UpgradeReply reply;
@@ -99,13 +114,14 @@ void loop () {
         reply.swId = newId;
         reply.swSize = (sections[newId].count + 15) >> 4;
         reply.swCheck =  calcCRCrom(progdata + sections[newId].off,
-                                                    reply.swSize << 4);
+                                                reply.swSize << 4);
         delay(THROTTLE);
         rf12_sendNow(RF12_HDR_DST | 17, &reply, sizeof reply);
         break;
       }
       
       case 4: { // packets of length 4 are download requests
+        Serial.print(F("download request received "));
         struct DownloadRequest *reqp = (struct DownloadRequest*) rf12_data;
         Serial.print(F("data swId "));
         Serial.print(reqp->swId);
@@ -119,15 +135,22 @@ void loop () {
         for (byte i = 0; i < BOOT_DATA_MAX; ++i)
           reply.data[i] = pgm_read_byte(progdata + off + i) ^ (211 * i);
         // introduce random errors in the blue code section by not responding
-        static byte random = 1;
-        if (reqId == 2) {
-          random *= 211;
-          if (random >= 128)
-            break; // no reply
-        }
+        // static byte random = 1;
+        // if (reqId == 2) {
+        //   random *= 211;
+        //   if (random >= 128)
+        //     break; // no reply
+        // }
         delay(THROTTLE);
         rf12_sendNow(RF12_HDR_DST | 17, &reply, sizeof reply);
         break;
+      }
+      
+      default:
+        Serial.print(F("bad length: "));
+        Serial.println(rf12_len);
+        break;
+    }
       }
     }
   }

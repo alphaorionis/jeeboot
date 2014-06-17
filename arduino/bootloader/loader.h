@@ -149,7 +149,23 @@ static void loadConfig () {
 	// calculate checksum to verify it's valid
   if (calcCRC(&config, sizeof config) != 0) {
     P("DEF!\n");
+    P("/nconfig.version: ");
+	P_X8(config.version);
+	P("/nconfig.nodeId: ");
+	P_X8(config.nodeId);
+	P("/nconfig.shKey: ");
+	for (uint8_t i = 0; i < 16; i++) {
+	  P_X8(config.shKey[i]);
+	}
     memset(&config, 0, sizeof config);
+    P("/nconfig.version: ");
+	P_X8(config.version);
+	P("/nconfig.nodeId: ");
+	P_X8(config.nodeId);
+	P("/nconfig.shKey: ");
+	for (uint8_t i = 0; i < 16; i++) {
+	  P_X8(config.shKey[i]);
+	}
   }
 }
 
@@ -172,6 +188,9 @@ static void saveConfig () {
 //===== Pairing =====
 
 static void sendPairingCheck () {
+  if (calcCRC(&config, sizeof config) != 0) {
+    P("CRC faulty!\n");
+  }
 	// form the pairing request message
   struct PairingRequest request;
   request.type = REMOTE_TYPE;
@@ -218,9 +237,9 @@ static int sendUpgradeCheck () {
     config.swSize = reply->swSize;
     config.swCheck = reply->swCheck;
     saveConfig();
-		//P("sw: id="); P_X16(config.swId); P(" sz="); P_X16(config.swSize);
-		//P(" crc="); P_X16(config.swCheck); P_LN();
-		//P("config @0x"); P_A(&config, sizeof(config));
+	P("upgrade sw: id="); P_X16(config.swId); P(" sz="); P_X16(config.swSize);
+	P(" crc="); P_X16(config.swCheck); P_LN();
+	P("config @0x"); P_A(&config, sizeof(config));
     return 1;
   }
   return 0;
@@ -253,6 +272,9 @@ static int sendDownloadRequest (int index) {
 
 static void bootLoaderLogic () {
   loadConfig();
+	P("load sw: id="); P_X16(config.swId); P(" sz="); P_X16(config.swSize);
+	P(" crc="); P_X16(config.swCheck); P_LN();
+	P("config @0x"); P_A(&config, sizeof(config));
 
 top:
   
